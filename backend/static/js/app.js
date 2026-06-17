@@ -1,4 +1,4 @@
-const API_URL = 'https://constant-harmonize-situated.ngrok-free.dev/api';
+const API_URL = 'https://golden-shark-barber.onrender.com/api';
 let diasDisponibles = [];
 let diaSeleccionado = null;
 let horaSeleccionada = null;
