@@ -1,0 +1,523 @@
+/* ========================================
+   HERO CITA
+   ======================================== */
+
+.hero-cita {
+    height: 250px;
+    background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+}
+
+.hero-cita h1 {
+    font-size: 42px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.hero-cita p {
+    font-size: 16px;
+    color: #d4af37;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ========================================
+   CITA CONTAINER
+   ======================================== */
+
+.cita-container {
+    max-width: 900px;
+    margin: 60px auto;
+    padding: 0 20px;
+}
+
+.cita-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 40px;
+}
+
+/* ========================================
+   DETALLES DE LA CITA
+   ======================================== */
+
+.cita-detalles {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 40px;
+    border-left: 4px solid #d4af37;
+}
+
+.cita-detalles h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.cita-info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.cita-info-item:last-child {
+    border-bottom: none;
+}
+
+.cita-info-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.cita-info-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #000;
+}
+
+.cita-info-value.precio {
+    color: #d4af37;
+    font-size: 24px;
+}
+
+.cita-status {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 20px;
+}
+
+.cita-status.confirmada {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.cita-status.completada {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.cita-status.cancelada {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* ========================================
+   MAPA
+   ======================================== */
+
+.cita-mapa {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 40px 20px;
+    text-align: center;
+    border: 2px solid #e0e0e0;
+}
+
+.cita-mapa h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.mapa-placeholder {
+    width: 100%;
+    height: 300px;
+    background: linear-gradient(135deg, #333 0%, #666 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #999;
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+
+.cita-mapa p {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.cita-mapa a {
+    color: #d4af37;
+    font-weight: 600;
+}
+
+/* ========================================
+   BOTONES DE ACCIÓN
+   ======================================== */
+
+.cita-acciones {
+    display: flex;
+    gap: 15px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+}
+
+.btn-accion {
+    padding: 14px 30px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid;
+    flex: 1;
+    text-align: center;
+    min-width: 150px;
+}
+
+.btn-accion.primary {
+    background-color: #d4af37;
+    color: #000;
+    border-color: #d4af37;
+}
+
+.btn-accion.primary:hover {
+    background-color: #000;
+    color: #d4af37;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+.btn-accion.danger {
+    background-color: #dc3545;
+    color: #fff;
+    border-color: #dc3545;
+}
+
+.btn-accion.danger:hover {
+    background-color: #c82333;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+/* ========================================
+   MODAL
+   ======================================== */
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.modal-content p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.modal-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.modal-btn.confirm {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.modal-btn.confirm:hover {
+    background-color: #c82333;
+}
+
+.modal-btn.cancel {
+    background-color: #ddd;
+    color: #000;
+}
+
+.modal-btn.cancel:hover {
+    background-color: #ccc;
+}
+
+/* ========================================
+   MENSAJE DE ÉXITO/ERROR
+   ======================================== */
+
+.mensaje {
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.mensaje.exito {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.mensaje.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ========================================
+   CTA
+   ======================================== */
+
+.cita-cta {
+    padding: 60px 20px;
+    background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+    color: white;
+    text-align: center;
+    margin-top: 80px;
+}
+
+.cita-cta h2 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.cita-cta p {
+    font-size: 16px;
+    margin-bottom: 25px;
+    color: #ddd;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 1024px) {
+    .cita-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cita-detalles {
+        padding: 30px;
+    }
+
+    .mapa-placeholder {
+        height: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-cita h1 {
+        font-size: 32px;
+    }
+
+    .cita-container {
+        margin: 40px auto;
+    }
+
+    .cita-detalles h2 {
+        font-size: 24px;
+    }
+
+    .cita-info-item {
+        padding: 15px 0;
+    }
+
+    .cita-info-label {
+        font-size: 12px;
+    }
+
+    .cita-info-value {
+        font-size: 16px;
+    }
+
+    .cita-mapa {
+        padding: 30px 20px;
+    }
+
+    .mapa-placeholder {
+        height: 200px;
+        font-size: 14px;
+    }
+
+    .cita-acciones {
+        gap: 10px;
+    }
+
+    .btn-accion {
+        padding: 12px 20px;
+        font-size: 11px;
+        min-width: 120px;
+    }
+
+    .modal-content {
+        padding: 30px 20px;
+    }
+
+    .cita-cta h2 {
+        font-size: 26px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-cita {
+        height: 200px;
+    }
+
+    .hero-cita h1 {
+        font-size: 24px;
+    }
+
+    .hero-cita p {
+        font-size: 13px;
+    }
+
+    .cita-container {
+        margin: 30px auto;
+        padding: 0 15px;
+    }
+
+    .cita-detalles {
+        padding: 20px 15px;
+    }
+
+    .cita-detalles h2 {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+
+    .cita-info-item {
+        padding: 12px 0;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    .cita-info-label {
+        font-size: 11px;
+    }
+
+    .cita-info-value {
+        font-size: 14px;
+    }
+
+    .cita-info-value.precio {
+        font-size: 20px;
+    }
+
+    .cita-mapa {
+        padding: 20px 15px;
+    }
+
+    .cita-mapa h3 {
+        font-size: 16px;
+    }
+
+    .mapa-placeholder {
+        height: 180px;
+        font-size: 12px;
+    }
+
+    .cita-acciones {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .btn-accion {
+        padding: 12px 20px;
+        font-size: 10px;
+        min-width: unset;
+    }
+
+    .modal-content {
+        padding: 25px 15px;
+        width: 95%;
+    }
+
+    .modal-content h3 {
+        font-size: 20px;
+    }
+
+    .modal-content p {
+        font-size: 13px;
+    }
+
+    .cita-cta {
+        padding: 40px 15px;
+        margin-top: 60px;
+    }
+
+    .cita-cta h2 {
+        font-size: 22px;
+    }
+
+    .cita-cta p {
+        font-size: 14px;
+    }
+}

@@ -1,0 +1,435 @@
+/* ========================================
+   RESET Y ESTILOS GENERALES
+   ======================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    color: #333;
+    line-height: 1.6;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+}
+
+button {
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+/* ========================================
+   NAVBAR
+   ======================================== */
+
+.navbar {
+    background-color: #000;
+    padding: 15px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    width: 100%;
+}
+
+.navbar-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.logo {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.logo-img {
+    height: 60px;
+    width: auto;
+    object-fit: contain;
+    transition: all 0.3s ease;
+}
+
+.logo-img:hover {
+    filter: brightness(1.1);
+    transform: scale(1.05);
+}
+
+/* HAMBURGER MENU */
+.hamburger {
+    display: none;
+    background: none;
+    border: none;
+    color: #d4af37;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 5px;
+    line-height: 1;
+    z-index: 1001;
+}
+
+.hamburger:hover {
+    color: #fff;
+}
+
+/* NAV MENU */
+.nav-menu {
+    list-style: none;
+    display: flex;
+    gap: 40px;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+}
+
+.nav-menu li {
+    margin: 0;
+    padding: 0;
+}
+
+.nav-menu a {
+    color: #999;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    display: inline-block;
+}
+
+.nav-menu a:hover,
+.nav-menu a.active {
+    color: #d4af37;
+}
+
+.nav-menu a::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #d4af37;
+    transition: width 0.3s ease;
+}
+
+.nav-menu a:hover::after,
+.nav-menu a.active::after {
+    width: 100%;
+}
+
+/* NAV BUTTONS */
+.nav-buttons {
+    flex-shrink: 0;
+}
+
+.btn-book {
+    background-color: #d4af37;
+    color: #000;
+    padding: 12px 30px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 2px solid #d4af37;
+    white-space: nowrap;
+}
+
+.btn-book:hover {
+    background-color: transparent;
+    color: #d4af37;
+}
+
+/* ========================================
+   BOTONES GLOBALES
+   ======================================== */
+
+.btn-primary {
+    display: inline-block;
+    background-color: #d4af37;
+    color: #000;
+    padding: 14px 40px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 2px solid #d4af37;
+    margin-top: 20px;
+}
+
+.btn-primary:hover {
+    background-color: transparent;
+    color: #d4af37;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+.btn-primary-large {
+    display: inline-block;
+    background-color: #d4af37;
+    color: #000;
+    padding: 16px 50px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 2px solid #d4af37;
+    margin-top: 20px;
+}
+
+.btn-primary-large:hover {
+    background-color: transparent;
+    color: #d4af37;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+.btn-secondary {
+    display: inline-block;
+    background-color: transparent;
+    color: #000;
+    padding: 12px 30px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 2px solid #000;
+    margin-top: 20px;
+}
+
+.btn-secondary:hover {
+    background-color: #000;
+    color: #d4af37;
+}
+
+/* ========================================
+   FOOTER
+   ======================================== */
+
+.footer {
+    background-color: #1a1a1a;
+    color: #999;
+    padding: 60px 20px 20px;
+    margin-top: 80px;
+    width: 100%;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.footer-section h4 {
+    color: #d4af37;
+    font-size: 16px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.footer-section p {
+    font-size: 13px;
+    line-height: 1.8;
+    margin-bottom: 8px;
+}
+
+.footer-section ul {
+    list-style: none;
+}
+
+.footer-section ul li {
+    margin-bottom: 8px;
+}
+
+.footer-section a {
+    color: #999;
+    font-size: 13px;
+}
+
+.footer-section a:hover {
+    color: #d4af37;
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 30px;
+    border-top: 1px solid #333;
+    font-size: 12px;
+    color: #666;
+}
+
+/* ========================================
+   RESPONSIVE - TABLET (768px y menos)
+   ======================================== */
+
+@media (max-width: 768px) {
+    .navbar-container {
+        flex-wrap: nowrap;
+        gap: 10px;
+        padding: 15px 15px;
+    }
+
+    .hamburger {
+        display: block;
+        order: 3;
+    }
+
+    .logo {
+        order: 1;
+    }
+
+    .nav-menu {
+        display: none;
+        position: fixed;
+        top: 70px;
+        left: 0;
+        width: 100%;
+        flex-direction: column;
+        gap: 0;
+        background-color: #000;
+        max-height: calc(100vh - 70px);
+        overflow-y: auto;
+        padding: 10px 0;
+        margin: 0;
+        justify-content: flex-start;
+        z-index: 999;
+    }
+
+    .nav-menu.active {
+        display: flex;
+    }
+
+    .nav-menu li {
+        border-bottom: 1px solid #333;
+        width: 100%;
+        text-align: center;
+    }
+
+    .nav-menu a {
+        display: block;
+        padding: 15px 20px;
+        font-size: 13px;
+    }
+
+    .nav-menu a::after {
+        display: none;
+    }
+
+    .nav-menu a.active {
+        background-color: #1a1a1a;
+        color: #d4af37;
+    }
+
+    .nav-buttons {
+        order: 2;
+        display: none;
+    }
+
+    .navbar-container .nav-buttons {
+        display: block;
+        position: fixed;
+        bottom: 10px;
+        right: 15px;
+        width: auto;
+    }
+
+    .btn-book {
+        padding: 12px 20px;
+        font-size: 11px;
+    }
+
+    .footer-container {
+        grid-template-columns: 1fr;
+    }
+
+    .btn-primary {
+        padding: 12px 30px;
+        font-size: 12px;
+    }
+
+    .btn-primary-large {
+        padding: 14px 35px;
+        font-size: 14px;
+    }
+
+    .logo-img {
+        height: 50px;
+    }
+}
+
+/* ========================================
+   RESPONSIVE - MOBILE (480px y menos)
+   ======================================== */
+
+@media (max-width: 480px) {
+    .navbar-container {
+        padding: 10px 12px;
+    }
+
+    .logo-img {
+        height: 45px;
+    }
+
+    .hamburger {
+        font-size: 24px;
+    }
+
+    .btn-book {
+        padding: 10px 15px;
+        font-size: 10px;
+    }
+
+    .nav-menu a {
+        padding: 12px 15px;
+        font-size: 12px;
+    }
+
+    .footer-section h4 {
+        font-size: 14px;
+    }
+
+    .footer-section p {
+        font-size: 12px;
+    }
+
+    .btn-primary {
+        padding: 11px 25px;
+        font-size: 11px;
+    }
+
+    .btn-primary-large {
+        padding: 12px 30px;
+        font-size: 13px;
+    }
+
+    .btn-secondary {
+        padding: 10px 20px;
+        font-size: 11px;
+    }
+}

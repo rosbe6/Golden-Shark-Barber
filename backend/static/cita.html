@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Appointment - Gold Shark Barber</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/cita.css">
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="logo">
+                <img src="images/logo.jpeg" alt="Gold Shark Barber Logo" class="logo-img">
+            </div>
+            
+            <button class="hamburger" id="hamburger">
+                <span class="line">☰</span>
+            </button>
+            
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="servicios.html">SERVICES</a></li>
+                <li><a href="galeria.html">GALLERY</a></li>
+                <li><a href="sobre-nosotros.html">ABOUT US</a></li>
+                <li><a href="contacto.html">CONTACT</a></li>
+            </ul>
+            
+            <div class="nav-buttons">
+                <a href="reserva.html" class="btn-book">BOOK APPOINTMENT</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO CITA -->
+    <section class="hero-cita">
+        <div>
+            <h1>Your Appointment</h1>
+            <p>View and manage your booking</p>
+        </div>
+    </section>
+
+    <div class="cita-container">
+        <!-- LOADING -->
+        <div id="cargando">
+            <p style="text-align: center; padding: 40px;">Loading appointment...</p>
+        </div>
+
+        <!-- CITA ENCONTRADA -->
+        <div id="cita-encontrada" class="hidden">
+            <div class="cita-grid">
+                <!-- DETALLES -->
+                <div class="cita-detalles">
+                    <h2>Appointment Details</h2>
+                    
+                    <div class="detail-row">
+                        <span class="label">Service:</span>
+                        <span id="det-servicio" class="value"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Date:</span>
+                        <span id="det-fecha" class="value"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Time:</span>
+                        <span id="det-hora" class="value"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Barber:</span>
+                        <span class="value">Gold Shark Barber</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Status:</span>
+                        <span id="det-estado" class="value"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Payment Method:</span>
+                        <span id="det-metodoPago" class="value"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Price:</span>
+                        <span id="det-precio" class="value" style="font-weight: 600; color: #d4af37;">$<span id="det-precio-monto">0</span></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Name:</span>
+                        <span id="det-nombre" class="value"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Email:</span>
+                        <span id="det-email" class="value"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Phone:</span>
+                        <span id="det-telefono" class="value"></span>
+                    </div>
+                    <div id="det-instrucciones-container" class="detail-row hidden">
+                        <span class="label">Notes:</span>
+                        <span id="det-instrucciones" class="value"></span>
+                    </div>
+                </div>
+
+                <!-- MAPA -->
+                <div class="cita-mapa">
+                    <h3>📍 Our Location</h3>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2689.6269188024135!2d-122.31909762376918!3d47.613943671190505!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x54906b392c106ea5%3A0xc176baa8ca0faa84!2sGolden%20Shark%20Barber!5e0!3m2!1ses-419!2sgt!4v1781665242250!5m2!1ses-419!2sgt" width="100%" height="300" style="border:0; border-radius: 8px;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+            </div>
+            
+            <div class="cita-acciones">
+                <a href="index.html" class="btn-accion primary">Back to Home</a>
+                <button id="btn-cancelar" class="btn-accion danger" onclick="cancelarDesdeEnlace()">Cancel Appointment</button>
+            </div>
+        </div>
+
+        <!-- NO ENCONTRADA -->
+        <div id="cita-no-encontrada" class="hidden">
+            <div class="error" style="text-align: center; margin: 60px 0; padding: 40px; background-color: #f9f9f9; border-radius: 8px;">
+                <h2 style="color: #000; font-size: 28px; margin-bottom: 15px;">Appointment not found</h2>
+                <p style="color: #666; font-size: 16px; margin-bottom: 30px;">The appointment you're looking for doesn't exist or has been deleted.</p>
+                <a href="index.html" class="btn-accion primary" style="display: inline-block;">Back to Home</a>
+            </div>
+        </div>
+
+        <!-- MODAL CANCELACIÓN -->
+        <div id="modal" class="modal hidden">
+            <div class="modal-content">
+                <h3>Cancel Appointment?</h3>
+                <p>This action cannot be undone. Are you sure?</p>
+                <div class="modal-buttons">
+                    <button class="modal-btn cancel" onclick="cerrarModal()">Keep It</button>
+                    <button class="modal-btn confirm" onclick="confirmarCancelacion()">Cancel It</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <section class="cita-cta">
+        <h2>Questions?</h2>
+        <p>Contact us if you need to make any changes</p>
+        <a href="contacto.html" class="btn-primary" style="color: white; text-decoration: none;">Get in Touch</a>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>Gold Shark Barber</h4>
+                <p>Specialized barbershop for haircuts and beard</p>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="servicios.html">Services</a></li>
+                    <li><a href="galeria.html">Gallery</a></li>
+                    <li><a href="contacto.html">Contact</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <p>📧 info@goldsharkbarber.com</p>
+                <p>📞 +1 616 566 5599</p>
+                <p>📍 1222 E Pine St, Seattle, WA 98122, Estados Unidos</p>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Hours</h4>
+                <p>Monday - Saturday: 10:00 AM - 5:00 PM</p>
+                <p>Sunday: Walking</p>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2026 Gold Shark Barber. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/navbar.js"></script>
+    <script src="js/cita.js"></script>
+</body>
+</html>

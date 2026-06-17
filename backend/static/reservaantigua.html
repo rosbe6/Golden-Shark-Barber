@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment - Gold Shark Barber</title>
+    <link rel="stylesheet" href="css/index-reserva.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Book Your Appointment</h1>
+        
+        <form id="appointmentForm">
+            <div class="form-group">
+                <label>Full Name *</label>
+                <input type="text" id="clienteNombre" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Email *</label>
+                <input type="email" id="clienteEmail" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Phone Number *</label>
+                <input type="tel" id="clienteTelefono" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Service *</label>
+                <select id="servicio" required>
+                    <option value="">Select a service</option>
+                    <option value="Haircut">Haircut</option>
+                    <option value="Shave">Shave</option>
+                    <option value="Haircut + Shave">Haircut + Shave</option>
+                    <option value="Beard Trim">Beard Trim</option>
+                </select>
+            </div>
+
+            
+            <div class="form-group">
+                <label>Payment Method *</label>
+                <select id="metodoPago" required onchange="actualizarPrecio()">
+                    <option value="">Select payment method</option>
+                    <option value="cash">Cash - $45</option>
+                    <option value="tarjeta">Credit Card - $50</option>
+                </select>
+            </div>
+
+            <div id="precio-container" class="precio-info hidden">
+                <p><strong>Total:</strong> $<span id="precio-monto">0</span></p>
+            </div>
+            
+            
+            <div class="form-group">
+                <label>Date *</label>
+                <div class="calendario-nav">
+                    <button type="button" class="nav-btn" onclick="mesAnterior()">←</button>
+                    <h3 id="mesActualLabel"></h3>
+                    <button type="button" class="nav-btn" onclick="mesSiguiente()">→</button>
+                </div>
+                <div id="calendario"></div>
+                <input type="hidden" id="dia" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Time *</label>
+                <div id="horariosGrid"></div>
+                <input type="hidden" id="hora" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Special Instructions (optional)</label>
+                <textarea id="instrucciones" rows="3"></textarea>
+            </div>
+            
+            <button type="submit" class="btn">Confirm Appointment</button>
+        </form>
+        
+        <div id="successMessage" class="hidden">
+            <h2>✓ Appointment Confirmed!</h2>
+            <p>Confirmation email sent to: <strong id="emailConfirmado"></strong></p>
+            <p>Appointment ID: <strong id="citaId"></strong></p>
+            <button onclick="location.reload()">Book Another</button>
+        </div>
+        
+        <div id="errorMessage" class="hidden error">
+            <p id="errorText"></p>
+        </div>
+    </div>
+    
+    <script src="js/app.js"></script>
+</body>
+</html>

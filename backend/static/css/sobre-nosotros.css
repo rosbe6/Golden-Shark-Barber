@@ -1,0 +1,546 @@
+/* ========================================
+   HERO ABOUT
+   ======================================== */
+
+.hero-about {
+    height: 300px;
+    background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+}
+
+.hero-about .hero-content h1 {
+    font-size: 48px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.hero-about .hero-content p {
+    font-size: 18px;
+    color: #d4af37;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ========================================
+   NUESTRA HISTORIA
+   ======================================== */
+
+.nuestra-historia {
+    padding: 80px 20px;
+    background-color: #fff;
+}
+
+.contenido {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.nuestra-historia h2 {
+    font-size: 36px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 50px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.historia-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+
+.historia-text p {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.historia-image {
+    position: sticky;
+    top: 100px;
+}
+
+.image-placeholder {
+    width: 100%;
+    aspect-ratio: 1;
+    background: linear-gradient(135deg, #333 0%, #666 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #999;
+    font-weight: 500;
+}
+
+/* ========================================
+   VALORES
+   ======================================== */
+
+.valores {
+    padding: 80px 20px;
+    background-color: #f5f5f5;
+}
+
+.valores h2 {
+    font-size: 36px;
+    font-weight: 700;
+    color: #000;
+    text-align: center;
+    margin-bottom: 50px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.valores-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.valor-card {
+    padding: 40px 30px;
+    background-color: #fff;
+    border-radius: 8px;
+    border-top: 4px solid #d4af37;
+    transition: all 0.3s ease;
+}
+
+.valor-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.valor-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    display: block;
+}
+
+.valor-card h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.valor-card p {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #666;
+}
+
+.valores-list {
+    list-style: none;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #666;
+}
+
+.valores-list li {
+    margin-bottom: 12px;
+}
+
+.valores-list strong {
+    color: #000;
+}
+
+/* ========================================
+   POR QUÉ SHARK
+   ======================================== */
+
+.por-que-shark {
+    padding: 80px 20px;
+    background-color: #fff;
+}
+
+.por-que-shark h2 {
+    font-size: 36px;
+    font-weight: 700;
+    color: #000;
+    text-align: center;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.subtitle {
+    text-align: center;
+    font-size: 16px;
+    color: #d4af37;
+    margin-bottom: 50px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.razones-shark-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 30px;
+}
+
+.razon-shark {
+    padding: 30px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border-left: 4px solid #d4af37;
+    transition: all 0.3s ease;
+}
+
+.razon-shark:hover {
+    background-color: #fff;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.numero {
+    font-size: 32px;
+    font-weight: 700;
+    color: #d4af37;
+    margin-bottom: 10px;
+}
+
+.razon-shark h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.razon-shark p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #666;
+}
+
+/* ========================================
+   EQUIPO
+   ======================================== */
+
+.equipo {
+    padding: 80px 20px;
+    background-color: #f5f5f5;
+    text-align: center;
+}
+
+.equipo h2 {
+    font-size: 36px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.equipo-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 40px;
+    margin-top: 50px;
+}
+
+.team-member {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.team-member:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.member-image {
+    overflow: hidden;
+    height: 350px;
+}
+
+.image-placeholder-member {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #333 0%, #666 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #999;
+    font-weight: 500;
+}
+
+.team-member h3 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #000;
+    padding: 20px 20px 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.speciality {
+    font-size: 14px;
+    color: #d4af37;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0 20px 15px;
+    margin: 0;
+}
+
+.bio {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #666;
+    padding: 0 20px 20px;
+    margin: 0;
+}
+
+/* ========================================
+   TESTIMONIOS
+   ======================================== */
+
+.testimonios {
+    padding: 80px 20px;
+    background-color: #fff;
+}
+
+.testimonios h2 {
+    font-size: 36px;
+    font-weight: 700;
+    color: #000;
+    text-align: center;
+    margin-bottom: 50px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.testimonios-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.testimonio-card {
+    padding: 30px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border-left: 4px solid #d4af37;
+    transition: all 0.3s ease;
+}
+
+.testimonio-card:hover {
+    background-color: #fff;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.stars {
+    font-size: 18px;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.testimonio-card p {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #666;
+    font-style: italic;
+    margin-bottom: 15px;
+}
+
+.autor {
+    font-size: 13px;
+    color: #000;
+    font-weight: 600;
+    font-style: normal;
+    margin: 0;
+}
+
+/* ========================================
+   CTA ABOUT
+   ======================================== */
+
+.cta-about {
+    padding: 80px 20px;
+    background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+    color: white;
+    text-align: center;
+}
+
+.cta-about h2 {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.cta-about p {
+    font-size: 16px;
+    margin-bottom: 30px;
+    color: #ddd;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 1024px) {
+    .historia-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .historia-image {
+        position: static;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-about .hero-content h1 {
+        font-size: 36px;
+    }
+
+    .nuestra-historia h2,
+    .valores h2,
+    .por-que-shark h2,
+    .equipo h2,
+    .testimonios h2,
+    .cta-about h2 {
+        font-size: 28px;
+    }
+
+    .valores-grid,
+    .razones-shark-grid,
+    .equipo-grid,
+    .testimonios-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .nuestra-historia,
+    .valores,
+    .por-que-shark,
+    .equipo,
+    .testimonios,
+    .cta-about {
+        padding: 60px 20px;
+    }
+
+    .valor-card,
+    .razon-shark,
+    .testimonio-card {
+        padding: 25px 20px;
+    }
+
+    .team-member h3 {
+        font-size: 20px;
+    }
+
+    .numero {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-about {
+        height: 250px;
+    }
+
+    .hero-about .hero-content h1 {
+        font-size: 28px;
+    }
+
+    .hero-about .hero-content p {
+        font-size: 14px;
+    }
+
+    .nuestra-historia h2,
+    .valores h2,
+    .por-que-shark h2,
+    .equipo h2,
+    .testimonios h2,
+    .cta-about h2 {
+        font-size: 24px;
+        margin-bottom: 30px;
+    }
+
+    .historia-text p {
+        font-size: 14px;
+    }
+
+    .image-placeholder,
+    .image-placeholder-member {
+        font-size: 14px;
+    }
+
+    .member-image {
+        height: 250px;
+    }
+
+    .valor-card h3,
+    .razon-shark h3 {
+        font-size: 16px;
+    }
+
+    .valor-card p,
+    .razon-shark p {
+        font-size: 13px;
+    }
+
+    .numero {
+        font-size: 24px;
+    }
+
+    .team-member h3 {
+        font-size: 18px;
+        padding: 15px 15px 5px;
+    }
+
+    .speciality,
+    .bio {
+        padding: 0 15px 15px;
+        font-size: 13px;
+    }
+
+    .testimonio-card p {
+        font-size: 13px;
+    }
+
+    .cta-about p {
+        font-size: 14px;
+    }
+
+    .nuestra-historia,
+    .valores,
+    .por-que-shark,
+    .equipo,
+    .testimonios,
+    .cta-about {
+        padding: 40px 15px;
+    }
+
+    .subtitle {
+        font-size: 14px;
+    }
+}
