@@ -1,247 +1,435 @@
-const API = 'https://constant-harmonize-situated.ngrok-free.dev/api';
-let token = localStorage.getItem('token');
-let tabActual = 'hoy';
+const API_URL = 'http://goldenbarbershop.online/api';
+let allCitas = [];
+let selectedCita = null;
+let barberoToken = null;
+let barberoName = null;
 
-window.addEventListener('DOMContentLoaded', iniciar);
+// ==================== INIT ====================
 
-function iniciar() {
-    if (token) {
-        mostrarDashboard();
-        cargarCitas();
+document.addEventListener('DOMContentLoaded', () => {
+    checkLogin();
+    setupEvents();
+});
+
+function checkLogin() {
+    const token = localStorage.getItem('barber_token');
+    const name = localStorage.getItem('barber_name');
+
+    if (token && name) {
+        barberoToken = token;
+        barberoName = name;
+        showDashboard();
+        loadCitas();
     } else {
-        mostrarLogin();
-        document.getElementById('form-login').addEventListener('submit', hacerLogin);
+        showLogin();
     }
 }
 
-function mostrarLogin() {
-    document.getElementById('pantalla-login').classList.remove('hidden');
-    document.getElementById('pantalla-dashboard').classList.add('hidden');
+function setupEvents() {
+    // Login
+    document.getElementById('formLogin').addEventListener('submit', handleLogin);
+    document.getElementById('btnLogout').addEventListener('click', handleLogout);
+
+    // Filters
+    document.querySelectorAll('.filter-tab').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            filterCitas(e.target.dataset.filter);
+        });
+    });
+
+    // Modal buttons
+    document.getElementById('btnMarcaCompletada').addEventListener('click', markComplete);
+    document.getElementById('btnCancelarCita').addEventListener('click', () => openCancelModal());
+    document.getElementById('btnReagendar').addEventListener('click', () => openRescheduleModal());
+    document.getElementById('btnConfirmCancel').addEventListener('click', confirmCancel);
+    document.getElementById('btnConfirmReschedule').addEventListener('click', confirmReschedule);
+    document.getElementById('inputNewDate').addEventListener('change', loadTimesForDate);
 }
 
-function mostrarDashboard() {
-    document.getElementById('pantalla-login').classList.add('hidden');
-    document.getElementById('pantalla-dashboard').classList.remove('hidden');
-}
+// ==================== LOGIN ====================
 
-function hacerLogin(e) {
+async function handleLogin(e) {
     e.preventDefault();
 
-    const email = document.getElementById('email-input').value;
-    const password = document.getElementById('password-input').value;
+    const email = document.getElementById('inputEmail').value;
+    const password = document.getElementById('inputPassword').value;
 
-    fetch(`${API}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email, contraseña: password })
-    })
-    .then(r => r.json())
-    .then(data => {
+    try {
+        showLoading(true);
+
+        const response = await fetch(`${API_URL}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, contraseña: password })
+        });
+
+        const data = await response.json();
+
         if (data.status === 'success') {
-            token = data.token;
-            localStorage.setItem('token', token);
-            mostrarDashboard();
-            cargarCitas();
+            barberoToken = data.token;
+            barberoName = data.nombre;
+
+            localStorage.setItem('barber_token', barberoToken);
+            localStorage.setItem('barber_name', barberoName);
+
+            showDashboard();
+            loadCitas();
         } else {
-            mostrarError(data.mensaje);
+            showLoginError(data.mensaje || 'Error logging in');
         }
-    })
-    .catch(err => {
-        console.error(err);
-        mostrarError('Error en login');
-    });
+    } catch (error) {
+        console.error('Error:', error);
+        showLoginError('Connection error');
+    } finally {
+        showLoading(false);
+    }
 }
 
-function mostrarError(msg) {
-    const errorDiv = document.getElementById('error-login');
+function handleLogout() {
+    localStorage.removeItem('barber_token');
+    localStorage.removeItem('barber_name');
+    barberoToken = null;
+    barberoName = null;
+    showLogin();
+}
+
+function showLogin() {
+    document.getElementById('screenLogin').classList.remove('hidden');
+    document.getElementById('screenDashboard').classList.add('hidden');
+}
+
+function showDashboard() {
+    document.getElementById('screenLogin').classList.add('hidden');
+    document.getElementById('screenDashboard').classList.remove('hidden');
+    document.getElementById('textNombre').textContent = barberoName || 'Barber';
+}
+
+function showLoginError(msg) {
+    const errorDiv = document.getElementById('errorLogin');
     errorDiv.textContent = msg;
     errorDiv.classList.remove('hidden');
 }
 
-function cargarCitas() {
-    const endpoint = tabActual === 'hoy' ? '/dashboard/citas/hoy' : '/dashboard/citas';
+// ==================== CITAS ====================
 
-    fetch(`${API}${endpoint}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-    })
-    .then(r => r.json())
-    .then(data => {
+async function loadCitas() {
+    try {
+        showLoading(true);
+
+        const response = await fetch(`${API_URL}/citas/listar/todas`);
+        const data = await response.json();
+
         if (data.status === 'success') {
-            renderizarCitas(data.citas);
+            allCitas = data.citas || [];
+            renderCitas(allCitas);
+            updateStats();
         }
-    })
-    .catch(err => console.error(err));
+    } catch (error) {
+        console.error('Error:', error);
+    } finally {
+        showLoading(false);
+    }
 }
 
-function renderizarCitas(citas) {
-    const contenedor = document.getElementById('contenido-dashboard');
+function renderCitas(citas) {
+    const box = document.getElementById('citasBox');
+    const empty = document.getElementById('emptyBox');
 
-    if (!citas || citas.length === 0) {
-        contenedor.innerHTML = '<p class="empty-message">No appointments</p>';
+    if (citas.length === 0) {
+        box.innerHTML = '';
+        empty.classList.remove('hidden');
         return;
     }
 
-    let html = '';
-    citas.forEach(cita => {
-        const estaBloqueada = cita.estado === 'completada' || cita.estado === 'cancelada';
-        
-        html += `
-            <div class="appointment-card">
-                <h3>${cita.cliente_nombre}</h3>
-                <p><strong>Service:</strong> ${cita.servicio}</p>
-                <p><strong>Date:</strong> ${cita.dia}</p>
-                <p><strong>Time:</strong> ${cita.hora}</p>
-                <p><strong>Email:</strong> ${cita.cliente_email}</p>
-                <p><strong>Phone:</strong> ${cita.cliente_telefono}</p>
-                <p><strong>Payment:</strong> ${cita.metodoPago === 'cash' ? 'Cash' : 'Credit Card'}</p>
-                <p><strong>Price:</strong> $${cita.precio}</p>
-                <p><strong>Status:</strong> <span class="status-${cita.estado}">${cita.estado.toUpperCase()}</span></p>
-                ${cita.instrucciones ? `<p><strong>Notes:</strong> ${cita.instrucciones}</p>` : ''}
-                
-                <div class="appointment-actions">
-                    ${cita.estado !== 'completada' && cita.estado !== 'cancelada' ? `<button class="btn-complete" onclick="completar('${cita._id}')">Complete</button>` : ''}
-                    ${cita.estado !== 'cancelada' && cita.estado !== 'completada' ? `<button class="btn-cancel" onclick="cancelar('${cita._id}')">Cancel</button>` : ''}
+    empty.classList.add('hidden');
+
+    box.innerHTML = citas.map(c => `
+        <div class="cita-card" onclick="openDetailsModal('${c._id}')">
+            <div class="card-top">
+                <h3>${c.cliente_nombre}</h3>
+                <span class="badge ${c.estado === 'completada' ? 'badge-completed' : 'badge-pending'}">
+                    ${c.estado === 'completada' ? 'Completed' : 'Pending'}
+                </span>
+            </div>
+            
+            <div class="card-info">
+                <div class="info-line">
+                    <span class="info-key">📅 Date</span>
+                    <span class="info-val">${c.dia}</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-key">⏰ Time</span>
+                    <span class="info-val">${c.hora}</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-key">💈 Service</span>
+                    <span class="info-val">${c.servicio}</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-key">💰 Price</span>
+                    <span class="info-val">$${c.precio}</span>
                 </div>
             </div>
-        `;
-    });
 
-    contenedor.innerHTML = html;
+            <div class="card-btns">
+            ${c.estado === 'completada' ? '' : `
+                <button class="btn-card btn-card-main" onclick="event.stopPropagation(); markComplete('${c._id}')">
+                    Complete
+                </button>
+                <button class="btn-card btn-card-sec" onclick="event.stopPropagation(); openDetailsModal('${c._id}')">
+                    Details
+                </button>
+            `}
+        </div>
+        </div>
+    `).join('');
 }
 
-function verTab(tab) {
-    tabActual = tab;
-    
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
-    
-    if (tab === 'hoy') {
-        cargarCitasHoy();
-    } else if (tab === 'todas') {
-        cargarTodasCitas();
-    } else if (tab === 'completadas') {
-        cargarCitasCompletadas();
-    } else if (tab === 'canceladas') {
-        cargarCitasCanceladas();
+function filterCitas(filter) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const nextWeek = new Date(today);
+    nextWeek.setDate(nextWeek.getDate() + 7);
+
+    let filtered = allCitas;
+
+    if (filter === 'today') {
+        filtered = allCitas.filter(c => {
+            const d = new Date(c.dia);
+            return d.toDateString() === today.toDateString() && c.estado !== 'completada';
+        });
+    } else if (filter === 'week') {
+        filtered = allCitas.filter(c => {
+            const d = new Date(c.dia);
+            return d >= today && d <= nextWeek && c.estado !== 'completada';
+        });
+    } else if (filter === 'completed') {
+        filtered = allCitas.filter(c => c.estado === 'completada');
+    } else if (filter === 'all') {
+        filtered = allCitas.filter(c => c.estado !== 'completada');
+    }
+
+    renderCitas(filtered);
+}
+
+function updateStats() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const nextWeek = new Date(today);
+    nextWeek.setDate(nextWeek.getDate() + 7);
+
+    const citasToday = allCitas.filter(c => {
+        const d = new Date(c.dia);
+        return d.toDateString() === today.toDateString();
+    }).length;
+
+    const citasWeek = allCitas.filter(c => {
+        const d = new Date(c.dia);
+        return d >= today && d <= nextWeek;
+    }).length;
+
+    const citasCompleted = allCitas.filter(c => c.estado === 'completada').length;
+
+    document.getElementById('statToday').textContent = citasToday;
+    document.getElementById('statWeek').textContent = citasWeek;
+    document.getElementById('statCompleted').textContent = citasCompleted;
+    document.getElementById('statTotal').textContent = allCitas.length;
+}
+
+// ==================== MODAL: DETAILS ====================
+
+function openDetailsModal(citaId) {
+    selectedCita = allCitas.find(c => c._id === citaId);
+
+    if (!selectedCita) return;
+
+    document.getElementById('detClient').textContent = selectedCita.cliente_nombre;
+    document.getElementById('detEmail').textContent = selectedCita.cliente_email;
+    document.getElementById('detPhone').textContent = selectedCita.cliente_telefono;
+    document.getElementById('detDate').textContent = selectedCita.dia;
+    document.getElementById('detTime').textContent = selectedCita.hora;
+    document.getElementById('detService').textContent = selectedCita.servicio;
+    document.getElementById('detPrice').textContent = `$${selectedCita.precio}`;
+    document.getElementById('detStatus').textContent = selectedCita.estado === 'completada' ? 'Completed' : 'Pending';
+
+    const isCompleted = selectedCita.estado === 'completada';
+    document.getElementById('btnMarcaCompletada').disabled = isCompleted;
+    document.getElementById('btnCancelarCita').disabled = isCompleted;
+    document.getElementById('btnReagendar').disabled = isCompleted;
+
+    document.getElementById('modalDetails').classList.remove('hidden');
+}
+
+function closeDetailsModal() {
+    document.getElementById('modalDetails').classList.add('hidden');
+}
+
+// ==================== MARK COMPLETE ====================
+
+async function markComplete(citaId) {
+    const cid = citaId || (selectedCita && selectedCita._id);
+    if (!cid) return;
+
+    try {
+        showLoading(true);
+
+        const response = await fetch(`${API_URL}/citas/${cid}/completada`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            closeDetailsModal();
+            loadCitas();
+            alert('✅ Marked as completed!');
+        } else {
+            alert('Error: ' + data.mensaje);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error marking appointment');
+    } finally {
+        showLoading(false);
     }
 }
 
-function cargarCitasCompletadas() {
-    fetch(`${API}/dashboard/citas`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.status === 'success') {
-            const completadas = data.citas.filter(c => c.estado === 'completada');
-            renderizarCitas(completadas);
-        }
-    })
-    .catch(err => console.error(err));
+// ==================== CANCEL ====================
+
+function openCancelModal() {
+    closeDetailsModal();
+    document.getElementById('modalCancel').classList.remove('hidden');
+    document.getElementById('textCancelReason').value = '';
 }
 
-function cargarCitasCanceladas() {
-    fetch(`${API}/dashboard/citas`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.status === 'success') {
-            const canceladas = data.citas.filter(c => c.estado === 'cancelada');
-            renderizarCitas(canceladas);
-        }
-    })
-    .catch(err => console.error(err));
+function closeCancelModal() {
+    document.getElementById('modalCancel').classList.add('hidden');
 }
 
-let accionPendiente = null;
-let citaIdPendiente = null;
+async function confirmCancel() {
+    const reason = document.getElementById('textCancelReason').value.trim();
 
-function completar(citaId) {
-    citaIdPendiente = citaId;
-    accionPendiente = 'completar';
-    
-    document.getElementById('modal-titulo').textContent = 'Complete Appointment?';
-    document.getElementById('modal-mensaje').textContent = 'Mark this appointment as completed?';
-    document.getElementById('modal').classList.remove('hidden');
-}
-
-function cancelar(citaId) {
-    citaIdPendiente = citaId;
-    accionPendiente = 'cancelar';
-    
-    document.getElementById('modal-titulo').textContent = 'Cancel Appointment?';
-    document.getElementById('modal-mensaje').textContent = 'This action cannot be undone.';
-    document.getElementById('modal').classList.remove('hidden');
-}
-
-function cerrarModal() {
-    document.getElementById('modal').classList.add('hidden');
-    accionPendiente = null;
-    citaIdPendiente = null;
-}
-
-function confirmarAccion() {
-    if (accionPendiente === 'completar') {
-        ejecutarCompletar();
-    } else if (accionPendiente === 'cancelar') {
-        ejecutarCancelar();
+    if (!reason) {
+        alert('Please enter a reason');
+        return;
     }
-    cerrarModal();
-}
-function ejecutarCompletar() {
-    fetch(`${API}/dashboard/citas/${citaIdPendiente}/completar`, {
-        method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}` }
-    })
-    .then(r => r.json())
-    .then(data => {
+
+    try {
+        showLoading(true);
+
+        const response = await fetch(`${API_URL}/citas/${selectedCita._id}/cancelar`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ motivo: reason })
+        });
+
+        const data = await response.json();
+
         if (data.status === 'success') {
-            mostrarToast('✓ Appointment completed!', 'success');
-            cargarCitas();
+            closeCancelModal();
+            loadCitas();
+            alert('✅ Appointment cancelled!');
+        } else {
+            alert('Error: ' + data.mensaje);
         }
-    })
-    .catch(err => console.error(err));
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error cancelling appointment');
+    } finally {
+        showLoading(false);
+    }
 }
 
-function ejecutarCancelar() {
-    fetch(`${API}/citas/${citaIdPendiente}/cancelar`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-    })
-    .then(r => r.json())
-    .then(data => {
+// ==================== RESCHEDULE ====================
+
+function openRescheduleModal() {
+    closeDetailsModal();
+    document.getElementById('modalReschedule').classList.remove('hidden');
+    document.getElementById('inputNewDate').value = '';
+    document.getElementById('selectNewTime').innerHTML = '<option value="">Select time...</option>';
+    document.getElementById('inputRescheduleReason').value = '';
+}
+
+function closeRescheduleModal() {
+    document.getElementById('modalReschedule').classList.add('hidden');
+}
+
+async function loadTimesForDate() {
+    const date = document.getElementById('inputNewDate').value;
+    if (!date) return;
+
+    try {
+        const response = await fetch(`${API_URL}/citas/horarios-ocupados/${date}`);
+        const data = await response.json();
+
+        const allTimes = ['10:00', '10:40', '11:20', '12:00', '12:40', '13:20', '14:00', '14:40', '15:20', '16:00', '16:40'];
+        const occupied = data.horas_ocupadas || [];
+        const available = allTimes.filter(t => !occupied.includes(t));
+
+        const select = document.getElementById('selectNewTime');
+        select.innerHTML = '<option value="">Select time...</option>' + 
+            available.map(t => `<option value="${t}">${t}</option>`).join('');
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+async function confirmReschedule() {
+    const newDate = document.getElementById('inputNewDate').value;
+    const newTime = document.getElementById('selectNewTime').value;
+    const reason = document.getElementById('inputRescheduleReason').value || 'Client request';
+
+    if (!newDate || !newTime) {
+        alert('Please select new date and time');
+        return;
+    }
+
+    try {
+        showLoading(true);
+
+        const response = await fetch(`${API_URL}/citas/${selectedCita._id}/reagendar`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                nueva_fecha: newDate,
+                nueva_hora: newTime,
+                motivo: reason
+            })
+        });
+
+        const data = await response.json();
+
         if (data.status === 'success') {
-            mostrarToast('✓ Appointment cancelled!', 'success');
-            cargarCitas();
+            closeRescheduleModal();
+            loadCitas();
+            alert('✅ Appointment rescheduled!');
+        } else {
+            alert('Error: ' + data.mensaje);
         }
-    })
-    .catch(err => console.error(err));
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error rescheduling appointment');
+    } finally {
+        showLoading(false);
+    }
 }
 
-function mostrarToast(mensaje, tipo) {
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${tipo}`;
-    toast.textContent = mensaje;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.classList.add('toast-show');
-    }, 10);
-    
-    setTimeout(() => {
-        toast.classList.remove('toast-show');
-        setTimeout(() => toast.remove(), 300);
-    }, 2500);
+// ==================== UTILITIES ====================
+
+function showLoading(show) {
+    const spinner = document.getElementById('loadingSpinner');
+    if (show) {
+        spinner.classList.remove('hidden');
+    } else {
+        spinner.classList.add('hidden');
+    }
 }
 
-
-
-
-function cerrarSesion() {
-    localStorage.removeItem('token');
-    token = null;
-    document.getElementById('form-login').reset();
-    document.getElementById('error-login').classList.add('hidden');
-    mostrarLogin();
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
 }

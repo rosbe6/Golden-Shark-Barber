@@ -1,4 +1,4 @@
-const API_URL = 'https://golden-shark-barber.onrender.com/api';
+const API_URL = 'http://goldenbarbershop.online/api';
 let diasDisponibles = [];
 let diaSeleccionado = null;
 let horaSeleccionada = null;

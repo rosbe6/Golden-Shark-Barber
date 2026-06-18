@@ -175,6 +175,7 @@ button {
     letter-spacing: 1px;
     border: 2px solid #d4af37;
     margin-top: 20px;
+    margin-right: 30px;
 }
 
 .btn-primary:hover {

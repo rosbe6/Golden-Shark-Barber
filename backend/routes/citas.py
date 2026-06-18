@@ -92,7 +92,6 @@ def crear_cita():
             print(f"⚠️ Error al enviar email de confirmación: {str(e)}")
         
         # Enviar notificación al barbero
-        # Enviar notificación al barbero
         try:
             barberos = list(db.barbero.find({}))
             
@@ -105,12 +104,9 @@ def crear_cita():
                         try:
                             resultado = email_service.enviar_notificacion_barbero(data, cita_id, email_barbero)
                             print(f"✅ Notificación enviada a {nombre_barbero}: {email_barbero}")
-                            print(f"   Resultado: {resultado}")
                         except Exception as email_error:
                             print(f"❌ Error enviando email a {email_barbero}")
                             print(f"   Error: {str(email_error)}")
-                            import traceback
-                            traceback.print_exc()
                     else:
                         print(f"⚠️ {nombre_barbero} no tiene email configurado")
             else:
@@ -118,12 +114,10 @@ def crear_cita():
                 
         except Exception as e:
             print(f"❌ Error en notificación de barbero: {str(e)}")
-            import traceback
-            traceback.print_exc()
         
         # Agregar a Google Calendar si el barbero tiene token
         try:
-            barbero = db.barberos.find_one()
+            barbero = db.barbero.find_one()
             if barbero and barbero.get('google_token'):
                 calendar_service = GoogleCalendarService()
                 calendar_service.authenticate(barbero['google_token'])
@@ -166,32 +160,168 @@ def obtener_cita(cita_id):
         return jsonify({'status': 'error', 'mensaje': str(e)}), 500
 
 
-@citas_bp.route('/<cita_id>/cancelar', methods=['DELETE'])
-def cancelar_cita(cita_id):
+@citas_bp.route('/<cita_id>/completada', methods=['PUT'])
+def marcar_completada(cita_id):
     """
-    Cancelar una cita
-    DELETE /api/citas/abc123/cancelar
+    Marcar una cita como completada
+    PUT /api/citas/abc123/completada
     """
     try:
         coleccion_citas = mongodb.get_collection('citas')
         
+        # Obtener la cita primero para enviar email
+        cita = coleccion_citas.find_one({'_id': ObjectId(cita_id)})
+        
+        if not cita:
+            return jsonify({'status': 'error', 'mensaje': 'Cita no encontrada'}), 404
+        
+        # Actualizar estado
         resultado = coleccion_citas.update_one(
             {'_id': ObjectId(cita_id)},
-            {'$set': {'estado': 'cancelada'}}
+            {'$set': {'estado': 'completada'}}
         )
         
         if resultado.matched_count == 0:
-            return jsonify({'status': 'error', 'mensaje': 'Appointment not found'}), 404
+            return jsonify({'status': 'error', 'mensaje': 'Cita no encontrada'}), 404
+        
+        # Enviar email de confirmación al cliente
+        try:
+            asunto = "Tu cita ha sido completada - Gold Shark Barber"
+            mensaje = f"""
+            <h2>¡Tu cita ha sido completada!</h2>
+            <p>Hola {cita.get('cliente_nombre')},</p>
+            <p>Tu cita del <strong>{cita.get('dia')}</strong> a las <strong>{cita.get('hora')}</strong> ha sido completada.</p>
+            <p>Servicio: <strong>{cita.get('servicio')}</strong></p>
+            <p>¡Gracias por visitarnos en Gold Shark Barber!</p>
+            <p>Te esperamos pronto.</p>
+            """
+            email_service.enviar_email(cita.get('cliente_email'), asunto, mensaje)
+            print(f"✅ Email de completación enviado a {cita.get('cliente_email')}")
+        except Exception as e:
+            print(f"⚠️ Error al enviar email: {str(e)}")
         
         return jsonify({
             'status': 'success',
-            'mensaje': 'Appointment cancelled successfully'
+            'mensaje': 'Cita marcada como completada'
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'mensaje': str(e)}), 500
+
+# REEMPLAZA ESTAS 2 FUNCIONES EN TU citas.py ACTUAL
+
+@citas_bp.route('/<cita_id>/cancelar', methods=['PUT'])
+def cancelar_cita(cita_id):
+    """
+    Cancelar una cita con motivo
+    PUT /api/citas/abc123/cancelar
+    Body: { "motivo": "Barbero enfermo" }
+    """
+    try:
+        data = request.get_json()
+        motivo = data.get('motivo', 'Sin motivo especificado')
+        
+        coleccion_citas = mongodb.get_collection('citas')
+        
+        # Obtener la cita primero para enviar email
+        cita = coleccion_citas.find_one({'_id': ObjectId(cita_id)})
+        
+        if not cita:
+            return jsonify({'status': 'error', 'mensaje': 'Cita no encontrada'}), 404
+        
+        # Actualizar estado con motivo
+        resultado = coleccion_citas.update_one(
+            {'_id': ObjectId(cita_id)},
+            {'$set': {
+                'estado': 'cancelada',
+                'motivo_cancelacion': motivo,
+                'fecha_cancelacion': datetime.now().isoformat()
+            }}
+        )
+        
+        if resultado.matched_count == 0:
+            return jsonify({'status': 'error', 'mensaje': 'Cita no encontrada'}), 404
+        
+        # ENVIAR EMAIL DE CANCELACIÓN AL CLIENTE
+        try:
+            email_service.enviar_cancelacion(cita, motivo)
+            print(f"✅ Email de cancelación enviado a {cita.get('cliente_email')}")
+        except Exception as e:
+            print(f"⚠️ Error al enviar email de cancelación: {str(e)}")
+        
+        return jsonify({
+            'status': 'success',
+            'mensaje': 'Cita cancelada exitosamente'
         }), 200
         
     except Exception as e:
         return jsonify({'status': 'error', 'mensaje': str(e)}), 500
 
 
+@citas_bp.route('/<cita_id>/reagendar', methods=['PUT'])
+def reagendar_cita(cita_id):
+    """
+    Reagendar una cita a nueva fecha y hora
+    PUT /api/citas/abc123/reagendar
+    Body: { "nueva_fecha": "2026-07-15", "nueva_hora": "14:00", "motivo": "Conflicto de horario" }
+    """
+    try:
+        data = request.get_json()
+        nueva_fecha = data.get('nueva_fecha')
+        nueva_hora = data.get('nueva_hora')
+        motivo = data.get('motivo', 'Client request')
+        
+        # Validar que tenemos fecha y hora
+        if not nueva_fecha or not nueva_hora:
+            return jsonify({
+                'status': 'error',
+                'mensaje': 'Nueva fecha y hora son requeridas'
+            }), 400
+        
+        coleccion_citas = mongodb.get_collection('citas')
+        
+        # Obtener la cita primero
+        cita = coleccion_citas.find_one({'_id': ObjectId(cita_id)})
+        
+        if not cita:
+            return jsonify({'status': 'error', 'mensaje': 'Cita no encontrada'}), 404
+        
+        # Guardar fecha anterior
+        fecha_anterior = cita.get('dia')
+        hora_anterior = cita.get('hora')
+        
+        # Actualizar la cita con nueva fecha/hora
+        resultado = coleccion_citas.update_one(
+            {'_id': ObjectId(cita_id)},
+            {'$set': {
+                'dia': nueva_fecha,
+                'hora': nueva_hora,
+                'fecha_anterior': fecha_anterior,
+                'hora_anterior': hora_anterior,
+                'motivo_reagendamiento': motivo,
+                'fecha_reagendamiento': datetime.now().isoformat()
+            }}
+        )
+        
+        if resultado.matched_count == 0:
+            return jsonify({'status': 'error', 'mensaje': 'Cita no encontrada'}), 404
+        
+        # ENVIAR EMAIL DE REAGENDAMIENTO AL CLIENTE
+        try:
+            email_service.enviar_reagendamiento(cita, nueva_fecha, nueva_hora, motivo)
+            print(f"✅ Email de reagendamiento enviado a {cita.get('cliente_email')}")
+        except Exception as e:
+            print(f"⚠️ Error al enviar email de reagendamiento: {str(e)}")
+        
+        return jsonify({
+            'status': 'success',
+            'mensaje': 'Cita reagendada exitosamente',
+            'nueva_fecha': nueva_fecha,
+            'nueva_hora': nueva_hora
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'mensaje': str(e)}), 500
 @citas_bp.route('/listar/todas', methods=['GET'])
 def listar_todas_citas():
     """
