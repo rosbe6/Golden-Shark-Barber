@@ -68,7 +68,9 @@ function renderizarCalendario() {
     // Agregar días del mes
     for (let dia = 1; dia <= ultimoDia; dia++) {
         const fecha = new Date(año, mes, dia);
-        const fechaString = fecha.toISOString().split('T')[0];
+        const fechaString = fecha.getFullYear() + '-' +
+                           String(fecha.getMonth() + 1).padStart(2, '0') + '-' +
+                           String(fecha.getDate()).padStart(2, '0');
         
         const btn = document.createElement('button');
         btn.type = 'button';

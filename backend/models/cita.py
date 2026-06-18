@@ -2,7 +2,7 @@ from bson.objectid import ObjectId
 from datetime import datetime
 
 class Cita:
-    def __init__(self, cliente_nombre, cliente_email, cliente_telefono, dia, hora, servicio, metodoPago='cash', precio=45, instrucciones=''):
+    def __init__(self, cliente_nombre, cliente_email, cliente_telefono, dia, hora, servicio, metodoPago='cash', precio=45, instrucciones='', barbero='Rosbin'):
         self.cliente_nombre = cliente_nombre
         self.cliente_email = cliente_email
         self.cliente_telefono = cliente_telefono
@@ -12,6 +12,7 @@ class Cita:
         self.metodoPago = metodoPago
         self.precio = precio
         self.instrucciones = instrucciones
+        self.barbero = barbero
         self.estado = 'confirmada'
         self.fecha_creacion = datetime.now()
 
@@ -26,6 +27,7 @@ class Cita:
             'metodoPago': self.metodoPago,
             'precio': self.precio,
             'instrucciones': self.instrucciones,
+            'barbero': self.barbero,
             'estado': self.estado,
             'fecha_creacion': self.fecha_creacion
         }
@@ -41,6 +43,7 @@ class Cita:
             servicio=data.get('servicio', ''),
             metodoPago=data.get('metodoPago', 'cash'),
             precio=data.get('precio', 45),
-            instrucciones=data.get('instrucciones', '')
+            instrucciones=data.get('instrucciones', ''),
+            barbero=data.get('barbero', 'Rosbin')
         )
         return cita
