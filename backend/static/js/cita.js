@@ -125,7 +125,7 @@ function confirmarCancelacion() {
     console.log('Cancelando cita:', window.citaIdActual);
     
     fetch(`${API_URL}/citas/${window.citaIdActual}/cancelar`, {
-        method: 'DELETE'
+        method: 'PUT'
     })
     .then(response => response.json())
     .then(data => {
