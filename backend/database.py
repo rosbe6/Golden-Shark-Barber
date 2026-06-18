@@ -18,16 +18,6 @@ class MongoDB:
         self.client = MongoClient(mongo_uri)
         self.db = self.client.get_database()
         
-        # ✅ CREAR ÍNDICE ÚNICO para prevenir double-booking
-        try:
-            self.db.citas.create_index(
-                [('dia', 1), ('hora', 1), ('barbero', 1)],
-                unique=True
-            )
-            print("✅ Índice único creado para prevenir double-booking")
-        except Exception as e:
-            print(f"⚠️ Índice ya existe o error: {e}")
-        
         print("✅ Conectado a MongoDB exitosamente")
 
     def get_collection(self, collection_name):
