@@ -204,8 +204,14 @@ function crearCita(event) {
     .then(response => {
         // ✅ Manejar error 409 (horario ocupado)
         if (response.status === 409) {
-            mostrarError('❌ Ese horario ya fue reservado por otro cliente. Por favor, selecciona otro horario.');
-            // Recargar horarios disponibles para ese día
+            mostrarError('❌ Ese horario ya fue reservado por otro cliente.\n\nPor favor, selecciona otro horario.');
+            // Limpiar selección actual
+            horaSeleccionada = null;
+            document.getElementById('hora').value = '';
+            document.querySelectorAll('.horario.seleccionado').forEach(el => {
+                el.classList.remove('seleccionado');
+            });
+            // Recargar horarios
             if (diaSeleccionado) {
                 cargarHorarios(diaSeleccionado);
             }
