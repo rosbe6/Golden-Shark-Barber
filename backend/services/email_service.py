@@ -79,7 +79,7 @@ class EmailService:
                         <p style="font-size: 12px; color: #999; text-align: center; margin: 0;">
                             <strong>Gold Shark Barber</strong><br>
                             We look forward to seeing you!<br>
-                            <a href="https://constant-harmonize-situated.ngrok-free.dev" style="color: #007bff; text-decoration: none;">Visit our website</a>
+                            <a href="https://goldenbarbershop.online" style="color: #007bff; text-decoration: none;">Visit our website</a>
                         </p>
                     </div>
                 </div>
@@ -140,7 +140,7 @@ class EmailService:
                         </div>
                         
                         <p style="text-align: center; margin: 30px 0;">
-                            <a href="https://constant-harmonize-situated.ngrok-free.dev/reserva.html" 
+                            <a href="https://goldenbarbershop.online/reserva.html" 
                                style="background-color: #dc3545; color: white; padding: 14px 40px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 16px;">
                                 Book a New Appointment
                             </a>
@@ -152,7 +152,7 @@ class EmailService:
                         
                         <p style="font-size: 12px; color: #999; text-align: center; margin: 0;">
                             <strong>Gold Shark Barber</strong><br>
-                            <a href="https://constant-harmonize-situated.ngrok-free.dev" style="color: #007bff; text-decoration: none;">Visit our website</a>
+                            <a href="https://goldenbarbershop.online" style="color: #007bff; text-decoration: none;">Visit our website</a>
                         </p>
                     </div>
                 </div>
@@ -221,7 +221,7 @@ class EmailService:
                         </div>
                         
                         <p style="text-align: center; margin: 30px 0;">
-                            <a href="https://constant-harmonize-situated.ngrok-free.dev/cita.html?id={cita_data.get('_id', '')}" 
+                            <a href="https://goldenbarbershop.online/cita.html?id={cita_data.get('_id', '')}" 
                                style="background-color: #ffc107; color: #000; padding: 14px 40px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 16px;">
                                 View Your New Appointment
                             </a>
@@ -234,7 +234,7 @@ class EmailService:
                         <p style="font-size: 12px; color: #999; text-align: center; margin: 0;">
                             <strong>Gold Shark Barber</strong><br>
                             We look forward to seeing you!<br>
-                            <a href="https://constant-harmonize-situated.ngrok-free.dev" style="color: #007bff; text-decoration: none;">Visit our website</a>
+                            <a href="https://goldenbarbershop.online" style="color: #007bff; text-decoration: none;">Visit our website</a>
                         </p>
                     </div>
                 </div>
@@ -287,7 +287,7 @@ class EmailService:
                         </div>
                         
                         <p style="text-align: center; margin: 30px 0;">
-                            <a href="https://constant-harmonize-situated.ngrok-free.dev/cita.html?id={cita_id}" 
+                            <a href="https://goldenbarbershop.online/cita.html?id={cita_id}" 
                                style="background-color: #ff9800; color: white; padding: 14px 40px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 16px;">
                                 View Appointment
                             </a>
@@ -299,7 +299,7 @@ class EmailService:
                         
                         <p style="font-size: 12px; color: #999; text-align: center; margin: 0;">
                             <strong>Gold Shark Barber</strong><br>
-                            <a href="https://constant-harmonize-situated.ngrok-free.dev" style="color: #007bff; text-decoration: none;">Visit our website</a>
+                            <a href="https://goldenbarbershop.online" style="color: #007bff; text-decoration: none;">Visit our website</a>
                         </p>
                     </div>
                 </div>
@@ -376,7 +376,7 @@ class EmailService:
                         </div>
                         
                         <p style="text-align: center; margin: 30px 0;">
-                            <a href="https://constant-harmonize-situated.ngrok-free.dev/dashboard.html" 
+                            <a href="https://goldenbarbershop.online/dashboard.html" 
                                style="background-color: #28a745; color: white; padding: 14px 40px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 16px;">
                                 Go to Dashboard
                             </a>
