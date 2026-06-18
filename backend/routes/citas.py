@@ -5,7 +5,7 @@ from database import mongodb
 from models.cita import Cita
 from services.email_service import EmailService
 from services.google_calendar import GoogleCalendarService
-from pymongo.errors import DuplicateKeyError
+from pymongo.errors import DuplicateKeyError, OperationFailure
 
 # Crear el blueprint
 citas_bp = Blueprint('citas', __name__, url_prefix='/api/citas')
@@ -44,21 +44,21 @@ def obtener_disponibles():
 @citas_bp.route('/crear', methods=['POST'])
 def crear_cita():
     """Crear una nueva cita y enviar emails"""
-    
+
     try:
         data = request.get_json()
-        
+
         # Validar datos requeridos
-        campos_requeridos = ['cliente_nombre', 'cliente_email', 'cliente_telefono', 
+        campos_requeridos = ['cliente_nombre', 'cliente_email', 'cliente_telefono',
                             'dia', 'hora', 'servicio', 'metodoPago', 'precio']
-        
+
         for campo in campos_requeridos:
             if not data.get(campo):
                 return jsonify({
                     'status': 'error',
                     'mensaje': f'Missing required field: {campo}'
                 }), 400
-        
+
         # Validar que el precio sea un número
         try:
             precio = int(data['precio'])
@@ -67,23 +67,9 @@ def crear_cita():
                 'status': 'error',
                 'mensaje': 'Price must be a number'
             }), 400
-        
-        # ✅ VALIDAR QUE NO EXISTA CITA CONFIRMADA EN ESE HORARIO
+
         db = mongodb.db
-        cita_existe = db.citas.find_one({
-            'dia': data['dia'],
-            'hora': data['hora'],
-            'barbero': 'Rosbin',
-            'estado': 'confirmed'  # ← SOLO las confirmadas
-        })
-        
-        if cita_existe:
-            return jsonify({
-                'status': 'error',
-                'mensaje': 'Ese horario ya está reservado. Por favor selecciona otro.',
-                'tipo_error': 'horario_ocupado'
-            }), 409
-        
+
         # Crear la cita
         cita = Cita(
             cliente_nombre=data['cliente_nombre'],
@@ -96,10 +82,20 @@ def crear_cita():
             precio=precio,
             instrucciones=data.get('instrucciones', '')
         )
-        
-        # Guardar en BD
-        resultado = db.citas.insert_one(cita.to_dict())
-        cita_id = str(resultado.inserted_id)
+
+        # 🔒 Usar índice único para prevenir inserciones duplicadas
+        # Esto garantiza que solo una cita confirmada pueda existir por (día, hora)
+        try:
+            resultado = db.citas.insert_one(cita.to_dict())
+            cita_id = str(resultado.inserted_id)
+        except DuplicateKeyError:
+            # Dos usuarios intentaron reservar el mismo horario simultáneamente
+            # El índice único previno la inserción duplicada
+            return jsonify({
+                'status': 'error',
+                'mensaje': 'Ese horario ya está reservado. Por favor selecciona otro.',
+                'tipo_error': 'horario_ocupado'
+            }), 409
         
         # Enviar email de confirmación al cliente
         try:
@@ -370,7 +366,7 @@ def horarios_ocupados(dia):
         # Buscar citas en ese día que estén CONFIRMADAS (excluir canceladas y completadas)
         citas = coleccion_citas.find({
             'dia': dia,
-            'estado': 'confirmed'  # ← SOLO las confirmadas
+            'estado': 'confirmada'  # ← SOLO las confirmadas
         })
         
         # Extraer las horas ocupadas
