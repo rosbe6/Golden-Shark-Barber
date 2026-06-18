@@ -40,6 +40,7 @@ def obtener_disponibles():
     }), 200
 
 
+
 @citas_bp.route('/crear', methods=['POST'])
 def crear_cita():
     """Crear una nueva cita y enviar emails"""
@@ -67,6 +68,22 @@ def crear_cita():
                 'mensaje': 'Price must be a number'
             }), 400
         
+        # ✅ VALIDAR QUE NO EXISTA CITA CONFIRMADA EN ESE HORARIO
+        db = mongodb.db
+        cita_existe = db.citas.find_one({
+            'dia': data['dia'],
+            'hora': data['hora'],
+            'barbero': 'Rosbin',
+            'estado': 'confirmed'  # ← SOLO las confirmadas
+        })
+        
+        if cita_existe:
+            return jsonify({
+                'status': 'error',
+                'mensaje': 'Ese horario ya está reservado. Por favor selecciona otro.',
+                'tipo_error': 'horario_ocupado'
+            }), 409
+        
         # Crear la cita
         cita = Cita(
             cliente_nombre=data['cliente_nombre'],
@@ -81,7 +98,6 @@ def crear_cita():
         )
         
         # Guardar en BD
-        db = mongodb.db
         resultado = db.citas.insert_one(cita.to_dict())
         cita_id = str(resultado.inserted_id)
         
@@ -132,14 +148,6 @@ def crear_cita():
             'cita_id': cita_id,
             'mensaje': 'Cita creada exitosamente'
         }), 201
-    
-    except DuplicateKeyError:
-        # ⚠️ El horario ya está reservado
-        return jsonify({
-            'status': 'error',
-            'mensaje': 'Ese horario ya está reservado. Por favor selecciona otro horario.',
-            'tipo_error': 'horario_ocupado'
-        }), 409
         
     except Exception as e:
         print(f"Error al crear cita: {str(e)}")
@@ -147,7 +155,6 @@ def crear_cita():
             'status': 'error',
             'mensaje': f'Error creating appointment: {str(e)}'
         }), 500
-    
 
 @citas_bp.route('/<cita_id>', methods=['GET'])
 def obtener_cita(cita_id):
