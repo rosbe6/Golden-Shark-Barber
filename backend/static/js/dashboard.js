@@ -1,4 +1,4 @@
-const API_URL = 'http://goldenbarbershop.online/api';
+const API_URL = 'https://goldenbarbershop.online/api';
 let allCitas = [];
 let selectedCita = null;
 let barberoToken = null;

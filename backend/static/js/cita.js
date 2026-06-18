@@ -1,4 +1,4 @@
-const API_URL = 'http://goldenbarbershop.online/api';
+const API_URL = 'https://goldenbarbershop.online/api';
 
 document.addEventListener('DOMContentLoaded', function() {
     const params = new URLSearchParams(window.location.search);
