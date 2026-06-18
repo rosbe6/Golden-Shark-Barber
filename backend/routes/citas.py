@@ -357,18 +357,26 @@ def listar_todas_citas():
 
 @citas_bp.route('/horarios-ocupados/<dia>', methods=['GET'])
 def horarios_ocupados(dia):
-    """
-    Obtener horarios ocupados para un día específico
-    GET /api/citas/horarios-ocupados/2026-06-15
-    """
     try:
         coleccion_citas = mongodb.get_collection('citas')
         
-        # Buscar citas en ese día que NO estén canceladas
+        # Buscar citas en ese día que estén CONFIRMADAS (excluir canceladas y completadas)
         citas = coleccion_citas.find({
             'dia': dia,
-            'estado': {'$ne': 'cancelada'}
+            'estado': 'confirmed'  # ← SOLO las confirmadas
         })
+        
+        # Extraer las horas ocupadas
+        horas_ocupadas = [cita['hora'] for cita in citas]
+        
+        return jsonify({
+            'status': 'success',
+            'dia': dia,
+            'horas_ocupadas': horas_ocupadas
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'mensaje': str(e)}), 500
         
         # Extraer las horas ocupadas
         horas_ocupadas = [cita['hora'] for cita in citas]
