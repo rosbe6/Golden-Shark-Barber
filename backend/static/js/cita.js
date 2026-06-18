@@ -122,10 +122,18 @@ function confirmarCancelacion() {
         return;
     }
     
+    const motivo = prompt('Reason for cancellation:') || 'No reason specified';
+    
     console.log('Cancelando cita:', window.citaIdActual);
     
     fetch(`${API_URL}/citas/${window.citaIdActual}/cancelar`, {
-        method: 'PUT'
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            motivo: motivo
+        })
     })
     .then(response => response.json())
     .then(data => {
@@ -153,7 +161,6 @@ function confirmarCancelacion() {
         alert('Error cancelling appointment');
     });
 }
-
 function irAlicio() {
     window.location.href = 'index.html';
 }
