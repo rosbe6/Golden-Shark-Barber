@@ -5,6 +5,7 @@ from database import mongodb
 from models.cita import Cita
 from services.email_service import EmailService
 from services.google_calendar import GoogleCalendarService
+from pymongo.errors import DuplicateKeyError
 
 # Crear el blueprint
 citas_bp = Blueprint('citas', __name__, url_prefix='/api/citas')
@@ -131,6 +132,14 @@ def crear_cita():
             'cita_id': cita_id,
             'mensaje': 'Cita creada exitosamente'
         }), 201
+    
+    except DuplicateKeyError:
+        # ⚠️ El horario ya está reservado
+        return jsonify({
+            'status': 'error',
+            'mensaje': 'Ese horario ya está reservado. Por favor selecciona otro horario.',
+            'tipo_error': 'horario_ocupado'
+        }), 409
         
     except Exception as e:
         print(f"Error al crear cita: {str(e)}")

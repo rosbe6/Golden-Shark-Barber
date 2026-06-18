@@ -201,8 +201,21 @@ function crearCita(event) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(citaData)
     })
-    .then(response => response.json())
+    .then(response => {
+        // ✅ Manejar error 409 (horario ocupado)
+        if (response.status === 409) {
+            mostrarError('❌ Ese horario ya fue reservado por otro cliente. Por favor, selecciona otro horario.');
+            // Recargar horarios disponibles para ese día
+            if (diaSeleccionado) {
+                cargarHorarios(diaSeleccionado);
+            }
+            return null;
+        }
+        return response.json();
+    })
     .then(data => {
+        if (!data) return; // Si fue 409, data es null
+        
         if (data.status === 'success') {
             window.location.href = `cita.html?id=${data.cita_id}`;
         } else {
