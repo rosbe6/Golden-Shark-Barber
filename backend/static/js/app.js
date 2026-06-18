@@ -3,7 +3,7 @@ let diasDisponibles = [];
 let diaSeleccionado = null;
 let horaSeleccionada = null;
 let mesActualMostrado = new Date();
-
+print("hola")
 document.addEventListener('DOMContentLoaded', function() {
     cargarDiasDisponibles();
     document.getElementById('appointmentForm').addEventListener('submit', crearCita);
