@@ -116,50 +116,17 @@ function cerrarModal() {
     document.getElementById('modal').classList.add('hidden');
 }
 
-function confirmarCancelacion() {
-    if (!window.citaIdActual) {
-        alert('Error: Appointment ID not found');
-        return;
+function cancelarDesdeEnlace() {
+    console.log('cancelarDesdeEnlace() LLAMADA');
+    const modal = document.getElementById('modal');
+    console.log('Modal encontrado:', modal);
+    
+    if (modal) {
+        modal.classList.remove('hidden');
+        console.log('Modal abierto');
+    } else {
+        console.log('ERROR: Modal NO encontrado');
     }
-    
-    const motivo = prompt('Reason for cancellation:') || 'No reason specified';
-    
-    console.log('Cancelando cita:', window.citaIdActual);
-    
-    fetch(`${API_URL}/citas/${window.citaIdActual}/cancelar`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            motivo: motivo
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Respuesta cancelación:', data);
-        
-        if (data.status === 'success') {
-            cerrarModal();
-            
-            // Actualizar estado
-            document.getElementById('det-estado').textContent = 'Cancelled';
-            
-            // Desactivar botón
-            const btnCancelar = document.getElementById('btn-cancelar');
-            btnCancelar.disabled = true;
-            btnCancelar.style.opacity = '0.5';
-            btnCancelar.style.cursor = 'not-allowed';
-            
-            alert('✓ Appointment cancelled successfully');
-        } else {
-            alert('Error: ' + (data.mensaje || 'Could not cancel appointment'));
-        }
-    })
-    .catch(error => {
-        console.error('Error al cancelar:', error);
-        alert('Error cancelling appointment');
-    });
 }
 function irAlicio() {
     window.location.href = 'index.html';
