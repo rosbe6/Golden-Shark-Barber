@@ -1,5 +1,4 @@
-const API_URL = 'https://constant-harmonize-situated.ngrok-free.dev/api';
-
+const API_URL = 'https://goldenbarbershop.online/api';
 document.addEventListener('DOMContentLoaded', function() {
     const params = new URLSearchParams(window.location.search);
     const citaId = params.get('id');

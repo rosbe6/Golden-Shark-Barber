@@ -1,5 +1,4 @@
-const API_URL = 'https://constant-harmonize-situated.ngrok-free.dev/api';
-
+const API_URL = 'https://goldenbarbershop.online/api';
 
 let allCitas = [];
 let selectedCita = null;
