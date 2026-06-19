@@ -37,42 +37,92 @@
             </div>
         </div>
 
-        <!-- STATS -->
-        <div class="stats-box">
-            <div class="stat">
-                <div class="stat-num" id="statToday">0</div>
-                <div class="stat-label">Today</div>
+        <!-- ==================== TABS ==================== -->
+        <div style="display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 2px solid #ddd; padding: 0 20px;">
+            <button id="tabCitas" onclick="switchTab('citas')" style="padding: 15px 30px; background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; border-radius: 4px 4px 0 0;">
+                📅 Appointments
+            </button>
+            <button id="tabBarberos" onclick="switchTab('barberos')" style="padding: 15px 30px; background: #6c757d; color: white; border: none; cursor: pointer; font-weight: bold; border-radius: 4px 4px 0 0; display: none;">
+                💈 Manage Barbers
+            </button>
+        </div>
+
+        <!-- ==================== SECCIÓN: CITAS ==================== -->
+        <div id="seccionCitas">
+            <!-- STATS -->
+            <div class="stats-box">
+                <div class="stat">
+                    <div class="stat-num" id="statToday">0</div>
+                    <div class="stat-label">Today</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-num" id="statWeek">0</div>
+                    <div class="stat-label">This Week</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-num" id="statCompleted">0</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-num" id="statTotal">0</div>
+                    <div class="stat-label">Total</div>
+                </div>
             </div>
-            <div class="stat">
-                <div class="stat-num" id="statWeek">0</div>
-                <div class="stat-label">This Week</div>
-            </div>
-            <div class="stat">
-                <div class="stat-num" id="statCompleted">0</div>
-                <div class="stat-label">Completed</div>
-            </div>
-            <div class="stat">
-                <div class="stat-num" id="statTotal">0</div>
-                <div class="stat-label">Total</div>
+
+            <!-- CITAS -->
+            <div class="citas-container">
+                <h2>Appointments</h2>
+
+                <div class="filter-box">
+                    <button class="filter-tab active" data-filter="all">All</button>
+                    <button class="filter-tab" data-filter="today">Today</button>
+                    <button class="filter-tab" data-filter="week">Week</button>
+                    <button class="filter-tab" data-filter="completed">Completed</button>
+                </div>
+
+                <div id="citasBox" class="citas-grid">
+                    <!-- Se llenan dinámicamente -->
+                </div>
+
+                <div id="emptyBox" class="empty-msg hidden">No appointments</div>
             </div>
         </div>
 
-        <!-- CITAS -->
-        <div class="citas-container">
-            <h2>Appointments</h2>
-
-            <div class="filter-box">
-                <button class="filter-tab active" data-filter="all">All</button>
-                <button class="filter-tab" data-filter="today">Today</button>
-                <button class="filter-tab" data-filter="week">Week</button>
-                <button class="filter-tab" data-filter="completed">Completed</button>
+        <!-- ==================== SECCIÓN: BARBEROS (ADMIN) ==================== -->
+        <div id="seccionBarberos" style="display: none; padding: 20px;">
+            <h2 style="color: #007bff; margin-bottom: 30px;">👑 Manage Barbers</h2>
+            
+            <!-- AGREGAR BARBERO -->
+            <div style="background: white; border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                <h3 style="margin-bottom: 20px;">Add New Barber</h3>
+                
+                <form id="formAddBarbero" onsubmit="agregarBarberoAdmin(event)">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Barber Name</label>
+                        <input type="text" id="inputNombreBarbero" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Email</label>
+                        <input type="email" id="inputEmailBarbero" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Password</label>
+                        <input type="password" id="inputPasswordBarbero" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    
+                    <button type="submit" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                        Add Barber
+                    </button>
+                </form>
             </div>
 
-            <div id="citasBox" class="citas-grid">
-                <!-- Se llenan dinámicamente -->
+            <!-- LISTAR BARBEROS -->
+            <div style="background: white; border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
+                <h3 style="margin-bottom: 20px;">Current Barbers</h3>
+                <div id="barberosList"></div>
             </div>
-
-            <div id="emptyBox" class="empty-msg hidden">No appointments</div>
         </div>
     </div>
 
@@ -155,48 +205,11 @@
         </div>
     </div>
 
-
-<!-- ==================== ADMIN: GESTIÓN DE BARBEROS ==================== -->
-    <div id="adminSection" class="hidden" style="margin-top: 40px; padding-top: 40px; border-top: 2px solid #ddd;">
-        <h2 style="margin-bottom: 30px; color: #007bff;">👑 Manage Barbers (Admin)</h2>
-        
-        <!-- AGREGAR BARBERO -->
-        <div style="background: white; border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-            <h3 style="margin-bottom: 20px;">Add New Barber</h3>
-            
-            <form id="formAddBarbero" onsubmit="agregarBarberoAdmin(event)">
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Barber Name</label>
-                    <input type="text" id="inputNombreBarbero" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                </div>
-                
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Email</label>
-                    <input type="email" id="inputEmailBarbero" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                </div>
-                
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Password</label>
-                    <input type="password" id="inputPasswordBarbero" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                </div>
-                
-                <button type="submit" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-                    Add Barber
-                </button>
-            </form>
-        </div>
-
-        <!-- LISTAR BARBEROS -->
-        <div style="background: white; border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
-            <h3 style="margin-bottom: 20px;">Current Barbers</h3>
-            <div id="barberosList"></div>
-        </div>
-    </div>
     <!-- LOADING -->
     <div class="loading hidden" id="loadingSpinner">
         <div class="spinner"></div>
     </div>
 
-    <script src="js/dashboard.js"></script>a
+    <script src="js/dashboard.js"></script>
 </body>
 </html>

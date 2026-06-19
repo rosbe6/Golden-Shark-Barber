@@ -39,7 +39,7 @@ function setupEvents() {
         });
     });
 
-    // Modal buttons - ✅ ARREGLADO
+    // Modal buttons
     document.getElementById('btnMarcaCompletada').addEventListener('click', () => {
         if (selectedCita && selectedCita._id) {
             markComplete(selectedCita._id);
@@ -51,6 +51,28 @@ function setupEvents() {
     document.getElementById('btnConfirmReschedule').addEventListener('click', confirmReschedule);
     document.getElementById('inputNewDate').addEventListener('change', loadTimesForDate);
 }
+
+// ==================== TABS ====================
+
+function switchTab(tab) {
+    // Ocultar todo
+    document.getElementById('seccionCitas').style.display = 'none';
+    document.getElementById('seccionBarberos').style.display = 'none';
+    
+    // Desactivar botones
+    document.getElementById('tabCitas').style.background = '#6c757d';
+    document.getElementById('tabBarberos').style.background = '#6c757d';
+    
+    // Mostrar seleccionado
+    if (tab === 'citas') {
+        document.getElementById('seccionCitas').style.display = 'block';
+        document.getElementById('tabCitas').style.background = '#007bff';
+    } else {
+        document.getElementById('seccionBarberos').style.display = 'block';
+        document.getElementById('tabBarberos').style.background = '#007bff';
+    }
+}
+
 // ==================== LOGIN ====================
 
 async function handleLogin(e) {
@@ -108,7 +130,11 @@ function showDashboard() {
     document.getElementById('screenDashboard').classList.remove('hidden');
     document.getElementById('textNombre').textContent = barberoName || 'Barber';
     
-    checkIfAdmin();
+    // Si es admin, mostrar tab de barberos
+    if (barberoName === 'Rosbin') {
+        document.getElementById('tabBarberos').style.display = 'block';
+        cargarBarberosAdmin();
+    }
 }
 
 function showLoginError(msg) {
@@ -446,16 +472,7 @@ function closeModal(modalId) {
     document.getElementById(modalId).classList.add('hidden');
 }
 
-
 // ==================== ADMIN: GESTIÓN DE BARBEROS ====================
-
-function checkIfAdmin() {
-    // Verificar si es Rosbin (admin)
-    if (barberoName === 'Rosbin') {
-        document.getElementById('adminSection').classList.remove('hidden');
-        cargarBarberosAdmin();
-    }
-}
 
 function cargarBarberosAdmin() {
     fetch(`${API_URL}/auth/barberos`, {
