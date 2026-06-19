@@ -212,3 +212,43 @@ def eliminar_barbero(barbero_id):
         'status': 'success',
         'mensaje': 'Barber deleted successfully'
     }), 200
+
+
+
+@auth_bp.route('/perfil', methods=['GET'])
+def perfil():
+    """
+    Obtener datos del usuario actual
+    GET /api/auth/perfil
+    Headers: Authorization: Bearer <token>
+    """
+    token = None
+    
+    if 'Authorization' in request.headers:
+        auth_header = request.headers['Authorization']
+        try:
+            token = auth_header.split(" ")[1]
+        except IndexError:
+            return jsonify({'status': 'error', 'mensaje': 'Invalid token format'}), 401
+    
+    if not token:
+        return jsonify({'status': 'error', 'mensaje': 'Token is missing'}), 401
+    
+    es_valido, resultado = verificar_token(token)
+    
+    if es_valido:
+        coleccion_barbero = mongodb.get_collection('barbero')
+        barbero = coleccion_barbero.find_one({'_id': ObjectId(resultado)})
+        
+        if not barbero:
+            return jsonify({'status': 'error', 'mensaje': 'Barber not found'}), 404
+        
+        return jsonify({
+            'status': 'success',
+            'barbero_id': str(barbero['_id']),
+            'nombre': barbero['nombre'],
+            'email': barbero['email'],
+            'es_admin': barbero.get('es_admin', False)
+        }), 200
+    else:
+        return jsonify({'status': 'error', 'mensaje': resultado}), 401

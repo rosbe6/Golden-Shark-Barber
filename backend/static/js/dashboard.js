@@ -130,11 +130,18 @@ function showDashboard() {
     document.getElementById('screenDashboard').classList.remove('hidden');
     document.getElementById('textNombre').textContent = barberoName || 'Barber';
     
-    // Si es admin, mostrar tab de barberos
-    if (barberoName === 'Rosbin') {
-        document.getElementById('tabBarberos').style.display = 'block';
-        cargarBarberosAdmin();
-    }
+    // ✅ Obtener datos del perfil para ver si es admin
+    fetch(`${API_URL}/auth/perfil`, {
+        headers: { 'Authorization': `Bearer ${barberoToken}` }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.es_admin) {
+            document.getElementById('tabBarberos').style.display = 'block';
+            cargarBarberosAdmin();
+        }
+    })
+    .catch(e => console.error(e));
 }
 
 function showLoginError(msg) {
