@@ -44,21 +44,21 @@ def obtener_disponibles():
 @citas_bp.route('/crear', methods=['POST'])
 def crear_cita():
     """Crear una nueva cita y enviar emails"""
-
+    
     try:
         data = request.get_json()
-
+        
         # Validar datos requeridos
-        campos_requeridos = ['cliente_nombre', 'cliente_email', 'cliente_telefono',
+        campos_requeridos = ['cliente_nombre', 'cliente_email', 'cliente_telefono', 
                             'dia', 'hora', 'servicio', 'metodoPago', 'precio']
-
+        
         for campo in campos_requeridos:
             if not data.get(campo):
                 return jsonify({
                     'status': 'error',
                     'mensaje': f'Missing required field: {campo}'
                 }), 400
-
+        
         # Validar que el precio sea un número
         try:
             precio = int(data['precio'])
@@ -67,9 +67,29 @@ def crear_cita():
                 'status': 'error',
                 'mensaje': 'Price must be a number'
             }), 400
-
+        
         db = mongodb.db
-
+        
+        # ✅ VALIDACIÓN CRÍTICA: Verificar que NO exista cita confirmada en ese horario
+        print(f"🔍 Buscando: dia={data['dia']}, hora={data['hora']}, barbero=Rosbin, estado=confirmada")
+        
+        cita_existe = db.citas.find_one({
+            'dia': data['dia'],
+            'hora': data['hora'],
+            'barbero': 'Rosbin',
+            'estado': 'confirmada'
+        })
+        
+        if cita_existe:
+            print(f"❌ BLOQUEADA - Horario {data['hora']} en {data['dia']} ya ocupado")
+            return jsonify({
+                'status': 'error',
+                'mensaje': 'Ese horario ya está reservado. Por favor selecciona otro.',
+                'tipo_error': 'horario_ocupado'
+            }), 409
+        
+        print(f"✅ PERMITIDA - Horario disponible, creando cita...")
+        
         # Crear la cita
         cita = Cita(
             cliente_nombre=data['cliente_nombre'],
@@ -80,22 +100,14 @@ def crear_cita():
             servicio=data['servicio'],
             metodoPago=data['metodoPago'],
             precio=precio,
-            instrucciones=data.get('instrucciones', '')
+            instrucciones=data.get('instrucciones', ''),
+            barbero='Rosbin'
         )
-
-        # 🔒 Usar índice único para prevenir inserciones duplicadas
-        # Esto garantiza que solo una cita confirmada pueda existir por (día, hora)
-        try:
-            resultado = db.citas.insert_one(cita.to_dict())
-            cita_id = str(resultado.inserted_id)
-        except DuplicateKeyError:
-            # Dos usuarios intentaron reservar el mismo horario simultáneamente
-            # El índice único previno la inserción duplicada
-            return jsonify({
-                'status': 'error',
-                'mensaje': 'Ese horario ya está reservado. Por favor selecciona otro.',
-                'tipo_error': 'horario_ocupado'
-            }), 409
+        
+        # Guardar en BD
+        resultado = db.citas.insert_one(cita.to_dict())
+        cita_id = str(resultado.inserted_id)
+        print(f"✅ Cita guardada: {cita_id}")
         
         # Enviar email de confirmación al cliente
         try:
@@ -115,11 +127,10 @@ def crear_cita():
                     
                     if email_barbero:
                         try:
-                            resultado = email_service.enviar_notificacion_barbero(data, cita_id, email_barbero)
+                            email_service.enviar_notificacion_barbero(data, cita_id, email_barbero)
                             print(f"✅ Notificación enviada a {nombre_barbero}: {email_barbero}")
                         except Exception as email_error:
                             print(f"❌ Error enviando email a {email_barbero}")
-                            print(f"   Error: {str(email_error)}")
                     else:
                         print(f"⚠️ {nombre_barbero} no tiene email configurado")
             else:
@@ -146,11 +157,13 @@ def crear_cita():
         }), 201
         
     except Exception as e:
-        print(f"Error al crear cita: {str(e)}")
+        print(f"❌ Error al crear cita: {str(e)}")
         return jsonify({
             'status': 'error',
             'mensaje': f'Error creating appointment: {str(e)}'
         }), 500
+
+
 
 @citas_bp.route('/<cita_id>', methods=['GET'])
 def obtener_cita(cita_id):
@@ -360,26 +373,15 @@ def listar_todas_citas():
 
 @citas_bp.route('/horarios-ocupados/<dia>', methods=['GET'])
 def horarios_ocupados(dia):
+    """Obtener horarios ocupados para un día específico"""
     try:
         coleccion_citas = mongodb.get_collection('citas')
         
-        # Buscar citas en ese día que estén CONFIRMADAS (excluir canceladas y completadas)
+        # Buscar SOLO citas confirmadas en ese día
         citas = coleccion_citas.find({
             'dia': dia,
-            'estado': 'confirmada'  # ← SOLO las confirmadas
+            'estado': 'confirmada'
         })
-        
-        # Extraer las horas ocupadas
-        horas_ocupadas = [cita['hora'] for cita in citas]
-        
-        return jsonify({
-            'status': 'success',
-            'dia': dia,
-            'horas_ocupadas': horas_ocupadas
-        }), 200
-        
-    except Exception as e:
-        return jsonify({'status': 'error', 'mensaje': str(e)}), 500
         
         # Extraer las horas ocupadas
         horas_ocupadas = [cita['hora'] for cita in citas]
