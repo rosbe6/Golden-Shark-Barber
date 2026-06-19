@@ -43,7 +43,6 @@ def obtener_disponibles():
         'barbero_id': barbero_id
     }), 200
 
-
 @citas_bp.route('/barberos', methods=['GET'])
 def listar_barberos():
     """
@@ -51,12 +50,23 @@ def listar_barberos():
     GET /api/citas/barberos
     """
     try:
+        print("🔍 [INICIO] Cargando barberos...")
+        
         coleccion_barbero = mongodb.get_collection('barbero')
+        print("✅ Conexión a colección 'barbero' OK")
+        
         barberos = list(coleccion_barbero.find({}, {'contraseña_hash': 0}))
+        print(f"✅ Barberos encontrados: {len(barberos)}")
+        
+        if len(barberos) == 0:
+            print("⚠️ No hay barberos en la BD")
         
         # Convertir ObjectId a string
-        for barbero in barberos:
+        for i, barbero in enumerate(barberos):
+            print(f"   - Barbero {i+1}: {barbero.get('nombre')} (_id: {barbero.get('_id')})")
             barbero['_id'] = str(barbero['_id'])
+        
+        print(f"✅ [FIN] Retornando {len(barberos)} barberos")
         
         return jsonify({
             'status': 'success',
@@ -64,8 +74,14 @@ def listar_barberos():
         }), 200
         
     except Exception as e:
-        return jsonify({'status': 'error', 'mensaje': str(e)}), 500
-
+        print(f"❌ [ERROR] En /barberos: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        
+        return jsonify({
+            'status': 'error', 
+            'mensaje': str(e)
+        }), 500
 
 @citas_bp.route('/crear', methods=['POST'])
 def crear_cita():
@@ -426,6 +442,32 @@ def listar_todas_citas():
             'status': 'success',
             'total': len(citas),
             'citas': citas
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'mensaje': str(e)}), 500
+    
+
+@citas_bp.route('/barbero/<barbero_id>', methods=['GET'])
+def obtener_barbero(barbero_id):
+    """
+    Obtener datos de un barbero específico
+    GET /api/citas/barbero/abc123
+    """
+    try:
+        coleccion_barbero = mongodb.get_collection('barbero')
+        barbero = coleccion_barbero.find_one({'_id': ObjectId(barbero_id)})
+        
+        if not barbero:
+            return jsonify({'status': 'error', 'mensaje': 'Barber not found'}), 404
+        
+        return jsonify({
+            'status': 'success',
+            'barbero': {
+                '_id': str(barbero['_id']),
+                'nombre': barbero['nombre'],
+                'email': barbero['email']
+            }
         }), 200
         
     except Exception as e:

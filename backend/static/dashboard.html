@@ -74,6 +74,15 @@
                 <h2>Appointments</h2>
 
                 <div class="filter-box">
+                    <!-- DROPDOWN BARBERO (solo admin) -->
+                    <div id="barberoFilterSection" style="display: none; margin-right: 20px;">
+                        <label style="font-weight: bold; margin-right: 10px;">Barber:</label>
+                        <select id="selectBarberoFilter" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                            <option value="">All Barbers</option>
+                        </select>
+                    </div>
+
+                    <!-- BOTONES -->
                     <button class="filter-tab active" data-filter="all">All</button>
                     <button class="filter-tab" data-filter="today">Today</button>
                     <button class="filter-tab" data-filter="week">Week</button>
@@ -87,6 +96,7 @@
                 <div id="emptyBox" class="empty-msg hidden">No appointments</div>
             </div>
         </div>
+
 
         <!-- ==================== SECCIÓN: BARBEROS (ADMIN) ==================== -->
         <div id="seccionBarberos" style="display: none; padding: 20px;">
@@ -160,6 +170,18 @@
                 <div class="detail-row">
                     <span class="detail-key">Price</span>
                     <span class="detail-val" id="detPrice"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-key">Notes</span>
+                    <span class="detail-val" id="detNotes">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-key">Payment</span>
+                    <span class="detail-val" id="detPayment">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-key">Barber</span>
+                    <span class="detail-val" id="detBarber">-</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-key">Status</span>

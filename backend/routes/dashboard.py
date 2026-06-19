@@ -13,18 +13,18 @@ dashboard_bp = Blueprint('dashboard', __name__, url_prefix='/api/dashboard')
 @token_requerido
 def listar_citas(barbero_id):
     """
-    Listar citas: Rosbin ve todas, otros barberos ven solo las suyas
+    Listar citas: Admin ve todas, otros barberos ven solo las suyas
     GET /api/dashboard/citas
     """
     try:
         coleccion_citas = mongodb.get_collection('citas')
         coleccion_barbero = mongodb.get_collection('barbero')
         
-        # Obtener nombre del barbero para saber si es Rosbin (admin)
+        # Obtener nombre del barbero para saber si es admin
         barbero_actual = coleccion_barbero.find_one({'_id': ObjectId(barbero_id)})
-        es_admin = barbero_actual and barbero_actual['nombre'] == 'Rosbin'
+        es_admin = barbero_actual and barbero_actual.get('es_admin', False)
         
-        # Si es Rosbin, ve todas; si no, solo las suyas
+        # Si es admin, ve todas; si no, solo las suyas
         if es_admin:
             citas = list(coleccion_citas.find({'estado': {'$ne': 'cancelada'}}))
         else:
@@ -33,8 +33,17 @@ def listar_citas(barbero_id):
                 'estado': {'$ne': 'cancelada'}
             }))
         
-        # Convertir ObjectId a string
+        # ✅ Agregar nombre del barbero a cada cita
         for cita in citas:
+            if 'barbero_id' in cita:
+                try:
+                    barbero_cita = coleccion_barbero.find_one({'_id': ObjectId(cita['barbero_id'])})
+                    if barbero_cita:
+                        cita['barbero_nombre'] = barbero_cita['nombre']
+                except:
+                    cita['barbero_nombre'] = 'Unknown'
+            
+            # Convertir ObjectId a string
             cita['_id'] = str(cita['_id'])
         
         return jsonify({
@@ -45,7 +54,6 @@ def listar_citas(barbero_id):
         
     except Exception as e:
         return jsonify({'status': 'error', 'mensaje': str(e)}), 500
-
 
 @dashboard_bp.route('/citas/hoy', methods=['GET'])
 @token_requerido

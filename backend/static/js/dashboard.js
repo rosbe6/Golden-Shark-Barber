@@ -1,8 +1,11 @@
-const API_URL = 'https://goldenbarbershop.online/api';
+const API_URL = 'https://constant-harmonize-situated.ngrok-free.dev/api';
+
+
 let allCitas = [];
 let selectedCita = null;
 let barberoToken = null;
 let barberoName = null;
+let barberoFilterSeleccionado = '';  
 
 // ==================== INIT ====================
 
@@ -113,11 +116,21 @@ async function handleLogin(e) {
 }
 
 function handleLogout() {
+    // ✅ Limpiar TODO el localStorage
     localStorage.removeItem('barber_token');
     localStorage.removeItem('barber_name');
+    localStorage.clear();  // Limpiar TODO
+    
     barberoToken = null;
     barberoName = null;
+    
+    // Mostrar login
     showLogin();
+    
+    // Limpiar formulario
+    document.getElementById('inputEmail').value = '';
+    document.getElementById('inputPassword').value = '';
+    document.getElementById('errorLogin').classList.add('hidden');
 }
 
 function showLogin() {
@@ -130,18 +143,61 @@ function showDashboard() {
     document.getElementById('screenDashboard').classList.remove('hidden');
     document.getElementById('textNombre').textContent = barberoName || 'Barber';
     
-    // ✅ Obtener datos del perfil para ver si es admin
+    // ✅ OCULTAR admin tab por defecto
+    document.getElementById('tabBarberos').style.display = 'none';
+    
+    // Obtener datos del perfil para ver si es admin
     fetch(`${API_URL}/auth/perfil`, {
         headers: { 'Authorization': `Bearer ${barberoToken}` }
     })
     .then(r => r.json())
     .then(data => {
-        if (data.es_admin) {
+        if (data && data.es_admin) {
             document.getElementById('tabBarberos').style.display = 'block';
             cargarBarberosAdmin();
+            
+            // ✅ AQUÍ va el código del dropdown, DENTRO del .then()
+            fetch(`${API_URL}/auth/barberos`, {
+                headers: { 'Authorization': `Bearer ${barberoToken}` }
+            })
+            .then(r => r.json())
+            .then(bData => {
+                if (bData.status === 'success') {
+                    const select = document.getElementById('selectBarberoFilter');
+                    document.getElementById('barberoFilterSection').style.display = 'block';
+                    
+                    bData.barberos.forEach(b => {
+                        const option = document.createElement('option');
+                        option.value = b._id;
+                        option.textContent = b.nombre;
+                        select.appendChild(option);
+                    });
+                    
+                    select.addEventListener('change', () => {
+                        filterCitasByBarbero();
+                    });
+                }
+            });
         }
     })
-    .catch(e => console.error(e));
+    .catch(e => {
+        console.error('Error verificando admin:', e);
+        document.getElementById('tabBarberos').style.display = 'none';
+    });
+    
+    // Cargar citas
+    loadCitas();
+}
+
+function filterCitasByBarbero() {
+    const barberoFilter = document.getElementById('selectBarberoFilter').value;
+    barberoFilterSeleccionado = barberoFilter; // ← Guardar selección
+    
+    // Aplicar el filtro activo (all, today, week, completed)
+    const activeTab = document.querySelector('.filter-tab.active');
+    const filterType = activeTab ? activeTab.dataset.filter : 'all';
+    
+    filterCitas(filterType); // ← Aplicar filtro con el barbero seleccionado
 }
 
 function showLoginError(msg) {
@@ -167,97 +223,15 @@ async function loadCitas() {
         if (data.status === 'success') {
             allCitas = data.citas || [];
             renderCitas(allCitas);
-            updateStats();
+            updateStats();  // ← Debe estar definida ANTES
         } else {
-            alert('Error: ' + data.mensaje);
+            console.error('Error: ' + data.mensaje);
         }
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error loadCitas:', error);
     } finally {
         showLoading(false);
     }
-}
-
-function renderCitas(citas) {
-    const box = document.getElementById('citasBox');
-    const empty = document.getElementById('emptyBox');
-
-    if (citas.length === 0) {
-        box.innerHTML = '';
-        empty.classList.remove('hidden');
-        return;
-    }
-
-    empty.classList.add('hidden');
-
-    box.innerHTML = citas.map(c => `
-        <div class="cita-card" onclick="openDetailsModal('${c._id}')">
-            <div class="card-top">
-                <h3>${c.cliente_nombre}</h3>
-                <span class="badge ${c.estado === 'completada' ? 'badge-completed' : 'badge-pending'}">
-                    ${c.estado === 'completada' ? 'Completed' : 'Pending'}
-                </span>
-            </div>
-            
-            <div class="card-info">
-                <div class="info-line">
-                    <span class="info-key">📅 Date</span>
-                    <span class="info-val">${c.dia}</span>
-                </div>
-                <div class="info-line">
-                    <span class="info-key">⏰ Time</span>
-                    <span class="info-val">${c.hora}</span>
-                </div>
-                <div class="info-line">
-                    <span class="info-key">💈 Service</span>
-                    <span class="info-val">${c.servicio}</span>
-                </div>
-                <div class="info-line">
-                    <span class="info-key">💰 Price</span>
-                    <span class="info-val">$${c.precio}</span>
-                </div>
-            </div>
-
-            <div class="card-btns">
-            ${c.estado === 'completada' ? '' : `
-                <button class="btn-card btn-card-main" onclick="event.stopPropagation(); markComplete('${c._id}')">
-                    Complete
-                </button>
-                <button class="btn-card btn-card-sec" onclick="event.stopPropagation(); openDetailsModal('${c._id}')">
-                    Details
-                </button>
-            `}
-        </div>
-        </div>
-    `).join('');
-}
-
-function filterCitas(filter) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const nextWeek = new Date(today);
-    nextWeek.setDate(nextWeek.getDate() + 7);
-
-    let filtered = allCitas;
-
-    if (filter === 'today') {
-        filtered = allCitas.filter(c => {
-            const d = new Date(c.dia);
-            return d.toDateString() === today.toDateString() && c.estado !== 'completada';
-        });
-    } else if (filter === 'week') {
-        filtered = allCitas.filter(c => {
-            const d = new Date(c.dia);
-            return d >= today && d <= nextWeek && c.estado !== 'completada';
-        });
-    } else if (filter === 'completed') {
-        filtered = allCitas.filter(c => c.estado === 'completada');
-    } else if (filter === 'all') {
-        filtered = allCitas.filter(c => c.estado !== 'completada');
-    }
-
-    renderCitas(filtered);
 }
 
 function updateStats() {
@@ -285,6 +259,102 @@ function updateStats() {
     document.getElementById('statTotal').textContent = allCitas.length;
 }
 
+function renderCitas(citas) {
+    const box = document.getElementById('citasBox');
+    const empty = document.getElementById('emptyBox');
+
+    if (citas.length === 0) {
+        box.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+    }
+
+    empty.classList.add('hidden');
+
+    box.innerHTML = citas.map(c => `
+    <div class="cita-card" onclick="openDetailsModal('${c._id}')">
+        <div class="card-top">
+            <h3>${c.cliente_nombre}</h3>
+            <span class="badge ${c.estado === 'completada' ? 'badge-completed' : 'badge-pending'}">
+                ${c.estado === 'completada' ? 'Completed' : 'Pending'}
+            </span>
+        </div>
+        
+        <div class="card-info">
+            <div class="info-line">
+                <span class="info-key">📅 Date</span>
+                <span class="info-val">${c.dia}</span>
+            </div>
+            <div class="info-line">
+                <span class="info-key">⏰ Time</span>
+                <span class="info-val">${c.hora}</span>
+            </div>
+            <div class="info-line">
+                <span class="info-key">💈 Service</span>
+                <span class="info-val">${c.servicio}</span>
+            </div>
+            ${c.barbero_nombre ? `<div class="info-line">
+                <span class="info-key">👨‍💼 Barber</span>
+                <span class="info-val">${c.barbero_nombre}</span>
+            </div>` : ''}
+            <div class="info-line">
+                <span class="info-key">💳 Payment</span>
+                <span class="info-val">${c.metodoPago === 'cash' ? 'Cash' : 'Card'}</span>
+            </div>
+            <div class="info-line">
+                <span class="info-key">💰 Price</span>
+                <span class="info-val">$${c.precio}</span>
+            </div>
+        </div>
+
+        <div class="card-btns">
+        ${c.estado === 'completada' ? '' : `
+            <button class="btn-card btn-card-main" onclick="event.stopPropagation(); markComplete('${c._id}')">
+                Complete
+            </button>
+            <button class="btn-card btn-card-sec" onclick="event.stopPropagation(); openDetailsModal('${c._id}')">
+                Details
+            </button>
+        `}
+    </div>
+    </div>
+`).join('');
+}
+
+function filterCitas(filter) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const nextWeek = new Date(today);
+    nextWeek.setDate(nextWeek.getDate() + 7);
+
+    let filtered = allCitas;
+
+    // ✅ PRIMERO: filtrar por barbero si está seleccionado
+    if (barberoFilterSeleccionado) {
+        filtered = filtered.filter(c => c.barbero_id === barberoFilterSeleccionado);
+    }
+
+    // ✅ SEGUNDO: filtrar por fecha/estado
+    if (filter === 'today') {
+        filtered = filtered.filter(c => {
+            const d = new Date(c.dia);
+            return d.toDateString() === today.toDateString() && c.estado !== 'completada';
+        });
+    } else if (filter === 'week') {
+        filtered = filtered.filter(c => {
+            const d = new Date(c.dia);
+            return d >= today && d <= nextWeek && c.estado !== 'completada';
+        });
+    } else if (filter === 'completed') {
+        filtered = filtered.filter(c => c.estado === 'completada');
+    } else if (filter === 'all') {
+        filtered = filtered.filter(c => c.estado !== 'completada');
+    }
+
+    renderCitas(filtered);
+}
+
 // ==================== MODAL: DETAILS ====================
 
 function openDetailsModal(citaId) {
@@ -299,6 +369,9 @@ function openDetailsModal(citaId) {
     document.getElementById('detTime').textContent = selectedCita.hora;
     document.getElementById('detService').textContent = selectedCita.servicio;
     document.getElementById('detPrice').textContent = `$${selectedCita.precio}`;
+    document.getElementById('detNotes').textContent = selectedCita.instrucciones || 'None';
+    document.getElementById('detPayment').textContent = selectedCita.metodoPago === 'cash' ? 'Cash' : 'Card';
+    document.getElementById('detBarber').textContent = selectedCita.barbero_nombre || '-';
     document.getElementById('detStatus').textContent = selectedCita.estado === 'completada' ? 'Completed' : 'Pending';
 
     const isCompleted = selectedCita.estado === 'completada';
@@ -482,19 +555,29 @@ function closeModal(modalId) {
 // ==================== ADMIN: GESTIÓN DE BARBEROS ====================
 
 function cargarBarberosAdmin() {
-    fetch(`${API_URL}/auth/barberos`, {
+    // Primero obtener el barbero_id actual del token
+    fetch(`${API_URL}/auth/perfil`, {
         headers: { 'Authorization': `Bearer ${barberoToken}` }
     })
     .then(r => r.json())
-    .then(data => {
-        if (data.status === 'success') {
-            renderBarberosAdmin(data.barberos);
-        }
+    .then(perfilData => {
+        // Ahora cargar todos los barberos
+        fetch(`${API_URL}/auth/barberos`, {
+            headers: { 'Authorization': `Bearer ${barberoToken}` }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'success') {
+                renderBarberosAdmin(data.barberos, perfilData.barbero_id);
+            }
+        })
+        .catch(e => console.error(e));
     })
     .catch(e => console.error(e));
 }
 
-function renderBarberosAdmin(barberos) {
+
+function renderBarberosAdmin(barberos, barberoActualId) {
     const list = document.getElementById('barberosList');
     list.innerHTML = barberos.map(b => `
         <div style="background: #f9f9f9; padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
@@ -502,14 +585,17 @@ function renderBarberosAdmin(barberos) {
                 <div style="font-weight: bold; font-size: 16px;">${b.nombre}</div>
                 <div style="color: #666; font-size: 13px;">${b.email}</div>
             </div>
-            ${b.nombre !== 'Rosbin' ? `
-                <button onclick="confirmarEliminarBarbero('${b._id}', '${b.nombre}')" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
-                    Delete
-                </button>
-            ` : '<span style="color: #28a745; font-weight: bold;">👑 Owner</span>'}
+            ${b.es_admin ? 
+                '<span style="color: #28a745; font-weight: bold;">👑 Owner</span>' 
+                : (b._id === barberoActualId ? 
+                    '<span style="color: #999;">You cannot delete yourself</span>'
+                    : `<button onclick="confirmarEliminarBarbero('${b._id}', '${b.nombre}')" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Delete</button>`
+                )
+            }
         </div>
     `).join('');
 }
+
 
 async function agregarBarberoAdmin(e) {
     e.preventDefault();

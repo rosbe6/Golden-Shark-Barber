@@ -1,4 +1,4 @@
-const API_URL = 'https://goldenbarbershop.online/api';
+const API_URL = 'https://constant-harmonize-situated.ngrok-free.dev/api';
 
 document.addEventListener('DOMContentLoaded', function() {
     const params = new URLSearchParams(window.location.search);
@@ -44,6 +44,21 @@ function mostrarCita(cita) {
     document.getElementById('cita-encontrada').classList.remove('hidden');
     
     document.getElementById('det-servicio').textContent = cita.servicio || '-';
+    // ✅ Obtener nombre del barbero
+    if (cita.barbero_id) {
+        fetch(`${API_URL}/citas/barbero/${cita.barbero_id}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('det-barbero').textContent = data.barbero.nombre || '-';
+                }
+            })
+            .catch(e => {
+                document.getElementById('det-barbero').textContent = '-';
+            });
+    } else {
+        document.getElementById('det-barbero').textContent = '-';
+    }
     
     // ✅ NUEVO (sin interpretación de zona horaria)
     const partes = cita.dia.split('-');

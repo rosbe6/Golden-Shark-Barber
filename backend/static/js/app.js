@@ -1,4 +1,6 @@
-const API_URL = 'https://goldenbarbershop.online/api';
+const API_URL = 'https://constant-harmonize-situated.ngrok-free.dev/api';
+
+
 let diasDisponibles = [];
 let diaSeleccionado = null;
 let horaSeleccionada = null;
@@ -233,6 +235,8 @@ function mesSiguiente() {
 function crearCita(event) {
     event.preventDefault();
     
+    console.log("🔍 [CREAR CITA] barberoSeleccionado:", barberoSeleccionado);
+    
     const citaData = {
         cliente_nombre: document.getElementById('clienteNombre').value,
         cliente_email: document.getElementById('clienteEmail').value,
@@ -243,12 +247,22 @@ function crearCita(event) {
         metodoPago: document.getElementById('metodoPago').value,
         precio: document.getElementById('metodoPago').value === 'cash' ? 45 : 50,
         instrucciones: document.getElementById('instrucciones').value,
-        barbero_id: barberoSeleccionado  // ← NUEVO
+        barbero_id: barberoSeleccionado
     };
+    
+    console.log("📤 [CREAR CITA] citaData completo:", citaData);
+    console.log("📤 [CREAR CITA] barbero_id específico:", citaData.barbero_id);
     
     if (!citaData.cliente_nombre || !citaData.cliente_email || !citaData.cliente_telefono || 
         !citaData.dia || !citaData.hora || !citaData.servicio || !citaData.metodoPago) {
         mostrarError('Please fill in all required fields');
+        console.log("❌ Falta un campo requerido");
+        return;
+    }
+    
+    if (!citaData.barbero_id) {
+        mostrarError('Please select a barber');
+        console.log("❌ No se seleccionó barbero");
         return;
     }
     
@@ -258,16 +272,16 @@ function crearCita(event) {
         body: JSON.stringify(citaData)
     })
     .then(response => {
+        console.log("📥 Response status:", response.status);
+        
         // ✅ Manejar error 409 (horario ocupado)
         if (response.status === 409) {
             mostrarError('❌ Ese horario ya fue reservado por otro cliente.\n\nPor favor, selecciona otro horario.');
-            // Limpiar selección actual
             horaSeleccionada = null;
             document.getElementById('hora').value = '';
             document.querySelectorAll('.horario.seleccionado').forEach(el => {
                 el.classList.remove('seleccionado');
             });
-            // Recargar horarios
             if (diaSeleccionado) {
                 cargarHorarios(diaSeleccionado);
             }
@@ -276,16 +290,20 @@ function crearCita(event) {
         return response.json();
     })
     .then(data => {
-        if (!data) return; // Si fue 409, data es null
+        if (!data) return;
+        
+        console.log("📥 Response data:", data);
         
         if (data.status === 'success') {
+            console.log("✅ Cita creada:", data.cita_id);
             window.location.href = `cita.html?id=${data.cita_id}`;
         } else {
+            console.log("❌ Error:", data.mensaje);
             mostrarError(data.mensaje);
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('❌ [CREAR CITA] Error:', error);
         mostrarError('Error creating appointment');
     });
 }
