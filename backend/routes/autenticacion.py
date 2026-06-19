@@ -153,7 +153,8 @@ def listar_todos_barberos():
     coleccion_barbero = mongodb.get_collection('barbero')
     barbero_actual = coleccion_barbero.find_one({'_id': ObjectId(resultado)})
     
-    if not barbero_actual or barbero_actual['nombre'] != 'Rosbin':
+    # ✅ CAMBIAR: Usar es_admin en lugar de nombre
+    if not barbero_actual or not barbero_actual.get('es_admin', False):
         return jsonify({'status': 'error', 'mensaje': 'Only admin can view all barbers'}), 403
     
     # Listar todos
@@ -165,7 +166,6 @@ def listar_todos_barberos():
         'status': 'success',
         'barberos': barberos
     }), 200
-
 
 @auth_bp.route('/barberos/<barbero_id>', methods=['DELETE'])
 def eliminar_barbero(barbero_id):
@@ -195,12 +195,14 @@ def eliminar_barbero(barbero_id):
     coleccion_barbero = mongodb.get_collection('barbero')
     barbero_actual = coleccion_barbero.find_one({'_id': ObjectId(resultado)})
     
-    if not barbero_actual or barbero_actual['nombre'] != 'Rosbin':
+    # ✅ CAMBIAR: Usar es_admin en lugar de nombre
+    if not barbero_actual or not barbero_actual.get('es_admin', False):
         return jsonify({'status': 'error', 'mensaje': 'Only admin can delete barbers'}), 403
     
-    # No permitir eliminar a Rosbin
-    if barbero_id == str(barbero_actual['_id']):
-        return jsonify({'status': 'error', 'mensaje': 'Cannot delete yourself'}), 400
+    # No permitir eliminar al admin
+    barbero_a_eliminar = coleccion_barbero.find_one({'_id': ObjectId(barbero_id)})
+    if barbero_a_eliminar and barbero_a_eliminar.get('es_admin', False):
+        return jsonify({'status': 'error', 'mensaje': 'Cannot delete admin'}), 400
     
     # Eliminar
     resultado = coleccion_barbero.delete_one({'_id': ObjectId(barbero_id)})
@@ -212,7 +214,6 @@ def eliminar_barbero(barbero_id):
         'status': 'success',
         'mensaje': 'Barber deleted successfully'
     }), 200
-
 
 
 @auth_bp.route('/perfil', methods=['GET'])
