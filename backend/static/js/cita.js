@@ -45,7 +45,9 @@ function mostrarCita(cita) {
     
     document.getElementById('det-servicio').textContent = cita.servicio || '-';
     
-    const fecha = new Date(cita.dia);
+    // ✅ NUEVO (sin interpretación de zona horaria)
+    const partes = cita.dia.split('-');
+    const fecha = new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, parseInt(partes[2]));
     const fechaFormato = fecha.toLocaleDateString('en-US', { 
         weekday: 'long', 
         year: 'numeric', 
