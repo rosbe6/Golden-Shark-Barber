@@ -18,8 +18,11 @@ email_service = EmailService()
 @citas_bp.route('/disponibles', methods=['GET'])
 def obtener_disponibles():
     """
-    Obtener horarios disponibles (todos los días lunes-sábado del próximo año)
+    Obtener horarios disponibles (todos los días lunes-sábado)
+    GET /api/citas/disponibles?barbero_id=6a3214b2ad920a6943edfaec
     """
+    barbero_id = request.args.get('barbero_id')
+    
     horarios = ['10:00', '10:40', '11:20', '12:00', '12:40', '13:20', '14:00',
                 '14:40', '15:20', '16:00', '16:40']
     
@@ -36,9 +39,32 @@ def obtener_disponibles():
     return jsonify({
         'status': 'success',
         'dias': dias,
-        'horarios': horarios
+        'horarios': horarios,
+        'barbero_id': barbero_id
     }), 200
 
+
+@citas_bp.route('/barberos', methods=['GET'])
+def listar_barberos():
+    """
+    Obtener lista de todos los barberos
+    GET /api/citas/barberos
+    """
+    try:
+        coleccion_barbero = mongodb.get_collection('barbero')
+        barberos = list(coleccion_barbero.find({}, {'contraseña_hash': 0}))
+        
+        # Convertir ObjectId a string
+        for barbero in barberos:
+            barbero['_id'] = str(barbero['_id'])
+        
+        return jsonify({
+            'status': 'success',
+            'barberos': barberos
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'mensaje': str(e)}), 500
 
 
 @citas_bp.route('/crear', methods=['POST'])
@@ -50,7 +76,7 @@ def crear_cita():
         
         # Validar datos requeridos
         campos_requeridos = ['cliente_nombre', 'cliente_email', 'cliente_telefono', 
-                            'dia', 'hora', 'servicio', 'metodoPago', 'precio']
+                            'dia', 'hora', 'servicio', 'metodoPago', 'precio', 'barbero_id']
         
         for campo in campos_requeridos:
             if not data.get(campo):
@@ -70,13 +96,13 @@ def crear_cita():
         
         db = mongodb.db
         
-        # ✅ VALIDACIÓN CRÍTICA: Verificar que NO exista cita confirmada en ese horario
-        print(f"🔍 Buscando: dia={data['dia']}, hora={data['hora']}, barbero=Rosbin, estado=confirmada")
+        # ✅ VALIDACIÓN CRÍTICA: Verificar que NO exista cita confirmada en ese horario POR BARBERO
+        print(f"🔍 Buscando: dia={data['dia']}, hora={data['hora']}, barbero_id={data['barbero_id']}, estado=confirmada")
         
         cita_existe = db.citas.find_one({
             'dia': data['dia'],
             'hora': data['hora'],
-            'barbero': 'Rosbin',
+            'barbero_id': data['barbero_id'],
             'estado': 'confirmada'
         })
         
@@ -101,7 +127,7 @@ def crear_cita():
             metodoPago=data['metodoPago'],
             precio=precio,
             instrucciones=data.get('instrucciones', ''),
-            barbero='Rosbin'
+            barbero_id=data['barbero_id']
         )
         
         # Guardar en BD
@@ -163,6 +189,40 @@ def crear_cita():
             'mensaje': f'Error creating appointment: {str(e)}'
         }), 500
 
+
+@citas_bp.route('/horarios-ocupados/<dia>', methods=['GET'])
+def horarios_ocupados(dia):
+    """Obtener horarios ocupados para un día específico y barbero"""
+    try:
+        barbero_id = request.args.get('barbero_id')
+        
+        if not barbero_id:
+            return jsonify({
+                'status': 'error',
+                'mensaje': 'barbero_id is required'
+            }), 400
+        
+        coleccion_citas = mongodb.get_collection('citas')
+        
+        # Buscar SOLO citas confirmadas en ese día Y barbero
+        citas = coleccion_citas.find({
+            'dia': dia,
+            'barbero_id': barbero_id,
+            'estado': 'confirmada'
+        })
+        
+        # Extraer las horas ocupadas
+        horas_ocupadas = [cita['hora'] for cita in citas]
+        
+        return jsonify({
+            'status': 'success',
+            'dia': dia,
+            'barbero_id': barbero_id,
+            'horas_ocupadas': horas_ocupadas
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'mensaje': str(e)}), 500
 
 
 @citas_bp.route('/<cita_id>', methods=['GET'])
@@ -233,7 +293,6 @@ def marcar_completada(cita_id):
     except Exception as e:
         return jsonify({'status': 'error', 'mensaje': str(e)}), 500
 
-# REEMPLAZA ESTAS 2 FUNCIONES EN TU citas.py ACTUAL
 
 @citas_bp.route('/<cita_id>/cancelar', methods=['PUT'])
 def cancelar_cita(cita_id):
@@ -347,6 +406,8 @@ def reagendar_cita(cita_id):
         
     except Exception as e:
         return jsonify({'status': 'error', 'mensaje': str(e)}), 500
+
+
 @citas_bp.route('/listar/todas', methods=['GET'])
 def listar_todas_citas():
     """
@@ -365,31 +426,6 @@ def listar_todas_citas():
             'status': 'success',
             'total': len(citas),
             'citas': citas
-        }), 200
-        
-    except Exception as e:
-        return jsonify({'status': 'error', 'mensaje': str(e)}), 500
-    
-
-@citas_bp.route('/horarios-ocupados/<dia>', methods=['GET'])
-def horarios_ocupados(dia):
-    """Obtener horarios ocupados para un día específico"""
-    try:
-        coleccion_citas = mongodb.get_collection('citas')
-        
-        # Buscar SOLO citas confirmadas en ese día
-        citas = coleccion_citas.find({
-            'dia': dia,
-            'estado': 'confirmada'
-        })
-        
-        # Extraer las horas ocupadas
-        horas_ocupadas = [cita['hora'] for cita in citas]
-        
-        return jsonify({
-            'status': 'success',
-            'dia': dia,
-            'horas_ocupadas': horas_ocupadas
         }), 200
         
     except Exception as e:

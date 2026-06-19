@@ -13,13 +13,25 @@ dashboard_bp = Blueprint('dashboard', __name__, url_prefix='/api/dashboard')
 @token_requerido
 def listar_citas(barbero_id):
     """
-    Listar todas las citas del barbero (no canceladas)
+    Listar citas: Rosbin ve todas, otros barberos ven solo las suyas
     GET /api/dashboard/citas
-    Headers: Authorization: Bearer <token>
     """
     try:
         coleccion_citas = mongodb.get_collection('citas')
-        citas = list(coleccion_citas.find({'estado': {'$ne': 'cancelada'}}))
+        coleccion_barbero = mongodb.get_collection('barbero')
+        
+        # Obtener nombre del barbero para saber si es Rosbin (admin)
+        barbero_actual = coleccion_barbero.find_one({'_id': ObjectId(barbero_id)})
+        es_admin = barbero_actual and barbero_actual['nombre'] == 'Rosbin'
+        
+        # Si es Rosbin, ve todas; si no, solo las suyas
+        if es_admin:
+            citas = list(coleccion_citas.find({'estado': {'$ne': 'cancelada'}}))
+        else:
+            citas = list(coleccion_citas.find({
+                'barbero_id': barbero_id,
+                'estado': {'$ne': 'cancelada'}
+            }))
         
         # Convertir ObjectId a string
         for cita in citas:

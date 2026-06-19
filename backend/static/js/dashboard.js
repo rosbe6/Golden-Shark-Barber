@@ -121,13 +121,20 @@ async function loadCitas() {
     try {
         showLoading(true);
 
-        const response = await fetch(`${API_URL}/citas/listar/todas`);
+        const response = await fetch(`${API_URL}/dashboard/citas`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${barberoToken}`
+            }
+        });
         const data = await response.json();
 
         if (data.status === 'success') {
             allCitas = data.citas || [];
             renderCitas(allCitas);
             updateStats();
+        } else {
+            alert('Error: ' + data.mensaje);
         }
     } catch (error) {
         console.error('Error:', error);

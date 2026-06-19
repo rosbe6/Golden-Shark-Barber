@@ -3,13 +3,62 @@ let diasDisponibles = [];
 let diaSeleccionado = null;
 let horaSeleccionada = null;
 let mesActualMostrado = new Date();
+let barberoSeleccionado = null;
+let allBarberos = [];
+
 document.addEventListener('DOMContentLoaded', function() {
-    cargarDiasDisponibles();
+    cargarBarberos();
     document.getElementById('appointmentForm').addEventListener('submit', crearCita);
 });
 
+// ==================== BARBEROS ====================
+
+function cargarBarberos() {
+    fetch(`${API_URL}/citas/barberos`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                allBarberos = data.barberos;
+                renderBarberos();
+                // Seleccionar primer barbero por defecto
+                if (allBarberos.length > 0) {
+                    seleccionarBarbero(allBarberos[0]._id);
+                }
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function renderBarberos() {
+    const selectBarbero = document.getElementById('selectBarbero');
+    selectBarbero.innerHTML = allBarberos.map(b => 
+        `<option value="${b._id}">${b.nombre}</option>`
+    ).join('');
+    
+    selectBarbero.addEventListener('change', (e) => {
+        seleccionarBarbero(e.target.value);
+    });
+}
+
+function seleccionarBarbero(barberoId) {
+    barberoSeleccionado = barberoId;
+    document.getElementById('selectBarbero').value = barberoId;
+    
+    // Recargar días disponibles para este barbero
+    cargarDiasDisponibles();
+    
+    // Limpiar selecciones
+    diaSeleccionado = null;
+    horaSeleccionada = null;
+    document.getElementById('dia').value = '';
+    document.getElementById('hora').value = '';
+    document.getElementById('horariosGrid').innerHTML = '';
+}
+
+// ==================== DÍAS ====================
+
 function cargarDiasDisponibles() {
-    fetch(`${API_URL}/citas/disponibles`)
+    fetch(`${API_URL}/citas/disponibles?barbero_id=${barberoSeleccionado}`)
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
@@ -113,12 +162,14 @@ function seleccionarDia(dia, elemento) {
     cargarHorarios(dia);
 }
 
+// ==================== HORARIOS ====================
+
 function cargarHorarios(dia) {
-    fetch(`${API_URL}/citas/disponibles`)
+    fetch(`${API_URL}/citas/disponibles?barbero_id=${barberoSeleccionado}`)
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
-                fetch(`${API_URL}/citas/horarios-ocupados/${dia}`)
+                fetch(`${API_URL}/citas/horarios-ocupados/${dia}?barbero_id=${barberoSeleccionado}`)
                     .then(response => response.json())
                     .then(dataDia => {
                         const horariosOcupados = dataDia.horas_ocupadas || [];
@@ -177,6 +228,8 @@ function mesSiguiente() {
     renderizarCalendario();
 }
 
+// ==================== CREAR CITA ====================
+
 function crearCita(event) {
     event.preventDefault();
     
@@ -189,7 +242,8 @@ function crearCita(event) {
         servicio: document.getElementById('servicio').value,
         metodoPago: document.getElementById('metodoPago').value,
         precio: document.getElementById('metodoPago').value === 'cash' ? 45 : 50,
-        instrucciones: document.getElementById('instrucciones').value
+        instrucciones: document.getElementById('instrucciones').value,
+        barbero_id: barberoSeleccionado  // ← NUEVO
     };
     
     if (!citaData.cliente_nombre || !citaData.cliente_email || !citaData.cliente_telefono || 
@@ -235,6 +289,8 @@ function crearCita(event) {
         mostrarError('Error creating appointment');
     });
 }
+
+// ==================== UTILIDADES ====================
 
 function mostrarError(mensaje) {
     document.getElementById('errorMessage').classList.remove('hidden');
