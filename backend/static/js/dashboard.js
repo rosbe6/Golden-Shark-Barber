@@ -107,6 +107,8 @@ function showDashboard() {
     document.getElementById('screenLogin').classList.add('hidden');
     document.getElementById('screenDashboard').classList.remove('hidden');
     document.getElementById('textNombre').textContent = barberoName || 'Barber';
+    
+    checkIfAdmin();
 }
 
 function showLoginError(msg) {
@@ -442,4 +444,107 @@ function showLoading(show) {
 
 function closeModal(modalId) {
     document.getElementById(modalId).classList.add('hidden');
+}
+
+
+// ==================== ADMIN: GESTIÓN DE BARBEROS ====================
+
+function checkIfAdmin() {
+    // Verificar si es Rosbin (admin)
+    if (barberoName === 'Rosbin') {
+        document.getElementById('adminSection').classList.remove('hidden');
+        cargarBarberosAdmin();
+    }
+}
+
+function cargarBarberosAdmin() {
+    fetch(`${API_URL}/auth/barberos`, {
+        headers: { 'Authorization': `Bearer ${barberoToken}` }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            renderBarberosAdmin(data.barberos);
+        }
+    })
+    .catch(e => console.error(e));
+}
+
+function renderBarberosAdmin(barberos) {
+    const list = document.getElementById('barberosList');
+    list.innerHTML = barberos.map(b => `
+        <div style="background: #f9f9f9; padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <div style="font-weight: bold; font-size: 16px;">${b.nombre}</div>
+                <div style="color: #666; font-size: 13px;">${b.email}</div>
+            </div>
+            ${b.nombre !== 'Rosbin' ? `
+                <button onclick="confirmarEliminarBarbero('${b._id}', '${b.nombre}')" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+                    Delete
+                </button>
+            ` : '<span style="color: #28a745; font-weight: bold;">👑 Owner</span>'}
+        </div>
+    `).join('');
+}
+
+async function agregarBarberoAdmin(e) {
+    e.preventDefault();
+    
+    const nombre = document.getElementById('inputNombreBarbero').value;
+    const email = document.getElementById('inputEmailBarbero').value;
+    const contraseña = document.getElementById('inputPasswordBarbero').value;
+    
+    try {
+        showLoading(true);
+        
+        const response = await fetch(`${API_URL}/auth/registrar`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nombre, email, contraseña })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            alert('✅ Barber added successfully!');
+            document.getElementById('formAddBarbero').reset();
+            cargarBarberosAdmin();
+        } else {
+            alert('❌ Error: ' + data.mensaje);
+        }
+    } catch (error) {
+        alert('❌ Error adding barber');
+    } finally {
+        showLoading(false);
+    }
+}
+
+function confirmarEliminarBarbero(barberoId, nombre) {
+    if (confirm(`Are you sure you want to delete ${nombre}?`)) {
+        eliminarBarberoAdmin(barberoId);
+    }
+}
+
+async function eliminarBarberoAdmin(barberoId) {
+    try {
+        showLoading(true);
+        
+        const response = await fetch(`${API_URL}/auth/barberos/${barberoId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${barberoToken}` }
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            alert('✅ Barber deleted!');
+            cargarBarberosAdmin();
+        } else {
+            alert('❌ Error: ' + data.mensaje);
+        }
+    } catch (error) {
+        alert('❌ Error deleting barber');
+    } finally {
+        showLoading(false);
+    }
 }

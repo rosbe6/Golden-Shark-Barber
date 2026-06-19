@@ -123,3 +123,92 @@ def verificar():
         return jsonify({'status': 'success', 'barbero_id': resultado}), 200
     else:
         return jsonify({'status': 'error', 'mensaje': resultado}), 401
+    
+
+@auth_bp.route('/barberos', methods=['GET'])
+def listar_todos_barberos():
+    """
+    Listar todos los barberos (solo para admin)
+    GET /api/auth/barberos
+    Headers: Authorization: Bearer <token>
+    """
+    token = None
+    
+    if 'Authorization' in request.headers:
+        auth_header = request.headers['Authorization']
+        try:
+            token = auth_header.split(" ")[1]
+        except IndexError:
+            return jsonify({'status': 'error', 'mensaje': 'Invalid token format'}), 401
+    
+    if not token:
+        return jsonify({'status': 'error', 'mensaje': 'Token is missing'}), 401
+    
+    es_valido, resultado = verificar_token(token)
+    
+    if not es_valido:
+        return jsonify({'status': 'error', 'mensaje': resultado}), 401
+    
+    # Verificar que sea admin
+    coleccion_barbero = mongodb.get_collection('barbero')
+    barbero_actual = coleccion_barbero.find_one({'_id': ObjectId(resultado)})
+    
+    if not barbero_actual or barbero_actual['nombre'] != 'Rosbin':
+        return jsonify({'status': 'error', 'mensaje': 'Only admin can view all barbers'}), 403
+    
+    # Listar todos
+    barberos = list(coleccion_barbero.find({}, {'contraseña_hash': 0}))
+    for b in barberos:
+        b['_id'] = str(b['_id'])
+    
+    return jsonify({
+        'status': 'success',
+        'barberos': barberos
+    }), 200
+
+
+@auth_bp.route('/barberos/<barbero_id>', methods=['DELETE'])
+def eliminar_barbero(barbero_id):
+    """
+    Eliminar un barbero (solo para admin)
+    DELETE /api/auth/barberos/abc123
+    Headers: Authorization: Bearer <token>
+    """
+    token = None
+    
+    if 'Authorization' in request.headers:
+        auth_header = request.headers['Authorization']
+        try:
+            token = auth_header.split(" ")[1]
+        except IndexError:
+            return jsonify({'status': 'error', 'mensaje': 'Invalid token format'}), 401
+    
+    if not token:
+        return jsonify({'status': 'error', 'mensaje': 'Token is missing'}), 401
+    
+    es_valido, resultado = verificar_token(token)
+    
+    if not es_valido:
+        return jsonify({'status': 'error', 'mensaje': resultado}), 401
+    
+    # Verificar que sea admin
+    coleccion_barbero = mongodb.get_collection('barbero')
+    barbero_actual = coleccion_barbero.find_one({'_id': ObjectId(resultado)})
+    
+    if not barbero_actual or barbero_actual['nombre'] != 'Rosbin':
+        return jsonify({'status': 'error', 'mensaje': 'Only admin can delete barbers'}), 403
+    
+    # No permitir eliminar a Rosbin
+    if barbero_id == str(barbero_actual['_id']):
+        return jsonify({'status': 'error', 'mensaje': 'Cannot delete yourself'}), 400
+    
+    # Eliminar
+    resultado = coleccion_barbero.delete_one({'_id': ObjectId(barbero_id)})
+    
+    if resultado.deleted_count == 0:
+        return jsonify({'status': 'error', 'mensaje': 'Barber not found'}), 404
+    
+    return jsonify({
+        'status': 'success',
+        'mensaje': 'Barber deleted successfully'
+    }), 200
