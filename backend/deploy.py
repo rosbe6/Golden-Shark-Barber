@@ -17,6 +17,8 @@ def run_command(cmd, description):
         print(f"❌ Error: {result.stderr}")
         return False
     print(f"✅ {description}")
+    if result.stdout:
+        print(result.stdout)
     return True
 
 def deploy():
@@ -44,25 +46,27 @@ def deploy():
     # 3. SSH a VPS con contraseña
     print(f"\n🚀 Conectando a VPS...")
     
-    # Instala sshpass si no lo tienes
-    subprocess.run("which sshpass || apt-get install -y sshpass", shell=True, capture_output=True)
-    
-    ssh_cmd = f"""
-    sshpass -p '{vps_password}' ssh -o StrictHostKeyChecking=no {VPS_USER}@{VPS_IP} << 'EOFREMOTE'
+    commands = f"""
     cd {VPS_PATH}
     git pull origin main
     systemctl restart goldenshark
-    echo "✅ App reiniciada"
-    EOFREMOTE
+    systemctl status goldenshark
     """
     
-    result = subprocess.run(ssh_cmd, shell=True, capture_output=True, text=True)
-    print(result.stdout)
-    if result.returncode != 0:
-        print(f"❌ Error: {result.stderr}")
-        return
+    # Usar sshpass
+    ssh_cmd = f'sshpass -p "{vps_password}" ssh -o StrictHostKeyChecking=no {VPS_USER}@{VPS_IP} "{commands}"'
     
-    print("\n✅ DEPLOY COMPLETADO!")
+    result = subprocess.run(ssh_cmd, shell=True, capture_output=True, text=True)
+    
+    if result.stdout:
+        print(result.stdout)
+    if result.stderr:
+        print(f"⚠️ {result.stderr}")
+    
+    if result.returncode == 0:
+        print("\n✅ DEPLOY COMPLETADO!")
+    else:
+        print(f"\n❌ Error en deploy")
 
 if __name__ == "__main__":
     deploy()
