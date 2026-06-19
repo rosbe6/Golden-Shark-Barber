@@ -2,7 +2,7 @@
 import subprocess
 import sys
 import getpass
-from pathlib import Path
+import paramiko
 
 # Configuración
 VPS_IP = "108.181.184.168"
@@ -10,7 +10,7 @@ VPS_USER = "administrator"
 VPS_PATH = "/var/www/Golden-Shark-Barber"
 
 def run_command(cmd, description):
-    """Ejecuta comando y reporta"""
+    """Ejecuta comando local"""
     print(f"\n📌 {description}...")
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     if result.returncode != 0:
@@ -20,6 +20,11 @@ def run_command(cmd, description):
     if result.stdout:
         print(result.stdout)
     return True
+
+def ssh_exec(ssh, command):
+    """Ejecuta comando en VPS via SSH"""
+    stdin, stdout, stderr = ssh.exec_command(command)
+    return stdout.read().decode()
 
 def deploy():
     """Deploy automático"""
@@ -43,30 +48,31 @@ def deploy():
     if not run_command(f'git push origin main', 'Git push'):
         return
     
-    # 3. SSH a VPS con contraseña
+    # 3. SSH a VPS
     print(f"\n🚀 Conectando a VPS...")
     
-    commands = f"""
-    cd {VPS_PATH}
-    git pull origin main
-    systemctl restart goldenshark
-    systemctl status goldenshark
-    """
-    
-    # Usar sshpass
-    ssh_cmd = f'sshpass -p "{vps_password}" ssh -o StrictHostKeyChecking=no {VPS_USER}@{VPS_IP} "{commands}"'
-    
-    result = subprocess.run(ssh_cmd, shell=True, capture_output=True, text=True)
-    
-    if result.stdout:
-        print(result.stdout)
-    if result.stderr:
-        print(f"⚠️ {result.stderr}")
-    
-    if result.returncode == 0:
+    try:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(VPS_IP, username=VPS_USER, password=vps_password, timeout=10)
+        
+        print("✅ Conectado a VPS")
+        
+        # Commands
+        output = ssh_exec(ssh, f"cd {VPS_PATH} && git pull origin main")
+        print(output)
+        
+        output = ssh_exec(ssh, "systemctl restart goldenshark")
+        print(output)
+        
+        output = ssh_exec(ssh, "systemctl status goldenshark")
+        print(output)
+        
+        ssh.close()
         print("\n✅ DEPLOY COMPLETADO!")
-    else:
-        print(f"\n❌ Error en deploy")
+        
+    except Exception as e:
+        print(f"❌ Error SSH: {e}")
 
 if __name__ == "__main__":
     deploy()
