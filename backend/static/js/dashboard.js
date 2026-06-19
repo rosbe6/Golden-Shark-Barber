@@ -39,15 +39,18 @@ function setupEvents() {
         });
     });
 
-    // Modal buttons
-    document.getElementById('btnMarcaCompletada').addEventListener('click', markComplete);
+    // Modal buttons - ✅ ARREGLADO
+    document.getElementById('btnMarcaCompletada').addEventListener('click', () => {
+        if (selectedCita && selectedCita._id) {
+            markComplete(selectedCita._id);
+        }
+    });
     document.getElementById('btnCancelarCita').addEventListener('click', () => openCancelModal());
     document.getElementById('btnReagendar').addEventListener('click', () => openRescheduleModal());
     document.getElementById('btnConfirmCancel').addEventListener('click', confirmCancel);
     document.getElementById('btnConfirmReschedule').addEventListener('click', confirmReschedule);
     document.getElementById('inputNewDate').addEventListener('change', loadTimesForDate);
 }
-
 // ==================== LOGIN ====================
 
 async function handleLogin(e) {
