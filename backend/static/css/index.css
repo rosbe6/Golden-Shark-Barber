@@ -1,10 +1,32 @@
 /* ========================================
-   HERO SECTION
+   HERO SECTION CON LOGO CARRUSEL
    ======================================== */
+
+@keyframes carouselLogo {
+    0% {
+        transform: translateX(-150%);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    50% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(150%);
+        opacity: 0;
+    }
+}
 
 .hero {
     height: 600px;
     margin-top: 0;
+    padding: 0;
     background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
                 url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%23222" width="1200" height="600"/><circle cx="600" cy="300" r="100" fill="%23d4af37" opacity="0.05"/></svg>');
     background-size: cover;
@@ -16,6 +38,24 @@
     justify-content: flex-start;
     color: white;
     overflow: hidden;
+}
+
+.hero::after {
+    content: '';
+    position: absolute;
+    width: 75%;
+    height: 75%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-image: url('/images/logo.jpeg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.15;
+    animation: carouselLogo 8s ease-in-out infinite;
+    z-index: 1;
+    pointer-events: none;
 }
 
 .hero::before {
@@ -102,13 +142,12 @@
     width: 50%;
     height: 100%;
     background: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
-    z-index: 1;
+    z-index: 2;
 }
 
 /* ========================================
    REVIEWS CAROUSEL - GOOGLE MAPS STYLE
    ======================================== */
-
 
 .btn-write-review {
     display: block;
@@ -131,6 +170,7 @@
     color: #000;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
+
 .reviews-section {
     padding: 60px 20px;
     background-color: #fff;
@@ -454,170 +494,58 @@
 }
 
 /* ========================================
-   RESPONSIVE - TABLET (1024px y menos)
-   ======================================== */
-
-@media (max-width: 1024px) {
-    .hero-title {
-        font-size: 60px;
-    }
-
-    .sobre-preview {
-        grid-template-columns: 1fr;
-        gap: 40px;
-    }
-
-    .servicios-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-/* ========================================
-   RESPONSIVE - TABLET (768px y menos)
-   ======================================== */
-
-@media (max-width: 768px) {
-    .hero {
-        height: 400px;
-        margin-top: 60px;
-    }
-
-    .hero-content {
-        margin-left: 0;
-        padding: 20px;
-        text-align: center;
-    }
-
-    .hero-title {
-        font-size: 52px;
-    }
-
-    .hero-subtitle {
-        font-size: 16px;
-    }
-
-    .hero-description {
-        font-size: 14px;
-    }
-
-    .hero-bottom {
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    .hero-overlay {
-        width: 100%;
-        background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.6) 100%);
-    }
-
-    .reviews-section {
-        padding: 50px 20px;
-    }
-
-    .reviews-section h2 {
-        font-size: 24px;
-        margin-bottom: 30px;
-    }
-
-    .carousel-wrapper {
-        height: 150px;
-    }
-
-    .servicios-preview h2,
-    .galeria-preview h2,
-    .sobre-preview h2,
-    .cta-section h2 {
-        font-size: 28px;
-    }
-
-    .servicios-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-
-    .servicio-card {
-        padding: 30px 20px;
-    }
-
-    .servicios-preview,
-    .galeria-preview,
-    .sobre-preview,
-    .cta-section {
-        padding: 60px 20px;
-    }
-
-    .image-placeholder {
-        height: 300px;
-    }
-
-    .galeria-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .cta-section h2 {
-        font-size: 26px;
-    }
-
-    .cta-section p {
-        font-size: 14px;
-    }
-}
-
-/* ========================================
-   RESPONSIVE - MOBILE (480px y menos)
+   RESPONSIVE - MOBILE FIRST (480px y menos)
    ======================================== */
 
 @media (max-width: 480px) {
     .hero {
-        height: 350px;
+        height: 320px;
+        margin: 0;
+        padding: 0;
         margin-top: 0;
-        padding-top: 0;
+    }
+
+    .hero::after {
+        width: 85%;
+        height: 85%;
+        top: 45%;
     }
 
     .hero-content {
         padding: 15px !important;
         margin-left: 0 !important;
+        text-align: center;
+        max-width: 100%;
     }
 
     .hero-title {
-        font-size: 44px;
-        margin-bottom: 10px;
+        font-size: 40px;
+        margin-bottom: 8px;
     }
 
     .hero-subtitle {
-        font-size: 14px;
+        font-size: 12px;
+        margin-bottom: 8px;
     }
 
     .hero-description {
-        font-size: 12px;
-        margin-bottom: 15px;
+        font-size: 11px;
+        margin-bottom: 12px;
     }
 
     .hero-bottom {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        flex-wrap: wrap;
-        margin-top: 15px;
+        gap: 10px;
         justify-content: center;
     }
 
     .hero-bottom .btn-primary {
-        margin-top: 0 !important;
-        margin-right: 0 !important;
-        padding: 10px 20px !important;
-        font-size: 11px !important;
-        white-space: nowrap;
-    }
-
-    .social-link {
-        display: flex;
-        align-items: center;
+        padding: 8px 15px !important;
+        font-size: 10px !important;
     }
 
     .social-link img {
-        width: 35px !important;
-        height: 35px !important;
+        width: 30px !important;
+        height: 30px !important;
     }
 
     .reviews-section {
@@ -691,6 +619,7 @@
     }
 
     .sobre-preview {
+        grid-template-columns: 1fr;
         gap: 30px;
     }
 
@@ -719,5 +648,126 @@
     .cta-section p {
         font-size: 13px;
         margin-bottom: 20px;
+    }
+}
+
+/* ========================================
+   RESPONSIVE - TABLET (768px y menos)
+   ======================================== */
+
+@media (max-width: 768px) {
+    .hero {
+        height: 400px;
+        margin-top: 0;
+        padding: 0;
+    }
+
+    .hero::after {
+        width: 80%;
+        height: 80%;
+    }
+
+    .hero-content {
+        margin-left: 0;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .hero-title {
+        font-size: 48px;
+    }
+
+    .hero-subtitle {
+        font-size: 14px;
+    }
+
+    .hero-description {
+        font-size: 13px;
+    }
+
+    .hero-bottom {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .hero-overlay {
+        width: 100%;
+        background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.6) 100%);
+    }
+
+    .reviews-section {
+        padding: 50px 20px;
+    }
+
+    .reviews-section h2 {
+        font-size: 24px;
+        margin-bottom: 30px;
+    }
+
+    .carousel-wrapper {
+        height: 150px;
+    }
+
+    .servicios-preview h2,
+    .galeria-preview h2,
+    .sobre-preview h2,
+    .cta-section h2 {
+        font-size: 28px;
+    }
+
+    .servicios-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .servicio-card {
+        padding: 30px 20px;
+    }
+
+    .servicios-preview,
+    .galeria-preview,
+    .sobre-preview,
+    .cta-section {
+        padding: 60px 20px;
+    }
+
+    .image-placeholder {
+        height: 300px;
+    }
+
+    .galeria-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .cta-section h2 {
+        font-size: 26px;
+    }
+
+    .cta-section p {
+        font-size: 14px;
+    }
+}
+
+/* ========================================
+   RESPONSIVE - DESKTOP (1024px y más)
+   ======================================== */
+
+@media (min-width: 1024px) {
+    .hero {
+        height: 600px;
+        margin-top: 0;
+    }
+
+    .hero-title {
+        font-size: 60px;
+    }
+
+    .sobre-preview {
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+    }
+
+    .servicios-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 }

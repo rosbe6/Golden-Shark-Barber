@@ -3,378 +3,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coming Soon - Golden Shark Barber</title>
+    <meta name="description" content="Golden Shark Barber is coming soon. Professional haircuts and grooming services in Seattle, WA.">
     
-    <!-- SEO Meta Tags -->
-    <title>Golden Shark Barber - Professional Haircuts in Seattle, WA | Book Online</title>
-    <meta name="description" content="Golden Shark Barber in Seattle, WA. Professional haircuts, beard grooming, and shave services. Book appointments online. Located at 1222 E Pine St, Seattle.">
-    <meta name="keywords" content="barber shop seattle, haircuts seattle, professional barber, men grooming, shave service, haircut booking, seattle barber">
-    <meta name="author" content="Golden Shark Barber">
-    <meta name="robots" content="index, follow">
-    <meta name="language" content="English">
-    <meta name="theme-color" content="#000000">
-    
-    <!-- Open Graph (para redes sociales) -->
-    <meta property="og:title" content="Golden Shark Barber - Seattle, WA">
-    <meta property="og:description" content="Professional barber shop in Seattle. Haircuts, beard grooming, online booking available.">
-    <meta property="og:type" content="business.business">
-    <meta property="og:url" content="https://goldenbarbershop.online">
-    <meta property="og:image" content="https://goldenbarbershop.online/images/logo.jpeg">
-    <meta property="og:locale" content="en_US">
-    
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Golden Shark Barber - Seattle">
-    <meta name="twitter:description" content="Professional barber shop in Seattle, WA">
-    <meta name="twitter:image" content="https://goldenbarbershop.online/images/logo.jpeg">
-    
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://goldenbarbershop.online">
-    
-    <!-- FAVICON -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" href="/favicon.ico">
-    
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/index.css">
-    
-    <!-- JSON-LD Schema Markup (Local Business) -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "LocalBusiness",
-      "@id": "https://goldenbarbershop.online",
-      "name": "Golden Shark Barber",
-      "image": "https://goldenbarbershop.online/images/logo.jpeg",
-      "description": "Professional barber shop offering haircuts, shaves, and grooming services in Seattle, Washington. Expert barbers with online appointment booking.",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "1222 E Pine St",
-        "addressLocality": "Seattle",
-        "addressRegion": "WA",
-        "postalCode": "98122",
-        "addressCountry": "US"
-      },
-      "telephone": "+1-616-566-5599",
-      "email": "info@goldensharkbarber.com",
-      "url": "https://goldenbarbershop.online",
-      "logo": "https://goldenbarbershop.online/images/logo.jpeg",
-      "sameAs": [
-        "https://www.instagram.com/golden_sharkb",
-        "https://maps.app.goo.gl/Gk8EFkXatTgC5Ndp7"
-      ],
-      "openingHoursSpecification": [
-        {
-          "@type": "OpeningHoursSpecification",
-          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-          "opens": "10:00",
-          "closes": "17:00"
-        },
-        {
-          "@type": "OpeningHoursSpecification",
-          "dayOfWeek": "Sunday",
-          "opens": "00:00",
-          "closes": "00:00"
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-      ],
-      "priceRange": "$",
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "5",
-        "reviewCount": "15",
-        "bestRating": "5",
-        "worstRating": "1"
-      },
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": "47.6062",
-        "longitude": "-122.3321"
-      }
-    }
-    </script>
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+        }
+
+        button {
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .coming-soon {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+            color: white;
+            padding: 20px;
+        }
+
+        .coming-soon-content {
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .coming-soon-logo {
+            width: 200px;
+            height: 200px;
+            object-fit: contain;
+            margin-bottom: 30px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .coming-soon-content h1 {
+            font-size: 56px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #d4af37;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .coming-soon-subtitle {
+            font-size: 18px;
+            color: #ddd;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .coming-soon-date {
+            font-size: 24px;
+            color: #d4af37;
+            font-weight: 600;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* EMAIL FORM */
+        .coming-soon-form {
+            display: flex;
+            gap: 10px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .coming-soon-form input {
+            padding: 12px 20px;
+            border: 2px solid #d4af37;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 250px;
+        }
+
+        .coming-soon-form input::placeholder {
+            color: #999;
+        }
+
+        .btn-notify {
+            padding: 12px 30px;
+            background: #d4af37;
+            color: #000;
+            border: 2px solid #d4af37;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-notify:hover {
+            background: transparent;
+            color: #d4af37;
+        }
+
+        /* SOCIAL LINKS */
+        .coming-soon-social {
+            margin: 30px 0;
+        }
+
+        .coming-soon-social a {
+            display: inline-block;
+            margin: 0 15px;
+            transition: all 0.3s ease;
+        }
+
+        .coming-soon-social a:hover {
+            transform: scale(1.2);
+            filter: brightness(1.2);
+        }
+
+        .coming-soon-message {
+            font-size: 14px;
+            color: #999;
+            margin-top: 20px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .coming-soon {
+                height: auto;
+                min-height: 100vh;
+                padding: 60px 20px;
+            }
+
+            .coming-soon-content h1 {
+                font-size: 40px;
+            }
+
+            .coming-soon-subtitle {
+                font-size: 16px;
+            }
+
+            .coming-soon-date {
+                font-size: 20px;
+            }
+
+            .coming-soon-form {
+                flex-direction: column;
+            }
+
+            .coming-soon-form input {
+                min-width: 100%;
+            }
+
+            .coming-soon-logo {
+                width: 150px;
+                height: 150px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .coming-soon-content h1 {
+                font-size: 32px;
+            }
+
+            .coming-soon-subtitle {
+                font-size: 14px;
+            }
+
+            .coming-soon-date {
+                font-size: 18px;
+            }
+
+            .coming-soon-logo {
+                width: 120px;
+                height: 120px;
+            }
+
+            .btn-notify {
+                padding: 10px 20px;
+                font-size: 12px;
+            }
+
+            .coming-soon-form input {
+                padding: 10px 15px;
+                font-size: 12px;
+            }
+        }
+    </style>
 </head>
 <body>
-<!-- NAVBAR -->
-    <nav class="navbar">
-        <div class="navbar-container">
-            <div class="logo">
-                <a href="https://constant-harmonize-situated.ngrok-free.dev/"><img src="images/logo.jpeg" alt="Gold Shark Barber Logo" class="logo-img"></a>
 
-            </div>
-            
-            <button class="hamburger" id="hamburger">
-                <span class="line">☰</span>
-            </button>
-            
-            <ul class="nav-menu" id="navMenu">
-                <li><a href="index.html" class="active">HOME</a></li>
-                <li><a href="servicios.html">SERVICES</a></li>
-                <li><a href="galeria.html">GALLERY</a></li>
-                <li><a href="sobre-nosotros.html">ABOUT US</a></li>
-                <li><a href="contacto.html">CONTACT</a></li>
-            </ul>
-            
-            <div class="nav-buttons">
-                <a href="reserva.html" class="btn-book">BOOK APPOINTMENT</a>
-            </div>
+<!-- COMING SOON SECTION -->
+<section class="coming-soon">
+    <div class="coming-soon-content">
+        <img src="images/logo.jpeg" alt="Gold Shark Barber" class="coming-soon-logo">
+        
+        <h1>Coming Soon</h1>
+        <p class="coming-soon-subtitle">Golden Shark Barber is preparing something amazing for you</p>
+        
+        <p class="coming-soon-date">July 2026</p>
+
+        <!-- EMAIL SUBSCRIPTION -->
+        <div class="coming-soon-form">
+            <input type="email" id="emailInput" placeholder="Enter your email">
+            <button onclick="subscribeEmail()" class="btn-notify">Notify Me</button>
         </div>
-    </nav>
 
-    <!-- HERO SECTION -->
-    <section class="hero">
-        <div class="hero-content">
-            <h2 class="hero-title">What's<br>Up<br>Brother</h2>
-            <p class="hero-subtitle">1432 12th Ave, Seattle, WA 98122</p>
-            <p class="hero-description">305 - FLOW Miami Live an experience, synchronize your style with a fresh haircut, restore your self-esteem.</p>
-            <div class="hero-bottom">
-            <a href="reserva.html" class="btn-primary">Book Now</a>
-            <a href="https://www.instagram.com/golden_sharkb?igsh=MW9kanFrZ2Q1eXhjdQ%3D%3D" class="social-link" title="Instagram">
+        <!-- SOCIAL LINKS -->
+        <div class="coming-soon-social">
+            <a href="https://www.instagram.com/golden_sharkb" target="_blank" title="Instagram">
                 <img src="images/ig.svg" alt="Instagram" style="width: 40px; height: 40px;">
             </a>
-            </div>
-
-        </div>
-        <div class="hero-overlay"></div>
-    </section>
-
-    <!-- REVIEWS CAROUSEL SECTION -->
-<section class="reviews-section">
-    <h2>Customer Reviews</h2>
-    
-    <div class="carousel-container">
-        <div class="carousel-wrapper">
-            <div class="carousel" id="reviewsCarousel">
-                <!-- Reviews se cargan aquí con JS -->
-            </div>
         </div>
 
-        <!-- Dots Navigation -->
-        <div class="carousel-dots" id="carouselDots">
-            <!-- Dots se cargan con JS -->
-        </div>
-        <a href="https://maps.app.goo.gl/Gk8EFkXatTgC5Ndp7" target="_blank" class="btn-write-review">
-            Write your review on Google Maps
-        </a>
+        <p class="coming-soon-message">Follow us on social media for updates</p>
     </div>
-</section>
-
-<!-- SERVICIOS PREVIEW (después de reviews) -->
-<section class="servicios-preview">
-    <h2>Our Services</h2>
-    <div class="servicios-grid">
-        <div class="servicio-card">
-            <div class="servicio-icon">✂️</div>
-            <h3>Professional Haircut</h3>
-            <p class="precio">$45 Cash / $50 Card</p>
-            <p>Experience the best professional haircut and beard care with expert stylists. We specialize in modern and classic cuts, including full beard grooming tailored to your style and preferences.</p>
-        </div>
-    </div>
-    <a href="servicios.html" class="btn-secondary">View All Services</a>
 </section>
 
 <script>
-const reviews = [
-    {
-        name: "Steve K",
-        stars: 5,
-        text: "Edy is incredible. He runs his shop with professionalism, kindness, incredible skills and passion. He is truly extraordinary and I can't recommend him enough."
-    },
-    {
-        name: "Brian LaFaille",
-        stars: 5,
-        text: "Eddy is the man! Got me in immediately and had me looking refreshed in 25 mins. If you're looking for a quality barber, Golden Shark is the go to."
-    },
-    {
-        name: "Maria Betancourt",
-        stars: 5,
-        text: "10/10 barber. Edy is a new barber in the area and really knows what he's doing. Very affordable and quality work. Definitely recommend."
-    },
-    {
-        name: "Vineeth Krishnamurthy",
-        stars: 5,
-        text: "Edy is the man!! He's my go to barber in Seattle. Great, consistent haircuts and he's a chill guy."
-    },
-    {
-        name: "Christopher Ruiz",
-        stars: 5,
-        text: "Look no further! Edy is an incredible barber. You can't beat his pricing, attention to detail, and timely haircuts. Above all he's professional and friendly."
-    },
-    {
-        name: "Luke Droeger",
-        stars: 5,
-        text: "What a great experience! The barbershop is small and welcoming, and Edy left me looking spectacular. I was short on time and he attended to me right away."
-    },
-    {
-        name: "Matt Courson",
-        stars: 5,
-        text: "Edy is great. Haircut was fast and exactly what I was looking for. Excellent price, especially for the area. He's a super nice guy and very friendly."
-    },
-    {
-        name: "SALEH ALANEZI",
-        stars: 5,
-        text: "Edy did a great job and knew exactly what I wanted. He simply delivered. Thank you guys, this will be my barber whenever I'm in town."
-    },
-    {
-        name: "Brian Reynolds",
-        stars: 5,
-        text: "Edy is a fantastic barber. He is personable and attentive to detail. My first appointment he helped fix a bad fade I had elsewhere. Highly recommend!"
-    },
-    {
-        name: "Cole Dill-De Sa",
-        stars: 5,
-        text: "After about 45 minutes, he left me with hands-down the best haircut I've ever gotten in Seattle. I understood exactly what I wanted. Best quality experience."
-    },
-    {
-        name: "Sam Nieslanik",
-        stars: 5,
-        text: "I was short on time and looking for a haircut. Luckily, I found Golden Shark Barber. Edy got me in immediately and was super friendly. Will definitely come back!"
-    },
-    {
-        name: "Michael Dormi",
-        stars: 5,
-        text: "$45 is a steal for the quality of the cut. Edi's got an awesome attitude, super friendly, and great to chat with. The whole experience was top-notch."
-    },
-    {
-        name: "Aaron Blumenthal",
-        stars: 5,
-        text: "Excellent service. Engaging chat. Fast. Reasonably priced. And you're supporting a small newly opened shop. What's not to love? Highly recommend!"
-    },
-    {
-        name: "Jason Kaff",
-        stars: 5,
-        text: "Edy is great! He's skilled and very friendly, and seems passionate about his work. Great vibes in his place. Fully intend going back for my next cut!"
-    },
-    {
-        name: "Joe Harris",
-        stars: 5,
-        text: "Eddie is a phenomenal barber. Professional and super friendly! He does precise work and is a wondrous craftsman!"
+    function subscribeEmail() {
+        const email = document.getElementById('emailInput').value;
+        if (email) {
+            alert('Thanks! We will notify you when we launch.');
+            document.getElementById('emailInput').value = '';
+        } else {
+            alert('Please enter your email');
+        }
     }
-];
-
-let currentIndex = 0;
-const carouselEl = document.getElementById('reviewsCarousel');
-const dotsEl = document.getElementById('carouselDots');
-
-function renderReviews() {
-    carouselEl.innerHTML = reviews.map((review, idx) => {
-        const initial = review.name.charAt(0).toUpperCase();
-        const stars = '⭐'.repeat(review.stars);
-        return `
-            <div class="review-card ${idx === currentIndex ? 'active' : ''}">
-                <div class="review-header">
-                    <div class="review-avatar">${initial}</div>
-                    <div class="review-info">
-                        <h4>${review.name}</h4>
-                        <div class="review-stars">${stars}</div>
-                    </div>
-                </div>
-                <p class="review-text">${review.text}</p>
-            </div>
-        `;
-    }).join('');
-
-    dotsEl.innerHTML = reviews.map((_, idx) => 
-        `<button class="dot ${idx === currentIndex ? 'active' : ''}" onclick="goToReview(${idx})"></button>`
-    ).join('');
-}
-
-function goToReview(idx) {
-    currentIndex = idx;
-    renderReviews();
-}
-
-function nextReview() {
-    currentIndex = (currentIndex + 1) % reviews.length;
-    renderReviews();
-}
-
-setInterval(nextReview, 3000);
-renderReviews();
 </script>
-    <!-- SERVICIOS PREVIEW -->
 
-
-    <!-- SOBRE NOSOTROS PREVIEW -->
-    <section class="sobre-preview">
-        <div class="sobre-content">
-            <h2>About Us</h2>
-            <p>
-                golden Shark Barber is born from the passion and dedication of professional stylists. 
-                Our main idea is to create an incredible experience in every haircut we perform at the barbershop. 
-                More than seeking "customers", we focus on forming a community of people where they can feel happy 
-                getting their hair or beard cut, while sharing unforgettable moments and creating new friendships.
-            </p>
-            <a href="sobre-nosotros.html" class="btn-primary">Learn More</a>
-        </div>
-        <div class="sobre-image">
-            <img src="images/barberafuera.jpeg" alt="golden Shark Barber" style="width: 100%; border-radius: 8px;">
-        </div>
-    </section>
-
-    <!-- GALERÍA PREVIEW -->
-    <section class="galeria-preview">
-        <h2>Recent Work</h2>
-        <div class="galeria-grid">
-            <div class="galeria-item">
-                <blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="https://www.instagram.com/reel/DXijX-YAqEn/?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14" style=" background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin: 1px; max-width:540px; min-width:326px; padding:0; width:99.375%; width:-webkit-calc(100% - 2px); width:calc(100% - 2px);"><div style="padding:16px;"> <a href="https://www.instagram.com/reel/DXijX-YAqEn/?utm_source=ig_embed&amp;utm_campaign=loading" style=" background:#FFFFFF; line-height:0; padding:0 0; text-align:center; text-decoration:none; width:100%;" target="_blank"> <div style=" display: flex; flex-direction: row; align-items: center;"> <div style="background-color: #F4F4F4; border-radius: 50%; flex-grow: 0; height: 40px; margin-right: 14px; width: 40px;"></div> <div style="display: flex; flex-direction: column; flex-grow: 1; justify-content: center;"> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; margin-bottom: 6px; width: 100px;"></div> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; width: 60px;"></div></div></div><div style="padding: 19% 0;"></div> <div style="display:block; height:50px; margin:0 auto 12px; width:50px;"><svg width="50px" height="50px" viewBox="0 0 60 60" version="1.1" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g transform="translate(-511.000000, -20.000000)" fill="#000000"><g><path d="M556.869,30.41 C554.814,30.41 553.148,32.076 553.148,34.131 C553.148,36.186 554.814,37.852 556.869,37.852 C558.924,37.852 560.59,36.186 560.59,34.131 C560.59,32.076 558.924,30.41 556.869,30.41 M541,60.657 C535.114,60.657 530.342,55.887 530.342,50 C530.342,44.114 535.114,39.342 541,39.342 C546.887,39.342 551.658,44.114 551.658,50 C551.658,55.887 546.887,60.657 541,60.657 M541,33.886 C532.1,33.886 524.886,41.1 524.886,50 C524.886,58.899 532.1,66.113 541,66.113 C549.9,66.113 557.115,58.899 557.115,50 C557.115,41.1 549.9,33.886 541,33.886 M565.378,62.101 C565.244,65.022 564.756,66.606 564.346,67.663 C563.803,69.06 563.154,70.057 562.106,71.106 C561.058,72.155 560.06,72.803 558.662,73.347 C557.607,73.757 556.021,74.244 553.102,74.378 C549.944,74.521 548.997,74.552 541,74.552 C533.003,74.552 532.056,74.521 528.898,74.378 C525.979,74.244 524.393,73.757 523.338,73.347 C521.94,72.803 520.942,72.155 519.894,71.106 C518.846,70.057 518.197,69.06 517.654,67.663 C517.244,66.606 516.755,65.022 516.623,62.101 C516.479,58.943 516.448,57.996 516.448,50 C516.448,42.003 516.479,41.056 516.623,37.899 C516.755,34.978 517.244,33.391 517.654,32.338 C518.197,30.938 518.846,29.942 519.894,28.894 C520.942,27.846 521.94,27.196 523.338,26.654 C524.393,26.244 525.979,25.756 528.898,25.623 C532.057,25.479 533.004,25.448 541,25.448 C548.997,25.448 549.943,25.479 553.102,25.623 C556.021,25.756 557.607,26.244 558.662,26.654 C560.06,27.196 561.058,27.846 562.106,28.894 C563.154,29.942 563.803,30.938 564.346,32.338 C564.756,33.391 565.244,34.978 565.378,37.899 C565.522,41.056 565.552,42.003 565.552,50 C565.552,57.996 565.522,58.943 565.378,62.101 M570.82,37.631 C570.674,34.438 570.167,32.258 569.425,30.349 C568.659,28.377 567.633,26.702 565.965,25.035 C564.297,23.368 562.623,22.342 560.652,21.575 C558.743,20.834 556.562,20.326 553.369,20.18 C550.169,20.033 549.148,20 541,20 C532.853,20 531.831,20.033 528.631,20.18 C525.438,20.326 523.257,20.834 521.349,21.575 C519.376,22.342 517.703,23.368 516.035,25.035 C514.368,26.702 513.342,28.377 512.574,30.349 C511.834,32.258 511.326,34.438 511.181,37.631 C511.035,40.831 511,41.851 511,50 C511,58.147 511.035,59.17 511.181,62.369 C511.326,65.562 511.834,67.743 512.574,69.651 C513.342,71.625 514.368,73.296 516.035,74.965 C517.703,76.634 519.376,77.658 521.349,78.425 C523.257,79.167 525.438,79.673 528.631,79.82 C531.831,79.965 532.853,80.001 541,80.001 C549.148,80.001 550.169,79.965 553.369,79.82 C556.562,79.673 558.743,79.167 560.652,78.425 C562.623,77.658 564.297,76.634 565.965,74.965 C567.633,73.296 568.659,71.625 569.425,69.651 C570.167,67.743 570.674,65.562 570.82,62.369 C570.966,59.17 571,58.147 571,50 C571,41.851 570.966,40.831 570.82,37.631"></path></g></g></g></svg></div><div style="padding-top: 8px;"> <div style=" color:#3897f0; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:550; line-height:18px;">Ver esta publicación en Instagram</div></div><div style="padding: 12.5% 0;"></div> <div style="display: flex; flex-direction: row; margin-bottom: 14px; align-items: center;"><div> <div style="background-color: #F4F4F4; border-radius: 50%; height: 12.5px; width: 12.5px; transform: translateX(0px) translateY(7px);"></div> <div style="background-color: #F4F4F4; height: 12.5px; transform: rotate(-45deg) translateX(3px) translateY(1px); width: 12.5px; flex-grow: 0; margin-right: 14px; margin-left: 2px;"></div> <div style="background-color: #F4F4F4; border-radius: 50%; height: 12.5px; width: 12.5px; transform: translateX(9px) translateY(-18px);"></div></div><div style="margin-left: 8px;"> <div style=" background-color: #F4F4F4; border-radius: 50%; flex-grow: 0; height: 20px; width: 20px;"></div> <div style=" width: 0; height: 0; border-top: 2px solid transparent; border-left: 6px solid #f4f4f4; border-bottom: 2px solid transparent; transform: translateX(16px) translateY(-4px) rotate(30deg)"></div></div><div style="margin-left: auto;"> <div style=" width: 0px; border-top: 8px solid #F4F4F4; border-right: 8px solid transparent; transform: translateY(16px);"></div> <div style=" background-color: #F4F4F4; flex-grow: 0; height: 12px; width: 16px; transform: translateY(-4px);"></div> <div style=" width: 0; height: 0; border-top: 8px solid #F4F4F4; border-left: 8px solid transparent; transform: translateY(-4px) translateX(8px);"></div></div></div> <div style="display: flex; flex-direction: column; flex-grow: 1; justify-content: center; margin-bottom: 24px;"> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; margin-bottom: 6px; width: 224px;"></div> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; width: 144px;"></div></div></a><p style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; line-height:17px; margin-bottom:0; margin-top:8px; overflow:hidden; padding:8px 0 7px; text-align:center; text-overflow:ellipsis; white-space:nowrap;"><a href="https://www.instagram.com/reel/DXijX-YAqEn/?utm_source=ig_embed&amp;utm_campaign=loading" style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:normal; line-height:17px; text-decoration:none;" target="_blank">Una publicación compartida por goldenEN SHARK BARBER 💈 (@goldenen_sharkb)</a></p></div></blockquote>
-                <script async src="//www.instagram.com/embed.js"></script>
-            </div>
-            <div class="galeria-item">
-                <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DXIHbLeEv04/?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14" style=" background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin: 1px; max-width:540px; min-width:326px; padding:0; width:99.375%; width:-webkit-calc(100% - 2px); width:calc(100% - 2px);"><div style="padding:16px;"> <a href="https://www.instagram.com/reel/DXIHbLeEv04/?utm_source=ig_embed&amp;utm_campaign=loading" style=" background:#FFFFFF; line-height:0; padding:0 0; text-align:center; text-decoration:none; width:100%;" target="_blank"> <div style=" display: flex; flex-direction: row; align-items: center;"> <div style="background-color: #F4F4F4; border-radius: 50%; flex-grow: 0; height: 40px; margin-right: 14px; width: 40px;"></div> <div style="display: flex; flex-direction: column; flex-grow: 1; justify-content: center;"> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; margin-bottom: 6px; width: 100px;"></div> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; width: 60px;"></div></div></div><div style="padding: 19% 0;"></div> <div style="display:block; height:50px; margin:0 auto 12px; width:50px;"><svg width="50px" height="50px" viewBox="0 0 60 60" version="1.1" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g transform="translate(-511.000000, -20.000000)" fill="#000000"><g><path d="M556.869,30.41 C554.814,30.41 553.148,32.076 553.148,34.131 C553.148,36.186 554.814,37.852 556.869,37.852 C558.924,37.852 560.59,36.186 560.59,34.131 C560.59,32.076 558.924,30.41 556.869,30.41 M541,60.657 C535.114,60.657 530.342,55.887 530.342,50 C530.342,44.114 535.114,39.342 541,39.342 C546.887,39.342 551.658,44.114 551.658,50 C551.658,55.887 546.887,60.657 541,60.657 M541,33.886 C532.1,33.886 524.886,41.1 524.886,50 C524.886,58.899 532.1,66.113 541,66.113 C549.9,66.113 557.115,58.899 557.115,50 C557.115,41.1 549.9,33.886 541,33.886 M565.378,62.101 C565.244,65.022 564.756,66.606 564.346,67.663 C563.803,69.06 563.154,70.057 562.106,71.106 C561.058,72.155 560.06,72.803 558.662,73.347 C557.607,73.757 556.021,74.244 553.102,74.378 C549.944,74.521 548.997,74.552 541,74.552 C533.003,74.552 532.056,74.521 528.898,74.378 C525.979,74.244 524.393,73.757 523.338,73.347 C521.94,72.803 520.942,72.155 519.894,71.106 C518.846,70.057 518.197,69.06 517.654,67.663 C517.244,66.606 516.755,65.022 516.623,62.101 C516.479,58.943 516.448,57.996 516.448,50 C516.448,42.003 516.479,41.056 516.623,37.899 C516.755,34.978 517.244,33.391 517.654,32.338 C518.197,30.938 518.846,29.942 519.894,28.894 C520.942,27.846 521.94,27.196 523.338,26.654 C524.393,26.244 525.979,25.756 528.898,25.623 C532.057,25.479 533.004,25.448 541,25.448 C548.997,25.448 549.943,25.479 553.102,25.623 C556.021,25.756 557.607,26.244 558.662,26.654 C560.06,27.196 561.058,27.846 562.106,28.894 C563.154,29.942 563.803,30.938 564.346,32.338 C564.756,33.391 565.244,34.978 565.378,37.899 C565.522,41.056 565.552,42.003 565.552,50 C565.552,57.996 565.522,58.943 565.378,62.101 M570.82,37.631 C570.674,34.438 570.167,32.258 569.425,30.349 C568.659,28.377 567.633,26.702 565.965,25.035 C564.297,23.368 562.623,22.342 560.652,21.575 C558.743,20.834 556.562,20.326 553.369,20.18 C550.169,20.033 549.148,20 541,20 C532.853,20 531.831,20.033 528.631,20.18 C525.438,20.326 523.257,20.834 521.349,21.575 C519.376,22.342 517.703,23.368 516.035,25.035 C514.368,26.702 513.342,28.377 512.574,30.349 C511.834,32.258 511.326,34.438 511.181,37.631 C511.035,40.831 511,41.851 511,50 C511,58.147 511.035,59.17 511.181,62.369 C511.326,65.562 511.834,67.743 512.574,69.651 C513.342,71.625 514.368,73.296 516.035,74.965 C517.703,76.634 519.376,77.658 521.349,78.425 C523.257,79.167 525.438,79.673 528.631,79.82 C531.831,79.965 532.853,80.001 541,80.001 C549.148,80.001 550.169,79.965 553.369,79.82 C556.562,79.673 558.743,79.167 560.652,78.425 C562.623,77.658 564.297,76.634 565.965,74.965 C567.633,73.296 568.659,71.625 569.425,69.651 C570.167,67.743 570.674,65.562 570.82,62.369 C570.966,59.17 571,58.147 571,50 C571,41.851 570.966,40.831 570.82,37.631"></path></g></g></g></svg></div><div style="padding-top: 8px;"> <div style=" color:#3897f0; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:550; line-height:18px;">Ver esta publicación en Instagram</div></div><div style="padding: 12.5% 0;"></div> <div style="display: flex; flex-direction: row; margin-bottom: 14px; align-items: center;"><div> <div style="background-color: #F4F4F4; border-radius: 50%; height: 12.5px; width: 12.5px; transform: translateX(0px) translateY(7px);"></div> <div style="background-color: #F4F4F4; height: 12.5px; transform: rotate(-45deg) translateX(3px) translateY(1px); width: 12.5px; flex-grow: 0; margin-right: 14px; margin-left: 2px;"></div> <div style="background-color: #F4F4F4; border-radius: 50%; height: 12.5px; width: 12.5px; transform: translateX(9px) translateY(-18px);"></div></div><div style="margin-left: 8px;"> <div style=" background-color: #F4F4F4; border-radius: 50%; flex-grow: 0; height: 20px; width: 20px;"></div> <div style=" width: 0; height: 0; border-top: 2px solid transparent; border-left: 6px solid #f4f4f4; border-bottom: 2px solid transparent; transform: translateX(16px) translateY(-4px) rotate(30deg)"></div></div><div style="margin-left: auto;"> <div style=" width: 0px; border-top: 8px solid #F4F4F4; border-right: 8px solid transparent; transform: translateY(16px);"></div> <div style=" background-color: #F4F4F4; flex-grow: 0; height: 12px; width: 16px; transform: translateY(-4px);"></div> <div style=" width: 0; height: 0; border-top: 8px solid #F4F4F4; border-left: 8px solid transparent; transform: translateY(-4px) translateX(8px);"></div></div></div> <div style="display: flex; flex-direction: column; flex-grow: 1; justify-content: center; margin-bottom: 24px;"> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; margin-bottom: 6px; width: 224px;"></div> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; width: 144px;"></div></div></a><p style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; line-height:17px; margin-bottom:0; margin-top:8px; overflow:hidden; padding:8px 0 7px; text-align:center; text-overflow:ellipsis; white-space:nowrap;"><a href="https://www.instagram.com/reel/DXIHbLeEv04/?utm_source=ig_embed&amp;utm_campaign=loading" style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:normal; line-height:17px; text-decoration:none;" target="_blank">Una publicación compartida por goldenEN SHARK BARBER 💈 (@goldenen_sharkb)</a></p></div></blockquote>
-                <script async src="//www.instagram.com/embed.js"></script>
-            </div>
-            <div class="galeria-item">
-                <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/DWPqyQSgYuD/?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14" style=" background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin: 1px; max-width:540px; min-width:326px; padding:0; width:99.375%; width:-webkit-calc(100% - 2px); width:calc(100% - 2px);"><div style="padding:16px;"> <a href="https://www.instagram.com/p/DWPqyQSgYuD/?utm_source=ig_embed&amp;utm_campaign=loading" style=" background:#FFFFFF; line-height:0; padding:0 0; text-align:center; text-decoration:none; width:100%;" target="_blank"> <div style=" display: flex; flex-direction: row; align-items: center;"> <div style="background-color: #F4F4F4; border-radius: 50%; flex-grow: 0; height: 40px; margin-right: 14px; width: 40px;"></div> <div style="display: flex; flex-direction: column; flex-grow: 1; justify-content: center;"> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; margin-bottom: 6px; width: 100px;"></div> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; width: 60px;"></div></div></div><div style="padding: 19% 0;"></div> <div style="display:block; height:50px; margin:0 auto 12px; width:50px;"><svg width="50px" height="50px" viewBox="0 0 60 60" version="1.1" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g transform="translate(-511.000000, -20.000000)" fill="#000000"><g><path d="M556.869,30.41 C554.814,30.41 553.148,32.076 553.148,34.131 C553.148,36.186 554.814,37.852 556.869,37.852 C558.924,37.852 560.59,36.186 560.59,34.131 C560.59,32.076 558.924,30.41 556.869,30.41 M541,60.657 C535.114,60.657 530.342,55.887 530.342,50 C530.342,44.114 535.114,39.342 541,39.342 C546.887,39.342 551.658,44.114 551.658,50 C551.658,55.887 546.887,60.657 541,60.657 M541,33.886 C532.1,33.886 524.886,41.1 524.886,50 C524.886,58.899 532.1,66.113 541,66.113 C549.9,66.113 557.115,58.899 557.115,50 C557.115,41.1 549.9,33.886 541,33.886 M565.378,62.101 C565.244,65.022 564.756,66.606 564.346,67.663 C563.803,69.06 563.154,70.057 562.106,71.106 C561.058,72.155 560.06,72.803 558.662,73.347 C557.607,73.757 556.021,74.244 553.102,74.378 C549.944,74.521 548.997,74.552 541,74.552 C533.003,74.552 532.056,74.521 528.898,74.378 C525.979,74.244 524.393,73.757 523.338,73.347 C521.94,72.803 520.942,72.155 519.894,71.106 C518.846,70.057 518.197,69.06 517.654,67.663 C517.244,66.606 516.755,65.022 516.623,62.101 C516.479,58.943 516.448,57.996 516.448,50 C516.448,42.003 516.479,41.056 516.623,37.899 C516.755,34.978 517.244,33.391 517.654,32.338 C518.197,30.938 518.846,29.942 519.894,28.894 C520.942,27.846 521.94,27.196 523.338,26.654 C524.393,26.244 525.979,25.756 528.898,25.623 C532.057,25.479 533.004,25.448 541,25.448 C548.997,25.448 549.943,25.479 553.102,25.623 C556.021,25.756 557.607,26.244 558.662,26.654 C560.06,27.196 561.058,27.846 562.106,28.894 C563.154,29.942 563.803,30.938 564.346,32.338 C564.756,33.391 565.244,34.978 565.378,37.899 C565.522,41.056 565.552,42.003 565.552,50 C565.552,57.996 565.522,58.943 565.378,62.101 M570.82,37.631 C570.674,34.438 570.167,32.258 569.425,30.349 C568.659,28.377 567.633,26.702 565.965,25.035 C564.297,23.368 562.623,22.342 560.652,21.575 C558.743,20.834 556.562,20.326 553.369,20.18 C550.169,20.033 549.148,20 541,20 C532.853,20 531.831,20.033 528.631,20.18 C525.438,20.326 523.257,20.834 521.349,21.575 C519.376,22.342 517.703,23.368 516.035,25.035 C514.368,26.702 513.342,28.377 512.574,30.349 C511.834,32.258 511.326,34.438 511.181,37.631 C511.035,40.831 511,41.851 511,50 C511,58.147 511.035,59.17 511.181,62.369 C511.326,65.562 511.834,67.743 512.574,69.651 C513.342,71.625 514.368,73.296 516.035,74.965 C517.703,76.634 519.376,77.658 521.349,78.425 C523.257,79.167 525.438,79.673 528.631,79.82 C531.831,79.965 532.853,80.001 541,80.001 C549.148,80.001 550.169,79.965 553.369,79.82 C556.562,79.673 558.743,79.167 560.652,78.425 C562.623,77.658 564.297,76.634 565.965,74.965 C567.633,73.296 568.659,71.625 569.425,69.651 C570.167,67.743 570.674,65.562 570.82,62.369 C570.966,59.17 571,58.147 571,50 C571,41.851 570.966,40.831 570.82,37.631"></path></g></g></g></svg></div><div style="padding-top: 8px;"> <div style=" color:#3897f0; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:550; line-height:18px;">Ver esta publicación en Instagram</div></div><div style="padding: 12.5% 0;"></div> <div style="display: flex; flex-direction: row; margin-bottom: 14px; align-items: center;"><div> <div style="background-color: #F4F4F4; border-radius: 50%; height: 12.5px; width: 12.5px; transform: translateX(0px) translateY(7px);"></div> <div style="background-color: #F4F4F4; height: 12.5px; transform: rotate(-45deg) translateX(3px) translateY(1px); width: 12.5px; flex-grow: 0; margin-right: 14px; margin-left: 2px;"></div> <div style="background-color: #F4F4F4; border-radius: 50%; height: 12.5px; width: 12.5px; transform: translateX(9px) translateY(-18px);"></div></div><div style="margin-left: 8px;"> <div style=" background-color: #F4F4F4; border-radius: 50%; flex-grow: 0; height: 20px; width: 20px;"></div> <div style=" width: 0; height: 0; border-top: 2px solid transparent; border-left: 6px solid #f4f4f4; border-bottom: 2px solid transparent; transform: translateX(16px) translateY(-4px) rotate(30deg)"></div></div><div style="margin-left: auto;"> <div style=" width: 0px; border-top: 8px solid #F4F4F4; border-right: 8px solid transparent; transform: translateY(16px);"></div> <div style=" background-color: #F4F4F4; flex-grow: 0; height: 12px; width: 16px; transform: translateY(-4px);"></div> <div style=" width: 0; height: 0; border-top: 8px solid #F4F4F4; border-left: 8px solid transparent; transform: translateY(-4px) translateX(8px);"></div></div></div> <div style="display: flex; flex-direction: column; flex-grow: 1; justify-content: center; margin-bottom: 24px;"> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; margin-bottom: 6px; width: 224px;"></div> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; width: 144px;"></div></div></a><p style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; line-height:17px; margin-bottom:0; margin-top:8px; overflow:hidden; padding:8px 0 7px; text-align:center; text-overflow:ellipsis; white-space:nowrap;"><a href="https://www.instagram.com/p/DWPqyQSgYuD/?utm_source=ig_embed&amp;utm_campaign=loading" style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:normal; line-height:17px; text-decoration:none;" target="_blank">Una publicación compartida por goldenEN SHARK BARBER 💈 (@goldenen_sharkb)</a></p></div></blockquote>
-                <script async src="//www.instagram.com/embed.js"></script>
-            </div>
-        </div>
-        <a href="galeria.html" class="btn-secondary">View More Work</a>
-    </section>
-
-    <!-- CTA SECTION -->
-    <section class="cta-section">
-        <h2>Ready for your next haircut?</h2>
-        <p>Book your appointment today and experience the best barbershop</p>
-        <a href="reserva.html" class="btn-primary-large">Book Appointment Now</a>
-    </section>
-
-    <!-- FOOTER -->
-    <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-section">
-                <h4>golden Shark Barber</h4>
-                <p>Specialized barbershop for haircuts and beard</p>
-            </div>
-            
-            <div class="footer-section">
-                <h4>Quick Links</h4>
-                <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="servicios.html">Services</a></li>
-                    <li><a href="galeria.html">Gallery</a></li>
-                    <li><a href="contacto.html">Contact</a></li>
-                </ul>
-            </div>
-            
-            <div class="footer-section">
-                <h4>Contact</h4>
-                <p>📧 info@goldensharkbarber.com</p>
-                <p>📞 +1 616 566 5599</p>
-                <p>📍 1222 E Pine St, Seattle, WA 98122, Estados Unidos</p>
-            </div>
-            
-            <div class="footer-section">
-                <h4>Hours</h4>
-                <p>Monday - Saturday: 10:00 AM - 5:00 PM</p>
-                <p>Sunday: Walking</p>
-            </div>
-        </div>
-        
-        <div class="footer-bottom">
-            <p>&copy; 2026 Golden Shark Barber. All rights reserved.</p>
-        </div>
-    </footer>
-
-    <script src="js/navbar.js"></script>
-    
 </body>
 </html>
