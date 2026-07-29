@@ -44,6 +44,14 @@ function mostrarCita(cita) {
     document.getElementById('cita-encontrada').classList.remove('hidden');
     
     document.getElementById('det-servicio').textContent = cita.servicio || '-';
+
+    // ✅ Cambiar label según tipo de servicio
+    if (cita.tipo_servicio === 'skincare') {
+        document.getElementById('label-barbero').textContent = 'Specialist:';
+    } else {
+        document.getElementById('label-barbero').textContent = 'Barber:';
+    }
+
     // ✅ Obtener nombre del barbero
     if (cita.barbero_id) {
         fetch(`${API_URL}/citas/barbero/${cita.barbero_id}`)
@@ -60,7 +68,7 @@ function mostrarCita(cita) {
         document.getElementById('det-barbero').textContent = '-';
     }
     
-    // ✅ NUEVO (sin interpretación de zona horaria)
+    // ✅ Fecha sin zona horaria
     const partes = cita.dia.split('-');
     const fecha = new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, parseInt(partes[2]));
     const fechaFormato = fecha.toLocaleDateString('en-US', { 
