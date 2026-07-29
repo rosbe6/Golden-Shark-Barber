@@ -141,11 +141,12 @@ function showDashboard() {
     document.getElementById('screenLogin').classList.add('hidden');
     document.getElementById('screenDashboard').classList.remove('hidden');
     document.getElementById('textNombre').textContent = barberoName || 'Barber';
-    
-    // ✅ OCULTAR admin tab por defecto
     document.getElementById('tabBarberos').style.display = 'none';
-    
-    // Obtener datos del perfil para ver si es admin
+
+    // ✅ Tipo filter SIEMPRE visible (fuera del fetch)
+    document.getElementById('tipoFilterSection').style.display = 'block';
+    document.getElementById('selectTipoFilter').addEventListener('change', filterCitasByTipo);
+
     fetch(`${API_URL}/auth/perfil`, {
         headers: { 'Authorization': `Bearer ${barberoToken}` }
     })
@@ -154,8 +155,7 @@ function showDashboard() {
         if (data && data.es_admin) {
             document.getElementById('tabBarberos').style.display = 'block';
             cargarBarberosAdmin();
-            
-            // ✅ AQUÍ va el código del dropdown, DENTRO del .then()
+
             fetch(`${API_URL}/auth/barberos`, {
                 headers: { 'Authorization': `Bearer ${barberoToken}` }
             })
@@ -164,17 +164,15 @@ function showDashboard() {
                 if (bData.status === 'success') {
                     const select = document.getElementById('selectBarberoFilter');
                     document.getElementById('barberoFilterSection').style.display = 'block';
-                    
+
                     bData.barberos.forEach(b => {
                         const option = document.createElement('option');
                         option.value = b._id;
                         option.textContent = b.nombre;
                         select.appendChild(option);
                     });
-                    
-                    select.addEventListener('change', () => {
-                        filterCitasByBarbero();
-                    });
+
+                    select.addEventListener('change', filterCitasByBarbero);
                 }
             });
         }
@@ -183,8 +181,7 @@ function showDashboard() {
         console.error('Error verificando admin:', e);
         document.getElementById('tabBarberos').style.display = 'none';
     });
-    
-    // Cargar citas
+
     loadCitas();
 }
 
@@ -292,6 +289,11 @@ function renderCitas(citas) {
                 <span class="info-key">💈 Service</span>
                 <span class="info-val">${c.servicio}</span>
             </div>
+            // Después de la línea del servicio
+            ${c.tipo_servicio ? `<div class="info-line">
+                <span class="info-key">${c.tipo_servicio === 'skincare' ? '💆' : '💈'} Type</span>
+                <span class="info-val">${c.tipo_servicio === 'skincare' ? 'Skincare' : 'Haircut'}</span>
+            </div>` : ''}
             ${c.barbero_nombre ? `<div class="info-line">
                 <span class="info-key">👨‍💼 Barber</span>
                 <span class="info-val">${c.barbero_nombre}</span>
@@ -329,12 +331,18 @@ function filterCitas(filter) {
 
     let filtered = allCitas;
 
-    // ✅ PRIMERO: filtrar por barbero si está seleccionado
+    // ✅ Filtrar por barbero
     if (barberoFilterSeleccionado) {
         filtered = filtered.filter(c => c.barbero_id === barberoFilterSeleccionado);
     }
 
-    // ✅ SEGUNDO: filtrar por fecha/estado
+    // ✅ Filtrar por tipo (barber/skincare)
+    const tipoFilter = document.getElementById('selectTipoFilter');
+    if (tipoFilter && tipoFilter.value) {
+        filtered = filtered.filter(c => c.tipo_servicio === tipoFilter.value);
+    }
+
+    // Filtrar por fecha/estado
     if (filter === 'today') {
         filtered = filtered.filter(c => {
             const d = new Date(c.dia);
@@ -353,7 +361,6 @@ function filterCitas(filter) {
 
     renderCitas(filtered);
 }
-
 // ==================== MODAL: DETAILS ====================
 
 function openDetailsModal(citaId) {
@@ -583,6 +590,9 @@ function renderBarberosAdmin(barberos, barberoActualId) {
             <div>
                 <div style="font-weight: bold; font-size: 16px;">${b.nombre}</div>
                 <div style="color: #666; font-size: 13px;">${b.email}</div>
+                <div style="color: #007bff; font-size: 12px; margin-top: 4px;">
+                    ${b.tipo === 'skincare' ? '💆 Skincare Specialist' : '💈 Barber'}
+                </div>
             </div>
             ${b.es_admin ? 
                 '<span style="color: #28a745; font-weight: bold;">👑 Owner</span>' 
@@ -602,6 +612,7 @@ async function agregarBarberoAdmin(e) {
     const nombre = document.getElementById('inputNombreBarbero').value;
     const email = document.getElementById('inputEmailBarbero').value;
     const contraseña = document.getElementById('inputPasswordBarbero').value;
+    const tipo = document.getElementById('inputTipoBarbero').value; // ✅ NUEVO
     
     try {
         showLoading(true);
@@ -609,7 +620,7 @@ async function agregarBarberoAdmin(e) {
         const response = await fetch(`${API_URL}/auth/registrar`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombre, email, contraseña })
+            body: JSON.stringify({ nombre, email, contraseña, tipo }) // ✅ NUEVO
         });
         
         const data = await response.json();
@@ -656,4 +667,12 @@ async function eliminarBarberoAdmin(barberoId) {
     } finally {
         showLoading(false);
     }
+}
+
+
+function filterCitasByTipo() {
+    const tipoFilter = document.getElementById('selectTipoFilter').value;
+    const activeTab = document.querySelector('.filter-tab.active');
+    const filterType = activeTab ? activeTab.dataset.filter : 'all';
+    filterCitas(filterType);
 }

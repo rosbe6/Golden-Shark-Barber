@@ -1,4 +1,5 @@
 const API_URL = 'https://goldenbarbershop.online/api';
+
 document.addEventListener('DOMContentLoaded', function() {
     const params = new URLSearchParams(window.location.search);
     const citaId = params.get('id');

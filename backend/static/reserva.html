@@ -75,20 +75,68 @@
                     <h2>Service & Payment</h2>
                     
                     <div class="form-group">
-                        <label>Service *</label>
-                        <select id="servicio" required>
-                            <option value="">Select a service</option>
-                            <option value="Haircut">Haircut - Professional Hair Cutting & Beard Grooming</option>
+                        <label>Service Type *</label>
+                        <select id="tipoServicio" required onchange="cambiarTipoServicio()">
+                            <option value="">Select service type</option>
+                            <option value="barber">Haircut & Beard</option>
+                            <option value="skincare">Skincare & More</option>
                         </select>
                     </div>
-                    
-                    <div class="form-group">
-                        <label>Payment Method *</label>
-                        <select id="metodoPago" required onchange="actualizarPrecio()">
-                            <option value="">Select payment method</option>
-                            <option value="cash">Cash - $45</option>
-                            <option value="tarjeta">Credit Card - $50</option>
-                        </select>
+
+                    <!-- SERVICIOS BARBERO -->
+                    <div id="servicios-barber" class="hidden">
+                        <div class="form-group">
+                            <label>Service *</label>
+                            <select id="servicio" required>
+                                <option value="">Select a service</option>
+                                <option value="Haircut">Haircut - Professional Hair Cutting & Beard Grooming</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Payment Method *</label>
+                            <select id="metodoPago" required onchange="actualizarPrecio()">
+                                <option value="">Select payment method</option>
+                                <option value="cash">Cash - $45</option>
+                                <option value="tarjeta">Credit Card - $50</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- SERVICIOS SKINCARE -->
+                    <div id="servicios-skincare" class="hidden">
+                        <div class="form-group">
+                            <label>Service *</label>
+                            <select id="servicioSkincare" onchange="actualizarPrecioSkincare()">
+                                <option value="">Select a service</option>
+                                <optgroup label="Facials">
+                                    <option value="Glow Getter|75">The Glow Getter - 60min - $75</option>
+                                    <option value="Radiance Reset|95">Radiance Reset - 45-60min - $95</option>
+                                </optgroup>
+                                <optgroup label="Waxing">
+                                    <option value="Waxing Lip|10">Waxing - Lip - $10</option>
+                                    <option value="Waxing Chin|15">Waxing - Chin - $15</option>
+                                    <option value="Waxing Nose|10">Waxing - Nose - $10</option>
+                                    <option value="Waxing Brows|15">Waxing - Brows - $15</option>
+                                    <option value="Waxing Underarms|20">Waxing - Underarms - $20</option>
+                                    <option value="Waxing Full Leg|60">Waxing - Full Leg - $60</option>
+                                    <option value="Waxing Half Leg|40">Waxing - Half Leg - $40</option>
+                                    <option value="Waxing Arms|40">Waxing - Arms - $40</option>
+                                    <option value="Waxing Back|65">Waxing - Back - $65</option>
+                                    <option value="Waxing Chest|50">Waxing - Chest - $50</option>
+                                    <option value="Waxing Stomach|35">Waxing - Stomach - $35</option>
+                                </optgroup>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Payment Method *</label>
+                            <select id="metodoPagoSkincare" required onchange="actualizarPrecioSkincare()">
+                                <option value="">Select payment method</option>
+                                <option value="cash">Cash</option>
+                                <option value="tarjeta">Credit Card</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div id="precio-container" class="precio-info hidden">
@@ -107,15 +155,15 @@
 
                 <!-- SECCIÓN 2.5: SELECCIONAR BARBERO -->
                 <div class="form-section">
-                    <h2>Select Your Barber</h2>
+                    <h2 id="titulo-especialista">Select Your Specialist</h2>
                     
                     <div class="form-group">
-                        <label>Barber *</label>
+                        <label id="label-especialista">Specialist *</label>
                         <select id="selectBarbero" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;">
-                            <option value="">Loading barbers...</option>
+                            <option value="">Select service type first</option>
                         </select>
                     </div>
-                </div>
+                </div>                
 
 
                 <!-- SECCIÓN 3: FECHA Y HORA -->

@@ -34,10 +34,12 @@ def registrar():
             return jsonify({'status': 'error', 'mensaje': 'Barber already registered'}), 400
         
         # Crear nuevo barbero
+        # Crear nuevo barbero
         barbero = Barbero(
             email=data['email'],
             contraseña=data['contraseña'],
-            nombre=data.get('nombre', 'Admin')
+            nombre=data.get('nombre', 'Admin'),
+            tipo=data.get('tipo', 'barber')  # ✅ NUEVO
         )
         
         # Guardar en MongoDB

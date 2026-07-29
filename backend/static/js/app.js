@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', function() {
 // ==================== BARBEROS ====================
 
 function cargarBarberos() {
+    // ✅ NO cargar barberos al inicio, esperar que seleccionen tipo
+    const selectBarbero = document.getElementById('selectBarbero');
+    selectBarbero.innerHTML = '<option value="">Select service type first</option>';
     fetch(`${API_URL}/citas/barberos`)
         .then(response => response.json())
         .then(data => {
@@ -234,7 +237,20 @@ function mesSiguiente() {
 function crearCita(event) {
     event.preventDefault();
     
-    console.log("🔍 [CREAR CITA] barberoSeleccionado:", barberoSeleccionado);
+    const tipo = document.getElementById('tipoServicio').value;
+    
+    let servicio, metodoPago, precio;
+    
+    if (tipo === 'barber') {
+        servicio = document.getElementById('servicio').value;
+        metodoPago = document.getElementById('metodoPago').value;
+        precio = metodoPago === 'cash' ? 45 : 50;
+    } else if (tipo === 'skincare') {
+        const servicioVal = document.getElementById('servicioSkincare').value;
+        servicio = servicioVal.split('|')[0];
+        precio = parseInt(servicioVal.split('|')[1]);
+        metodoPago = document.getElementById('metodoPagoSkincare').value;
+    }
     
     const citaData = {
         cliente_nombre: document.getElementById('clienteNombre').value,
@@ -242,26 +258,23 @@ function crearCita(event) {
         cliente_telefono: document.getElementById('clienteTelefono').value,
         dia: document.getElementById('dia').value,
         hora: document.getElementById('hora').value,
-        servicio: document.getElementById('servicio').value,
-        metodoPago: document.getElementById('metodoPago').value,
-        precio: document.getElementById('metodoPago').value === 'cash' ? 45 : 50,
+        servicio: servicio,
+        metodoPago: metodoPago,
+        precio: precio,
         instrucciones: document.getElementById('instrucciones').value,
-        barbero_id: barberoSeleccionado
+        barbero_id: barberoSeleccionado,
+        tipo_servicio: tipo  // ✅ NUEVO
     };
     
-    console.log("📤 [CREAR CITA] citaData completo:", citaData);
-    console.log("📤 [CREAR CITA] barbero_id específico:", citaData.barbero_id);
-    
+    // Validaciones
     if (!citaData.cliente_nombre || !citaData.cliente_email || !citaData.cliente_telefono || 
-        !citaData.dia || !citaData.hora || !citaData.servicio || !citaData.metodoPago) {
+        !citaData.dia || !citaData.hora || !citaData.servicio || !citaData.metodoPago || !tipo) {
         mostrarError('Please fill in all required fields');
-        console.log("❌ Falta un campo requerido");
         return;
     }
     
     if (!citaData.barbero_id) {
         mostrarError('Please select a barber');
-        console.log("❌ No se seleccionó barbero");
         return;
     }
     
@@ -271,38 +284,25 @@ function crearCita(event) {
         body: JSON.stringify(citaData)
     })
     .then(response => {
-        console.log("📥 Response status:", response.status);
-        
-        // ✅ Manejar error 409 (horario ocupado)
         if (response.status === 409) {
-            mostrarError('❌ Ese horario ya fue reservado por otro cliente.\n\nPor favor, selecciona otro horario.');
+            mostrarError('❌ That time slot is already booked. Please select another time.');
             horaSeleccionada = null;
             document.getElementById('hora').value = '';
-            document.querySelectorAll('.horario.seleccionado').forEach(el => {
-                el.classList.remove('seleccionado');
-            });
-            if (diaSeleccionado) {
-                cargarHorarios(diaSeleccionado);
-            }
+            document.querySelectorAll('.horario.seleccionado').forEach(el => el.classList.remove('seleccionado'));
+            if (diaSeleccionado) cargarHorarios(diaSeleccionado);
             return null;
         }
         return response.json();
     })
     .then(data => {
         if (!data) return;
-        
-        console.log("📥 Response data:", data);
-        
         if (data.status === 'success') {
-            console.log("✅ Cita creada:", data.cita_id);
             window.location.href = `cita.html?id=${data.cita_id}`;
         } else {
-            console.log("❌ Error:", data.mensaje);
             mostrarError(data.mensaje);
         }
     })
     .catch(error => {
-        console.error('❌ [CREAR CITA] Error:', error);
         mostrarError('Error creating appointment');
     });
 }
@@ -328,4 +328,69 @@ function actualizarPrecio() {
     } else {
         precioContainer.classList.add('hidden');
     }
+}
+
+
+
+// ==================== TIPO SERVICIO ====================
+
+function cambiarTipoServicio() {
+    const tipo = document.getElementById('tipoServicio').value;
+    
+    // Ocultar todo
+    document.getElementById('servicios-barber').classList.add('hidden');
+    document.getElementById('servicios-skincare').classList.add('hidden');
+    document.getElementById('precio-container').classList.add('hidden');
+    
+    // Resetear
+    diaSeleccionado = null;
+    horaSeleccionada = null;
+    document.getElementById('dia').value = '';
+    document.getElementById('hora').value = '';
+    document.getElementById('horariosGrid').innerHTML = '';
+    
+    if (tipo === 'barber') {
+        document.getElementById('servicios-barber').classList.remove('hidden');
+        // ✅ Cambiar titulo
+        document.getElementById('titulo-especialista').textContent = 'Select Your Barber';
+        document.getElementById('label-especialista').textContent = 'Barber *';
+        cargarBarberosPorTipo('barber');
+        
+    } else if (tipo === 'skincare') {
+        document.getElementById('servicios-skincare').classList.remove('hidden');
+        // ✅ Cambiar titulo
+        document.getElementById('titulo-especialista').textContent = 'Your Skincare Specialist';
+        document.getElementById('label-especialista').textContent = 'Specialist *';
+        cargarBarberosPorTipo('skincare');
+    }
+}
+
+function cargarBarberosPorTipo(tipo) {
+    fetch(`${API_URL}/citas/barberos?tipo=${tipo}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                allBarberos = data.barberos;
+                renderBarberos();
+                if (allBarberos.length > 0) {
+                    seleccionarBarbero(allBarberos[0]._id);
+                }
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function actualizarPrecioSkincare() {
+    const servicioVal = document.getElementById('servicioSkincare').value;
+    const metodoPago = document.getElementById('metodoPagoSkincare').value;
+    
+    if (!servicioVal || !metodoPago) {
+        document.getElementById('precio-container').classList.add('hidden');
+        return;
+    }
+    
+    // Formato: "nombre|precio"
+    const precio = servicioVal.split('|')[1];
+    document.getElementById('precio-monto').textContent = `$${precio}`;
+    document.getElementById('precio-container').classList.remove('hidden');
 }

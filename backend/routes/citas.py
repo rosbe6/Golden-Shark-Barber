@@ -45,44 +45,26 @@ def obtener_disponibles():
 
 @citas_bp.route('/barberos', methods=['GET'])
 def listar_barberos():
-    """
-    Obtener lista de todos los barberos
-    GET /api/citas/barberos
-    """
     try:
-        print("🔍 [INICIO] Cargando barberos...")
+        tipo = request.args.get('tipo')  # ✅ filtro opcional
         
         coleccion_barbero = mongodb.get_collection('barbero')
-        print("✅ Conexión a colección 'barbero' OK")
         
-        barberos = list(coleccion_barbero.find({}, {'contraseña_hash': 0}))
-        print(f"✅ Barberos encontrados: {len(barberos)}")
+        # ✅ Si viene tipo, filtrar
+        query = {}
+        if tipo:
+            query['tipo'] = tipo
         
-        if len(barberos) == 0:
-            print("⚠️ No hay barberos en la BD")
+        barberos = list(coleccion_barbero.find(query, {'_id': 1, 'nombre': 1, 'tipo': 1}))
         
-        # Convertir ObjectId a string
-        for i, barbero in enumerate(barberos):
-            print(f"   - Barbero {i+1}: {barbero.get('nombre')} (_id: {barbero.get('_id')})")
+        for barbero in barberos:
             barbero['_id'] = str(barbero['_id'])
         
-        print(f"✅ [FIN] Retornando {len(barberos)} barberos")
-        
-        return jsonify({
-            'status': 'success',
-            'barberos': barberos
-        }), 200
+        return jsonify({'status': 'success', 'barberos': barberos}), 200
         
     except Exception as e:
-        print(f"❌ [ERROR] En /barberos: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        
-        return jsonify({
-            'status': 'error', 
-            'mensaje': str(e)
-        }), 500
-
+        print(f"❌ Error en /barberos: {str(e)}")
+        return jsonify({'status': 'error', 'mensaje': 'Error en el servidor'}), 500
 @citas_bp.route('/crear', methods=['POST'])
 def crear_cita():
     """Crear una nueva cita y enviar emails"""
@@ -133,6 +115,7 @@ def crear_cita():
         print(f"✅ PERMITIDA - Horario disponible, creando cita...")
         
         # Crear la cita
+        
         cita = Cita(
             cliente_nombre=data['cliente_nombre'],
             cliente_email=data['cliente_email'],

@@ -23,6 +23,7 @@ class MongoDB:
             print(f"❌ Error: {e}")
             raise
 
+
     def get_collection(self, collection_name):
         """Obtener una colección de MongoDB"""
         return self.db[collection_name]
@@ -31,6 +32,7 @@ class MongoDB:
         """Cerrar la conexión"""
         if self.client:
             self.client.close()
+
 
 # Instancia global
 mongodb = MongoDB()

@@ -55,6 +55,7 @@ def listar_citas(barbero_id):
     except Exception as e:
         return jsonify({'status': 'error', 'mensaje': str(e)}), 500
 
+
 @dashboard_bp.route('/citas/hoy', methods=['GET'])
 @token_requerido
 def citas_hoy(barbero_id):

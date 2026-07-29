@@ -75,6 +75,15 @@
 
                 <div class="filter-box">
                     <!-- DROPDOWN BARBERO (solo admin) -->
+                     <!-- FILTRO POR TIPO -->
+                    <div id="tipoFilterSection" style="display: none; margin-right: 20px;">
+                        <label style="font-weight: bold; margin-right: 10px;">Type:</label>
+                        <select id="selectTipoFilter" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                            <option value="">All Types</option>
+                            <option value="barber">Barbers</option>
+                            <option value="skincare">Skincare</option>
+                        </select>
+                    </div>
                     <div id="barberoFilterSection" style="display: none; margin-right: 20px;">
                         <label style="font-weight: bold; margin-right: 10px;">Barber:</label>
                         <select id="selectBarberoFilter" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
@@ -120,6 +129,14 @@
                     <div style="margin-bottom: 15px;">
                         <label style="display: block; margin-bottom: 5px; font-weight: bold;">Password</label>
                         <input type="password" id="inputPasswordBarbero" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Type</label>
+                        <select id="inputTipoBarbero" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                            <option value="barber">Barber</option>
+                            <option value="skincare">Skincare Specialist</option>
+                        </select>
                     </div>
                     
                     <button type="submit" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">
