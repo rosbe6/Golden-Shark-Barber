@@ -289,7 +289,6 @@ function renderCitas(citas) {
                 <span class="info-key">💈 Service</span>
                 <span class="info-val">${c.servicio}</span>
             </div>
-            // Después de la línea del servicio
             ${c.tipo_servicio ? `<div class="info-line">
                 <span class="info-key">${c.tipo_servicio === 'skincare' ? '💆' : '💈'} Type</span>
                 <span class="info-val">${c.tipo_servicio === 'skincare' ? 'Skincare' : 'Haircut'}</span>
