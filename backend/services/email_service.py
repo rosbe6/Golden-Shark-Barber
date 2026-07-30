@@ -51,6 +51,10 @@ class EmailService:
                                     <td style="padding: 10px 0; border-bottom: 1px solid #eee; text-align: right;">{cita_data.get('barbero_nombre', 'N/A')}</td>
                                 </tr>
                                 <tr>
+                                    <td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Contact:</strong></td>
+                                    <td style="padding: 10px 0; border-bottom: 1px solid #eee; text-align: right;">{cita_data.get('barbero_telefono', 'N/A')}</td>
+                                </tr>
+                                <tr>
                                     <td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Date:</strong></td>
                                     <td style="padding: 10px 0; border-bottom: 1px solid #eee; text-align: right;">{cita_data['dia']}</td>
                                 </tr>

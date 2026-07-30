@@ -4,11 +4,13 @@ import bcrypt
 class Barbero:
     """Modelo para el barbero"""
     
-    def __init__(self, email, contraseña, nombre="Admin", tipo="barber", _id=None):
+    def __init__(self, email, contraseña, nombre="Admin", tipo="barber",telefono="", _id=None):
         self._id = _id or ObjectId()
         self.email = email
         self.nombre = nombre
         self.tipo = tipo  # ✅ "barber" o "skincare"
+        self.telefono = telefono  # ✅ NUEVO
+
         self.contraseña_hash = self._hashear_contraseña(contraseña)
     
     def _hashear_contraseña(self, contraseña):
@@ -24,6 +26,7 @@ class Barbero:
             'email': self.email,
             'nombre': self.nombre,
             'tipo': self.tipo,  # ✅ NUEVO
+            'telefono': self.telefono,  # ✅ NUEVO
             'contraseña_hash': self.contraseña_hash
         }
     
@@ -34,5 +37,7 @@ class Barbero:
         barbero.email = data.get('email')
         barbero.nombre = data.get('nombre')
         barbero.tipo = data.get('tipo', 'barber')  # ✅ NUEVO
+        barbero.telefono = data.get('telefono', '')  # ✅ NUEVO
+
         barbero.contraseña_hash = data.get('contraseña_hash')
         return barbero

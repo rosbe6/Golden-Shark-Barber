@@ -589,6 +589,7 @@ function renderBarberosAdmin(barberos, barberoActualId) {
             <div>
                 <div style="font-weight: bold; font-size: 16px;">${b.nombre}</div>
                 <div style="color: #666; font-size: 13px;">${b.email}</div>
+                <div style="color: #666; font-size: 13px;">📞 ${b.telefono || 'No phone'}</div>
                 <div style="color: #007bff; font-size: 12px; margin-top: 4px;">
                     ${b.tipo === 'skincare' ? '💆 Skincare Specialist' : '💈 Barber'}
                 </div>
@@ -603,15 +604,14 @@ function renderBarberosAdmin(barberos, barberoActualId) {
         </div>
     `).join('');
 }
-
-
 async function agregarBarberoAdmin(e) {
     e.preventDefault();
     
     const nombre = document.getElementById('inputNombreBarbero').value;
     const email = document.getElementById('inputEmailBarbero').value;
+    const telefono = document.getElementById('inputTelefonoBarbero').value; // ✅ NUEVO
     const contraseña = document.getElementById('inputPasswordBarbero').value;
-    const tipo = document.getElementById('inputTipoBarbero').value; // ✅ NUEVO
+    const tipo = document.getElementById('inputTipoBarbero').value;
     
     try {
         showLoading(true);
@@ -619,7 +619,7 @@ async function agregarBarberoAdmin(e) {
         const response = await fetch(`${API_URL}/auth/registrar`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombre, email, contraseña, tipo }) // ✅ NUEVO
+            body: JSON.stringify({ nombre, email, telefono, contraseña, tipo }) // ✅ NUEVO
         });
         
         const data = await response.json();

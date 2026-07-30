@@ -138,8 +138,10 @@ def crear_cita():
         print(f"✅ Cita guardada: {cita_id}")
         
         # ✅ Obtener nombre y tipo del especialista
+        # ✅ Obtener nombre, teléfono y tipo del especialista
         barbero_info = db.barbero.find_one({'_id': ObjectId(data['barbero_id'])})
         data['barbero_nombre'] = barbero_info['nombre'] if barbero_info else 'N/A'
+        data['barbero_telefono'] = barbero_info.get('telefono', '') if barbero_info else ''  # ✅ NUEVO
         data['tipo_servicio'] = data.get('tipo_servicio', 'barber')
 
         # Enviar email de confirmación al cliente
