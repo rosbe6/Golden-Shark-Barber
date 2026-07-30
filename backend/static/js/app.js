@@ -234,8 +234,14 @@ function mesSiguiente() {
 
 // ==================== CREAR CITA ====================
 
+// ==================== CREAR CITA ====================
+
 function crearCita(event) {
     event.preventDefault();
+    
+    const submitBtn = document.querySelector('.btn-submit');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="btn-spinner"></span> Booking...';
     
     const tipo = document.getElementById('tipoServicio').value;
     
@@ -263,18 +269,22 @@ function crearCita(event) {
         precio: precio,
         instrucciones: document.getElementById('instrucciones').value,
         barbero_id: barberoSeleccionado,
-        tipo_servicio: tipo  // ✅ NUEVO
+        tipo_servicio: tipo
     };
     
     // Validaciones
     if (!citaData.cliente_nombre || !citaData.cliente_email || !citaData.cliente_telefono || 
         !citaData.dia || !citaData.hora || !citaData.servicio || !citaData.metodoPago || !tipo) {
         mostrarError('Please fill in all required fields');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Confirm Appointment';
         return;
     }
     
     if (!citaData.barbero_id) {
         mostrarError('Please select a barber');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Confirm Appointment';
         return;
     }
     
@@ -286,6 +296,8 @@ function crearCita(event) {
     .then(response => {
         if (response.status === 409) {
             mostrarError('❌ That time slot is already booked. Please select another time.');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Confirm Appointment';
             horaSeleccionada = null;
             document.getElementById('hora').value = '';
             document.querySelectorAll('.horario.seleccionado').forEach(el => el.classList.remove('seleccionado'));
@@ -300,10 +312,14 @@ function crearCita(event) {
             window.location.href = `cita.html?id=${data.cita_id}`;
         } else {
             mostrarError(data.mensaje);
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Confirm Appointment';
         }
     })
     .catch(error => {
         mostrarError('Error creating appointment');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Confirm Appointment';
     });
 }
 
