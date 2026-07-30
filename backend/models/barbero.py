@@ -2,15 +2,13 @@ from bson import ObjectId
 import bcrypt
 
 class Barbero:
-    """Modelo para el barbero"""
-    
-    def __init__(self, email, contraseña, nombre="Admin", tipo="barber",telefono="", _id=None):
+    def __init__(self, email, contraseña, nombre="Admin", tipo="barber", telefono="", foto="", _id=None):
         self._id = _id or ObjectId()
         self.email = email
         self.nombre = nombre
-        self.tipo = tipo  # ✅ "barber" o "skincare"
-        self.telefono = telefono  # ✅ NUEVO
-
+        self.tipo = tipo
+        self.telefono = telefono
+        self.foto = foto  # ✅ NUEVO - URL relativa a la foto
         self.contraseña_hash = self._hashear_contraseña(contraseña)
     
     def _hashear_contraseña(self, contraseña):
@@ -25,8 +23,9 @@ class Barbero:
             '_id': self._id,
             'email': self.email,
             'nombre': self.nombre,
-            'tipo': self.tipo,  # ✅ NUEVO
-            'telefono': self.telefono,  # ✅ NUEVO
+            'tipo': self.tipo,
+            'telefono': self.telefono,
+            'foto': self.foto,
             'contraseña_hash': self.contraseña_hash
         }
     
@@ -36,8 +35,8 @@ class Barbero:
         barbero._id = data.get('_id')
         barbero.email = data.get('email')
         barbero.nombre = data.get('nombre')
-        barbero.tipo = data.get('tipo', 'barber')  # ✅ NUEVO
-        barbero.telefono = data.get('telefono', '')  # ✅ NUEVO
-
+        barbero.tipo = data.get('tipo', 'barber')
+        barbero.telefono = data.get('telefono', '')
+        barbero.foto = data.get('foto', '')
         barbero.contraseña_hash = data.get('contraseña_hash')
         return barbero

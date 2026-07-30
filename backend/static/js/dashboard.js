@@ -559,20 +559,20 @@ function closeModal(modalId) {
 
 // ==================== ADMIN: GESTIÓN DE BARBEROS ====================
 
+
 function cargarBarberosAdmin() {
-    // Primero obtener el barbero_id actual del token
     fetch(`${API_URL}/auth/perfil`, {
         headers: { 'Authorization': `Bearer ${barberoToken}` }
     })
     .then(r => r.json())
     .then(perfilData => {
-        // Ahora cargar todos los barberos
         fetch(`${API_URL}/auth/barberos`, {
             headers: { 'Authorization': `Bearer ${barberoToken}` }
         })
         .then(r => r.json())
         .then(data => {
             if (data.status === 'success') {
+                barberosCache = data.barberos;
                 renderBarberosAdmin(data.barberos, perfilData.barbero_id);
             }
         })
@@ -581,37 +581,75 @@ function cargarBarberosAdmin() {
     .catch(e => console.error(e));
 }
 
+function openEditBarberoModal(barberoId) {
+    const barbero = barberosCache.find(b => b._id === barberoId);
+    if (!barbero) return;
+
+    document.getElementById('editBarberoId').value = barbero._id;
+    document.getElementById('editNombre').value = barbero.nombre;
+    document.getElementById('editEmail').value = barbero.email;
+    document.getElementById('editTelefono').value = barbero.telefono || '';
+    document.getElementById('editTipo').value = barbero.tipo || 'barber';
+    document.getElementById('editPassword').value = '';
+    document.getElementById('editPasswordConfirm').value = '';
+    document.getElementById('editInputFoto').value = '';
+
+    const fotoImg = document.getElementById('editFotoImg');
+    const fotoPlaceholder = document.getElementById('editFotoPlaceholder');
+    if (barbero.foto) {
+        fotoImg.src = barbero.foto;
+        fotoImg.style.display = 'block';
+        fotoPlaceholder.style.display = 'none';
+    } else {
+        fotoImg.style.display = 'none';
+        fotoPlaceholder.style.display = 'block';
+    }
+
+    document.getElementById('modalEditBarbero').classList.remove('hidden');
+}
+
+function closeEditBarberoModal() {
+    document.getElementById('modalEditBarbero').classList.add('hidden');
+}
+
+
 
 function renderBarberosAdmin(barberos, barberoActualId) {
     const list = document.getElementById('barberosList');
     list.innerHTML = barberos.map(b => `
-        <div style="background: #f9f9f9; padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <div style="font-weight: bold; font-size: 16px;">${b.nombre}</div>
-                <div style="color: #666; font-size: 13px;">${b.email}</div>
-                <div style="color: #666; font-size: 13px;">📞 ${b.telefono || 'No phone'}</div>
-                <div style="color: #007bff; font-size: 12px; margin-top: 4px;">
-                    ${b.tipo === 'skincare' ? '💆 Skincare Specialist' : '💈 Barber'}
-                </div>
+        <div class="barbero-card">
+            ${!b.es_admin && b._id !== barberoActualId ? `<button class="barbero-edit-btn" onclick="openEditBarberoModal('${b._id}')">✏️</button>` : (b.es_admin ? `<button class="barbero-edit-btn" onclick="openEditBarberoModal('${b._id}')">✏️</button>` : '')}
+            <div class="barbero-card-foto">
+                ${b.foto ? `<img src="${b.foto}" alt="${b.nombre}">` : '👤'}
             </div>
-            ${b.es_admin ? 
-                '<span style="color: #28a745; font-weight: bold;">👑 Owner</span>' 
-                : (b._id === barberoActualId ? 
-                    '<span style="color: #999;">You cannot delete yourself</span>'
-                    : `<button onclick="confirmarEliminarBarbero('${b._id}', '${b.nombre}')" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Delete</button>`
-                )
-            }
+            <div style="font-weight: bold; font-size: 15px;">${b.nombre}</div>
+            <div style="color: #666; font-size: 12px;">${b.email}</div>
+            <div style="color: #666; font-size: 12px;">📞 ${b.telefono || 'No phone'}</div>
+            <div style="color: #007bff; font-size: 11px; margin-top: 4px;">
+                ${b.tipo === 'skincare' ? '💆 Skincare Specialist' : '💈 Barber'}
+            </div>
+            ${b.es_admin ? '<div style="color: #28a745; font-weight: bold; margin-top: 6px; font-size: 12px;">👑 Owner</div>' : ''}
+            ${(!b.es_admin && b._id !== barberoActualId) ? `<button onclick="confirmarEliminarBarbero('${b._id}', '${b.nombre}')" style="background: #dc3545; color: white; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; margin-top: 10px; font-size: 12px;">Delete</button>` : ''}
         </div>
     `).join('');
 }
+
+
+
 async function agregarBarberoAdmin(e) {
     e.preventDefault();
     
     const nombre = document.getElementById('inputNombreBarbero').value;
     const email = document.getElementById('inputEmailBarbero').value;
-    const telefono = document.getElementById('inputTelefonoBarbero').value; // ✅ NUEVO
+    const telefono = document.getElementById('inputTelefonoBarbero').value;
     const contraseña = document.getElementById('inputPasswordBarbero').value;
+    const contraseñaConfirm = document.getElementById('inputPasswordBarberoConfirm').value;
     const tipo = document.getElementById('inputTipoBarbero').value;
+
+    if (contraseña !== contraseñaConfirm) {
+        alert('❌ Passwords do not match');
+        return;
+    }
     
     try {
         showLoading(true);
@@ -619,7 +657,7 @@ async function agregarBarberoAdmin(e) {
         const response = await fetch(`${API_URL}/auth/registrar`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombre, email, telefono, contraseña, tipo }) // ✅ NUEVO
+            body: JSON.stringify({ nombre, email, telefono, contraseña, tipo })
         });
         
         const data = await response.json();
@@ -638,11 +676,77 @@ async function agregarBarberoAdmin(e) {
     }
 }
 
+
+let barberosCache = [];
+
+function previewEditFoto(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const fotoImg = document.getElementById('editFotoImg');
+        fotoImg.src = e.target.result;
+        fotoImg.style.display = 'block';
+        document.getElementById('editFotoPlaceholder').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+}
+
+async function guardarEdicionBarbero(e) {
+    e.preventDefault();
+
+    const barberoId = document.getElementById('editBarberoId').value;
+    const password = document.getElementById('editPassword').value;
+    const passwordConfirm = document.getElementById('editPasswordConfirm').value;
+
+    if (password && password !== passwordConfirm) {
+        alert('❌ Passwords do not match');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('nombre', document.getElementById('editNombre').value);
+    formData.append('email', document.getElementById('editEmail').value);
+    formData.append('telefono', document.getElementById('editTelefono').value);
+    formData.append('tipo', document.getElementById('editTipo').value);
+    if (password) formData.append('contraseña', password);
+
+    const fotoFile = document.getElementById('editInputFoto').files[0];
+    if (fotoFile) formData.append('foto', fotoFile);
+
+    try {
+        showLoading(true);
+
+        const response = await fetch(`${API_URL}/auth/barberos/${barberoId}`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${barberoToken}` },
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            alert('✅ Barber updated successfully!');
+            closeEditBarberoModal();
+            cargarBarberosAdmin();
+        } else {
+            alert('❌ Error: ' + data.mensaje);
+        }
+    } catch (error) {
+        alert('❌ Error updating barber');
+    } finally {
+        showLoading(false);
+    }
+}
+
+
+
 function confirmarEliminarBarbero(barberoId, nombre) {
     if (confirm(`Are you sure you want to delete ${nombre}?`)) {
         eliminarBarberoAdmin(barberoId);
     }
 }
+
 
 async function eliminarBarberoAdmin(barberoId) {
     try {

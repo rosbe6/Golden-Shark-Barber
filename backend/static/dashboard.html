@@ -106,57 +106,108 @@
             </div>
         </div>
 
-
         <!-- ==================== SECCIÓN: BARBEROS (ADMIN) ==================== -->
-        <div id="seccionBarberos" style="display: none; padding: 20px;">
-            <h2 style="color: #007bff; margin-bottom: 30px;">👑 Manage Barbers</h2>
-            
-            <!-- AGREGAR BARBERO -->
-            <div style="background: white; border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-                <h3 style="margin-bottom: 20px;">Add New Barber</h3>
+            <div id="seccionBarberos" style="display: none; padding: 15px;">
+                <h2 style="color: #007bff; margin-bottom: 20px; font-size: 22px;">👑 Manage Barbers</h2>
                 
-                <form id="formAddBarbero" onsubmit="agregarBarberoAdmin(event)">
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Barber Name</label>
-                        <input type="text" id="inputNombreBarbero" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <!-- AGREGAR BARBERO -->
+                <div style="background: white; border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+                    <h3 style="margin-bottom: 15px; font-size: 16px;">Add New Barber</h3>
+                    
+                    <form id="formAddBarbero" onsubmit="agregarBarberoAdmin(event)">
+                        <div class="admin-form-grid">
+                            <div>
+                                <label class="admin-label">Barber Name</label>
+                                <input type="text" id="inputNombreBarbero" required class="admin-input">
+                            </div>
+                            <div>
+                                <label class="admin-label">Phone Number</label>
+                                <input type="tel" id="inputTelefonoBarbero" required placeholder="+1 555 123 4567" class="admin-input">
+                            </div>
+                            <div>
+                                <label class="admin-label">Email</label>
+                                <input type="email" id="inputEmailBarbero" required class="admin-input">
+                            </div>
+                            <div>
+                                <label class="admin-label">Type</label>
+                                <select id="inputTipoBarbero" required class="admin-input">
+                                    <option value="barber">Barber</option>
+                                    <option value="skincare">Skincare Specialist</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="admin-label">Password</label>
+                                <input type="password" id="inputPasswordBarbero" required class="admin-input">
+                            </div>
+                            <div>
+                                <label class="admin-label">Confirm Password</label>
+                                <input type="password" id="inputPasswordBarberoConfirm" required class="admin-input">
+                            </div>
+                        </div>
+                        <button type="submit" style="background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; width: 100%;">
+                            Add Barber
+                        </button>
+                    </form>
+                </div>
+
+                <!-- LISTAR BARBEROS -->
+                <div>
+                    <h3 style="margin-bottom: 15px; font-size: 16px;">Current Barbers</h3>
+                    <div id="barberosList" class="barberos-cards-grid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL: EDITAR BARBERO -->
+        <div class="modal hidden" id="modalEditBarbero">
+            <div class="modal-box">
+                <button class="close-modal" onclick="closeEditBarberoModal()">×</button>
+                <h2>Edit Barber</h2>
+
+                <form id="formEditBarbero" onsubmit="guardarEdicionBarbero(event)" enctype="multipart/form-data">
+                    <input type="hidden" id="editBarberoId">
+
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <div id="editFotoPreview" class="edit-foto-preview">
+                            <span id="editFotoPlaceholder">👤</span>
+                            <img id="editFotoImg" src="" alt="" style="display:none;">
+                        </div>
+                        <label for="editInputFoto" style="display: inline-block; margin-top: 8px; color: #007bff; cursor: pointer; font-size: 13px;">
+                            📷 Change Photo
+                        </label>
+                        <input type="file" id="editInputFoto" accept="image/*" style="display: none;" onchange="previewEditFoto(event)">
                     </div>
 
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Phone Number</label>
-                        <input type="tel" id="inputTelefonoBarbero" required placeholder="+1 555 123 4567" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                    </div>
-                    
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Email</label>
-                        <input type="email" id="inputEmailBarbero" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                    </div>
-                    
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Password</label>
-                        <input type="password" id="inputPasswordBarbero" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                    </div>
+                    <label class="admin-label">Name</label>
+                    <input type="text" id="editNombre" required class="admin-input" style="margin-bottom: 10px;">
 
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Type</label>
-                        <select id="inputTipoBarbero" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                            <option value="barber">Barber</option>
-                            <option value="skincare">Skincare Specialist</option>
-                        </select>
-                    </div>
-                    
-                    <button type="submit" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-                        Add Barber
+                    <label class="admin-label">Email</label>
+                    <input type="email" id="editEmail" required class="admin-input" style="margin-bottom: 10px;">
+
+                    <label class="admin-label">Phone</label>
+                    <input type="tel" id="editTelefono" required class="admin-input" style="margin-bottom: 10px;">
+
+                    <label class="admin-label">Type</label>
+                    <select id="editTipo" required class="admin-input" style="margin-bottom: 10px;">
+                        <option value="barber">Barber</option>
+                        <option value="skincare">Skincare Specialist</option>
+                    </select>
+
+                    <label class="admin-label">New Password (leave blank to keep current)</label>
+                    <input type="password" id="editPassword" class="admin-input" style="margin-bottom: 10px;">
+
+                    <label class="admin-label">Confirm New Password</label>
+                    <input type="password" id="editPasswordConfirm" class="admin-input" style="margin-bottom: 15px;">
+
+                    <button type="submit" style="background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%;">
+                        Save Changes
                     </button>
                 </form>
             </div>
-
-            <!-- LISTAR BARBEROS -->
-            <div style="background: white; border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
-                <h3 style="margin-bottom: 20px;">Current Barbers</h3>
-                <div id="barberosList"></div>
-            </div>
         </div>
-    </div>
+
+
+
 
     <!-- MODAL: DETALLES DE CITA -->
     <div class="modal hidden" id="modalDetails">

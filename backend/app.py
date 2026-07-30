@@ -38,6 +38,10 @@ def home():
     """Servir index.html por defecto"""
     return send_from_directory(os.path.join(app.root_path, 'static'), 'index.html')
 
+@app.route('/uploads/<path:filename>')
+def serve_uploads(filename):
+    return send_from_directory(os.path.join(app.root_path, 'static/uploads'), filename)
+
 @app.route('/<path:filename>')
 def serve_static(filename):
     """Servir archivos estáticos (HTML, CSS, JS)"""
