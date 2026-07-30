@@ -137,6 +137,11 @@ def crear_cita():
         cita_id = str(resultado.inserted_id)
         print(f"✅ Cita guardada: {cita_id}")
         
+        # ✅ Obtener nombre y tipo del especialista
+        barbero_info = db.barbero.find_one({'_id': ObjectId(data['barbero_id'])})
+        data['barbero_nombre'] = barbero_info['nombre'] if barbero_info else 'N/A'
+        data['tipo_servicio'] = data.get('tipo_servicio', 'barber')
+
         # Enviar email de confirmación al cliente
         try:
             email_service.enviar_confirmacion(data, cita_id)
