@@ -130,7 +130,10 @@ def crear_cita():
         )
         
         # Guardar en BD
-        resultado = db.citas.insert_one(cita.to_dict())
+
+        cita_dict = cita.to_dict()
+        cita_dict['tipo_servicio'] = data.get('tipo_servicio', 'barber')  # ✅ NUEVO
+        resultado = db.citas.insert_one(cita_dict)
         cita_id = str(resultado.inserted_id)
         print(f"✅ Cita guardada: {cita_id}")
         
