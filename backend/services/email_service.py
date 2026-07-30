@@ -72,7 +72,7 @@ class EmailService:
                                 </tr>
                             </table>
                         </div>
-                        
+                        # 
                         <p style="text-align: center; margin: 30px 0;">
                             <a href="https://goldenbarbershop.online/cita.html?id={cita_id}"
                                style="background-color: #007bff; color: white; padding: 14px 40px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 16px;">
