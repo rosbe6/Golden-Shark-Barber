@@ -26,13 +26,11 @@ def obtener_disponibles():
     horarios = ['10:00', '10:40', '11:20', '12:00', '12:40', '13:20', '14:00',
                 '14:40', '15:20', '16:00', '16:40']
     
-    # Generar todos los días lunes-sábado del próximo año
     dias = []
     fecha_inicio = datetime.now()
     
     for i in range(365):
         fecha = fecha_inicio + timedelta(days=i)
-        # Si es lunes (0) a sábado (5), agregar
         if fecha.weekday() < 6:
             dias.append(fecha.strftime('%Y-%m-%d'))
     
@@ -46,11 +44,10 @@ def obtener_disponibles():
 @citas_bp.route('/barberos', methods=['GET'])
 def listar_barberos():
     try:
-        tipo = request.args.get('tipo')  # ✅ filtro opcional
+        tipo = request.args.get('tipo')
         
         coleccion_barbero = mongodb.get_collection('barbero')
         
-        # ✅ Si viene tipo, filtrar
         query = {}
         if tipo:
             query['tipo'] = tipo
@@ -65,6 +62,8 @@ def listar_barberos():
     except Exception as e:
         print(f"❌ Error en /barberos: {str(e)}")
         return jsonify({'status': 'error', 'mensaje': 'Error en el servidor'}), 500
+
+
 @citas_bp.route('/crear', methods=['POST'])
 def crear_cita():
     """Crear una nueva cita y enviar emails"""
@@ -72,7 +71,6 @@ def crear_cita():
     try:
         data = request.get_json()
         
-        # Validar datos requeridos
         campos_requeridos = ['cliente_nombre', 'cliente_email', 'cliente_telefono', 
                             'dia', 'hora', 'servicio', 'metodoPago', 'precio', 'barbero_id']
         
@@ -83,7 +81,6 @@ def crear_cita():
                     'mensaje': f'Missing required field: {campo}'
                 }), 400
         
-        # Validar que el precio sea un número
         try:
             precio = int(data['precio'])
         except:
@@ -94,7 +91,6 @@ def crear_cita():
         
         db = mongodb.db
         
-        # ✅ VALIDACIÓN CRÍTICA: Verificar que NO exista cita confirmada en ese horario POR BARBERO
         print(f"🔍 Buscando: dia={data['dia']}, hora={data['hora']}, barbero_id={data['barbero_id']}, estado=confirmada")
         
         cita_existe = db.citas.find_one({
@@ -114,8 +110,6 @@ def crear_cita():
         
         print(f"✅ PERMITIDA - Horario disponible, creando cita...")
         
-        # Crear la cita
-        
         cita = Cita(
             cliente_nombre=data['cliente_nombre'],
             cliente_email=data['cliente_email'],
@@ -129,19 +123,16 @@ def crear_cita():
             barbero_id=data['barbero_id']
         )
         
-        # Guardar en BD
-
         cita_dict = cita.to_dict()
-        cita_dict['tipo_servicio'] = data.get('tipo_servicio', 'barber')  # ✅ NUEVO
+        cita_dict['tipo_servicio'] = data.get('tipo_servicio', 'barber')
         resultado = db.citas.insert_one(cita_dict)
         cita_id = str(resultado.inserted_id)
         print(f"✅ Cita guardada: {cita_id}")
         
-        # ✅ Obtener nombre y tipo del especialista
         # ✅ Obtener nombre, teléfono y tipo del especialista
         barbero_info = db.barbero.find_one({'_id': ObjectId(data['barbero_id'])})
         data['barbero_nombre'] = barbero_info['nombre'] if barbero_info else 'N/A'
-        data['barbero_telefono'] = barbero_info.get('telefono', '') if barbero_info else ''  # ✅ NUEVO
+        data['barbero_telefono'] = barbero_info.get('telefono', '') if barbero_info else ''
         data['tipo_servicio'] = data.get('tipo_servicio', 'barber')
 
         # Enviar email de confirmación al cliente
@@ -151,26 +142,31 @@ def crear_cita():
         except Exception as e:
             print(f"⚠️ Error al enviar email de confirmación: {str(e)}")
         
-        # Enviar notificación al barbero
+        # ✅ Notificar SOLO al barbero asignado y al admin (dueño)
         try:
-            barberos = list(db.barbero.find({}))
+            barberos_a_notificar = list(db.barbero.find({
+                '$or': [
+                    {'_id': ObjectId(data['barbero_id'])},
+                    {'es_admin': True}
+                ]
+            }))
             
-            if barberos:
-                for barbero in barberos:
-                    email_barbero = barbero.get('email')
-                    nombre_barbero = barbero.get('nombre', 'Barbero')
-                    
-                    if email_barbero:
-                        try:
-                            email_service.enviar_notificacion_barbero(data, cita_id, email_barbero)
-                            print(f"✅ Notificación enviada a {nombre_barbero}: {email_barbero}")
-                        except Exception as email_error:
-                            print(f"❌ Error enviando email a {email_barbero}")
-                    else:
-                        print(f"⚠️ {nombre_barbero} no tiene email configurado")
-            else:
-                print("⚠️ No se encontraron barberos")
+            emails_enviados = set()
+            
+            for barbero in barberos_a_notificar:
+                email_barbero = barbero.get('email')
+                nombre_barbero = barbero.get('nombre', 'Barbero')
                 
+                if email_barbero and email_barbero not in emails_enviados:
+                    try:
+                        email_service.enviar_notificacion_barbero(data, cita_id, email_barbero)
+                        print(f"✅ Notificación enviada a {nombre_barbero}: {email_barbero}")
+                        emails_enviados.add(email_barbero)
+                    except Exception as email_error:
+                        print(f"❌ Error enviando email a {email_barbero}")
+                elif not email_barbero:
+                    print(f"⚠️ {nombre_barbero} no tiene email configurado")
+                    
         except Exception as e:
             print(f"❌ Error en notificación de barbero: {str(e)}")
         
@@ -201,7 +197,6 @@ def crear_cita():
 
 @citas_bp.route('/horarios-ocupados/<dia>', methods=['GET'])
 def horarios_ocupados(dia):
-    """Obtener horarios ocupados para un día específico y barbero"""
     try:
         barbero_id = request.args.get('barbero_id')
         
@@ -213,14 +208,12 @@ def horarios_ocupados(dia):
         
         coleccion_citas = mongodb.get_collection('citas')
         
-        # Buscar SOLO citas confirmadas en ese día Y barbero
         citas = coleccion_citas.find({
             'dia': dia,
             'barbero_id': barbero_id,
             'estado': 'confirmada'
         })
         
-        # Extraer las horas ocupadas
         horas_ocupadas = [cita['hora'] for cita in citas]
         
         return jsonify({
@@ -236,10 +229,6 @@ def horarios_ocupados(dia):
 
 @citas_bp.route('/<cita_id>', methods=['GET'])
 def obtener_cita(cita_id):
-    """
-    Obtener detalles de una cita por ID
-    GET /api/citas/abc123
-    """
     try:
         coleccion_citas = mongodb.get_collection('citas')
         cita = coleccion_citas.find_one({'_id': ObjectId(cita_id)})
@@ -256,20 +245,14 @@ def obtener_cita(cita_id):
 
 @citas_bp.route('/<cita_id>/completada', methods=['PUT'])
 def marcar_completada(cita_id):
-    """
-    Marcar una cita como completada
-    PUT /api/citas/abc123/completada
-    """
     try:
         coleccion_citas = mongodb.get_collection('citas')
         
-        # Obtener la cita primero para enviar email
         cita = coleccion_citas.find_one({'_id': ObjectId(cita_id)})
         
         if not cita:
             return jsonify({'status': 'error', 'mensaje': 'Cita no encontrada'}), 404
         
-        # Actualizar estado
         resultado = coleccion_citas.update_one(
             {'_id': ObjectId(cita_id)},
             {'$set': {'estado': 'completada'}}
@@ -278,7 +261,6 @@ def marcar_completada(cita_id):
         if resultado.matched_count == 0:
             return jsonify({'status': 'error', 'mensaje': 'Cita no encontrada'}), 404
         
-        # Enviar email de confirmación al cliente
         try:
             asunto = "Tu cita ha sido completada - Gold Shark Barber"
             mensaje = f"""
@@ -305,24 +287,17 @@ def marcar_completada(cita_id):
 
 @citas_bp.route('/<cita_id>/cancelar', methods=['PUT'])
 def cancelar_cita(cita_id):
-    """
-    Cancelar una cita con motivo
-    PUT /api/citas/abc123/cancelar
-    Body: { "motivo": "Barbero enfermo" }
-    """
     try:
         data = request.get_json()
         motivo = data.get('motivo', 'Sin motivo especificado')
         
         coleccion_citas = mongodb.get_collection('citas')
         
-        # Obtener la cita primero para enviar email
         cita = coleccion_citas.find_one({'_id': ObjectId(cita_id)})
         
         if not cita:
             return jsonify({'status': 'error', 'mensaje': 'Cita no encontrada'}), 404
         
-        # Actualizar estado con motivo
         resultado = coleccion_citas.update_one(
             {'_id': ObjectId(cita_id)},
             {'$set': {
@@ -335,7 +310,6 @@ def cancelar_cita(cita_id):
         if resultado.matched_count == 0:
             return jsonify({'status': 'error', 'mensaje': 'Cita no encontrada'}), 404
         
-        # ENVIAR EMAIL DE CANCELACIÓN AL CLIENTE
         try:
             email_service.enviar_cancelacion(cita, motivo)
             print(f"✅ Email de cancelación enviado a {cita.get('cliente_email')}")
@@ -353,18 +327,12 @@ def cancelar_cita(cita_id):
 
 @citas_bp.route('/<cita_id>/reagendar', methods=['PUT'])
 def reagendar_cita(cita_id):
-    """
-    Reagendar una cita a nueva fecha y hora
-    PUT /api/citas/abc123/reagendar
-    Body: { "nueva_fecha": "2026-07-15", "nueva_hora": "14:00", "motivo": "Conflicto de horario" }
-    """
     try:
         data = request.get_json()
         nueva_fecha = data.get('nueva_fecha')
         nueva_hora = data.get('nueva_hora')
         motivo = data.get('motivo', 'Client request')
         
-        # Validar que tenemos fecha y hora
         if not nueva_fecha or not nueva_hora:
             return jsonify({
                 'status': 'error',
@@ -373,17 +341,14 @@ def reagendar_cita(cita_id):
         
         coleccion_citas = mongodb.get_collection('citas')
         
-        # Obtener la cita primero
         cita = coleccion_citas.find_one({'_id': ObjectId(cita_id)})
         
         if not cita:
             return jsonify({'status': 'error', 'mensaje': 'Cita no encontrada'}), 404
         
-        # Guardar fecha anterior
         fecha_anterior = cita.get('dia')
         hora_anterior = cita.get('hora')
         
-        # Actualizar la cita con nueva fecha/hora
         resultado = coleccion_citas.update_one(
             {'_id': ObjectId(cita_id)},
             {'$set': {
@@ -399,7 +364,6 @@ def reagendar_cita(cita_id):
         if resultado.matched_count == 0:
             return jsonify({'status': 'error', 'mensaje': 'Cita no encontrada'}), 404
         
-        # ENVIAR EMAIL DE REAGENDAMIENTO AL CLIENTE
         try:
             email_service.enviar_reagendamiento(cita, nueva_fecha, nueva_hora, motivo)
             print(f"✅ Email de reagendamiento enviado a {cita.get('cliente_email')}")
@@ -419,15 +383,10 @@ def reagendar_cita(cita_id):
 
 @citas_bp.route('/listar/todas', methods=['GET'])
 def listar_todas_citas():
-    """
-    Listar todas las citas (para el barbero)
-    GET /api/citas/listar/todas
-    """
     try:
         coleccion_citas = mongodb.get_collection('citas')
         citas = list(coleccion_citas.find({'estado': {'$ne': 'cancelada'}}))
         
-        # Convertir ObjectId a string
         for cita in citas:
             cita['_id'] = str(cita['_id'])
         
@@ -443,10 +402,6 @@ def listar_todas_citas():
 
 @citas_bp.route('/barbero/<barbero_id>', methods=['GET'])
 def obtener_barbero(barbero_id):
-    """
-    Obtener datos de un barbero específico
-    GET /api/citas/barbero/abc123
-    """
     try:
         coleccion_barbero = mongodb.get_collection('barbero')
         barbero = coleccion_barbero.find_one({'_id': ObjectId(barbero_id)})
