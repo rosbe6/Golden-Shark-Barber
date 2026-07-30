@@ -39,7 +39,7 @@ def registrar():
             email=data['email'],
             contraseña=data['contraseña'],
             nombre=data.get('nombre', 'Admin'),
-            tipo=data.get('tipo', 'barber')  # ✅ NUEVO
+            tipo=data.get('tipo', 'barber'),  # ✅ NUEVO
             telefono=data.get('telefono', '')  # ✅ NUEVO
 
         )
