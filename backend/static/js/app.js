@@ -244,7 +244,7 @@ function crearCita(event) {
     if (tipo === 'barber') {
         servicio = document.getElementById('servicio').value;
         metodoPago = document.getElementById('metodoPago').value;
-        precio = metodoPago === 'cash' ? 45 : 50;
+        precio = 50;
     } else if (tipo === 'skincare') {
         const servicioVal = document.getElementById('servicioSkincare').value;
         servicio = servicioVal.split('|')[0];
@@ -320,7 +320,7 @@ function actualizarPrecio() {
     const precioMonto = document.getElementById('precio-monto');
 
     if (metodoPago === 'cash') {
-        precioMonto.textContent = '45';
+        precioMonto.textContent = '50';
         precioContainer.classList.remove('hidden');
     } else if (metodoPago === 'tarjeta') {
         precioMonto.textContent = '50';
