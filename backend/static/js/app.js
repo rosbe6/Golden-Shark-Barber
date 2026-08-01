@@ -9,9 +9,23 @@ let allBarberos = [];
 
 document.addEventListener('DOMContentLoaded', function() {
     cargarBarberos();
+    verificarSkincareHabilitado();
     document.getElementById('appointmentForm').addEventListener('submit', crearCita);
 });
 
+function verificarSkincareHabilitado() {
+    fetch(`${API_URL}/citas/config`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success' && !data.skincare_enabled) {
+                const opcionSkincare = document.querySelector('#tipoServicio option[value="skincare"]');
+                if (opcionSkincare) {
+                    opcionSkincare.remove();
+                }
+            }
+        })
+        .catch(error => console.error('Error checking skincare status:', error));
+}
 // ==================== BARBEROS ====================
 
 function cargarBarberos() {

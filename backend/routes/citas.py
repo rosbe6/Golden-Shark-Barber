@@ -420,3 +420,22 @@ def obtener_barbero(barbero_id):
         
     except Exception as e:
         return jsonify({'status': 'error', 'mensaje': str(e)}), 500
+
+
+
+import os
+
+@citas_bp.route('/config', methods=['GET'])
+def obtener_config():
+    """
+    Configuración pública del sitio (feature flags)
+    GET /api/citas/config
+    """
+    try:
+        skincare_enabled = os.getenv('SKINCARE_ENABLED', 'true').lower() == 'true'
+        return jsonify({
+            'status': 'success',
+            'skincare_enabled': skincare_enabled
+        }), 200
+    except Exception as e:
+        return jsonify({'status': 'error', 'mensaje': 'Error en el servidor'}), 500
