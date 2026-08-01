@@ -365,6 +365,10 @@ class EmailService:
                                     <td style="padding: 10px 0; border-bottom: 1px solid #ddd; text-align: right;">{cita_data['servicio']}</td>
                                 </tr>
                                 <tr>
+                                    <td style="padding: 10px 0; border-bottom: 1px solid #ddd;"><strong>{'Specialist' if cita_data.get('tipo_servicio') == 'skincare' else 'Barber'}:</strong></td>
+                                    <td style="padding: 10px 0; border-bottom: 1px solid #ddd; text-align: right;">{cita_data.get('barbero_nombre', 'N/A')}</td>
+                                </tr>
+                                <tr>
                                     <td style="padding: 10px 0; border-bottom: 1px solid #ddd;"><strong>Date:</strong></td>
                                     <td style="padding: 10px 0; border-bottom: 1px solid #ddd; text-align: right;">{cita_data['dia']}</td>
                                 </tr>
