@@ -37,22 +37,30 @@ class TelegramService:
             print("⚠️ TELEGRAM_CHAT_ID_ADMIN no configurado")
             return
         
-        tipo_label = "Specialist" if cita_data.get('tipo_servicio') == 'skincare' else "Barber"
+        tipo_label = "💆 Specialist" if cita_data.get('tipo_servicio') == 'skincare' else "💈 Barber"
+        emoji_pago = "💵" if cita_data['metodoPago'] == 'cash' else "💳"
         
-        mensaje = f"""📅 <b>New Appointment Booked!</b>
+        # Número de cita corto (últimos 6 caracteres del ID)
+        numero_cita = cita_id[-6:].upper()
+        
+        mensaje = f"""🔔 <b>NEW APPOINTMENT</b> #{numero_cita}
 
-👤 <b>Client:</b> {cita_data['cliente_nombre']}
-📞 <b>Phone:</b> {cita_data['cliente_telefono']}
-✉️ <b>Email:</b> {cita_data['cliente_email']}
+━━━━━━━━━━━━━━━━━━━━
 
-💈 <b>Service:</b> {cita_data['servicio']}
-{tipo_label}: {cita_data.get('barbero_nombre', 'N/A')}
+👤 <b>{cita_data['cliente_nombre']}</b>
+📞 {cita_data['cliente_telefono']}
+✉️ {cita_data['cliente_email']}
 
-📅 <b>Date:</b> {cita_data['dia']}
-⏰ <b>Time:</b> {cita_data['hora']}
-💳 <b>Payment:</b> {cita_data['metodoPago'].capitalize()}
-💰 <b>Price:</b> ${cita_data['precio']}
+━━━━━━━━━━━━━━━━━━━━
+✂️ <b>{cita_data['servicio']}</b>
+{tipo_label}: <b>{cita_data.get('barbero_nombre', 'N/A')}</b>
 
-🔗 https://goldenbarbershop.online/dashboard.html"""
+📅 {cita_data['dia']}
+⏰ {cita_data['hora']}
+{emoji_pago} {cita_data['metodoPago'].capitalize()} — <b>${cita_data['precio']}</b>
+━━━━━━━━━━━━━━━━━━━━
+
+🔗 <a href="https://goldenbarbershop.online/dashboard.html">Open Dashboard</a>
+🆔 <code>{cita_id}</code>"""
         
         self.enviar_mensaje(self.admin_chat_id, mensaje)
