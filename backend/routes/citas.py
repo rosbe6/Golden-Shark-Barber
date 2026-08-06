@@ -6,12 +6,14 @@ from models.cita import Cita
 from services.email_service import EmailService
 from services.google_calendar import GoogleCalendarService
 from pymongo.errors import DuplicateKeyError, OperationFailure
+from services.telegram_service import TelegramService
 
 # Crear el blueprint
 citas_bp = Blueprint('citas', __name__, url_prefix='/api/citas')
 
 # Servicios
 email_service = EmailService()
+telegram_service = TelegramService()
 
 # ==================== RUTAS ====================
 
@@ -169,7 +171,12 @@ def crear_cita():
                     
         except Exception as e:
             print(f"❌ Error en notificación de barbero: {str(e)}")
-        
+
+                # ✅ Notificar por Telegram al admin
+        try:
+            telegram_service.notificar_nueva_cita(data, cita_id)
+        except Exception as e:
+            print(f"❌ Error enviando Telegram: {str(e)}")
         # Agregar a Google Calendar si el barbero tiene token
         try:
             barbero = db.barbero.find_one()
