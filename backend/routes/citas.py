@@ -19,10 +19,6 @@ telegram_service = TelegramService()
 
 @citas_bp.route('/disponibles', methods=['GET'])
 def obtener_disponibles():
-    """
-    Obtener horarios disponibles (todos los días lunes-sábado)
-    GET /api/citas/disponibles?barbero_id=6a3214b2ad920a6943edfaec
-    """
     barbero_id = request.args.get('barbero_id')
     
     horarios = ['10:00', '10:40', '11:20', '12:00', '12:40', '13:20', '14:00',
@@ -31,10 +27,20 @@ def obtener_disponibles():
     dias = []
     fecha_inicio = datetime.now()
     
+    coleccion_bloqueos = mongodb.get_collection('dias_bloqueados')
+    bloqueos = list(coleccion_bloqueos.find({
+        '$or': [
+            {'barbero_id': None},
+            {'barbero_id': barbero_id}
+        ]
+    }))
+    fechas_bloqueadas = set(b['fecha'] for b in bloqueos)
+    
     for i in range(365):
         fecha = fecha_inicio + timedelta(days=i)
-        if fecha.weekday() < 6:
-            dias.append(fecha.strftime('%Y-%m-%d'))
+        fecha_str = fecha.strftime('%Y-%m-%d')
+        if fecha.weekday() < 6 and fecha_str not in fechas_bloqueadas:
+            dias.append(fecha_str)
     
     return jsonify({
         'status': 'success',
