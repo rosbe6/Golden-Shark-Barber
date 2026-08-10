@@ -168,7 +168,36 @@ def telegram_webhook():
                 else:
                     editar_mensaje(chat_id, message_id, f"✅ <b>{formato_display(fecha)}</b> is now fully unblocked. No more blocks for that day.")
 
-            # ---------- TODAY FILTER ----------
+            # ---------- TODAY MENU (nivel 1: elegir tipo) ----------
+            elif accion == 'todaymenu':
+                tipo = partes[1]
+
+                if tipo == 'back':
+                    botones = [
+                        [{"text": "💈 Barbers", "callback_data": "todaymenu|barber"}],
+                        [{"text": "💆 Skincare", "callback_data": "todaymenu|skincare"}]
+                    ]
+                    responder_callback(callback_id, "")
+                    editar_mensaje(chat_id, message_id, "📅 Today's appointments — filter by:", botones)
+                else:
+                    coleccion_barbero = mongodb.get_collection('barbero')
+                    barberos = list(coleccion_barbero.find({'tipo': tipo}, {'nombre': 1, 'tipo': 1}))
+
+                    titulo = "Barbers" if tipo == 'barber' else "Skincare"
+                    emoji_titulo = "💈" if tipo == 'barber' else "💆"
+
+                    botones = [[{"text": f"🏪 All {titulo}", "callback_data": f"today|all{tipo}"}]]
+                    for b in barberos:
+                        botones.append([{
+                            "text": f"{emoji_titulo} {b['nombre']}",
+                            "callback_data": f"today|{str(b['_id'])}"
+                        }])
+                    botones.append([{"text": "⬅️ Back", "callback_data": "todaymenu|back"}])
+
+                    responder_callback(callback_id, "")
+                    editar_mensaje(chat_id, message_id, f"📅 Today's appointments — {titulo}:", botones)
+
+            # ---------- TODAY FILTER (nivel 2: mostrar citas) ----------
             elif accion == 'today':
                 filtro = partes[1]
 
@@ -179,7 +208,7 @@ def telegram_webhook():
                 query = {'dia': hoy, 'estado': {'$ne': 'cancelada'}}
                 titulo = "All Appointments"
 
-                if filtro == 'allbarbers':
+                if filtro == 'allbarber':
                     barberos_tipo = list(coleccion_barbero.find({'tipo': 'barber'}, {'_id': 1}))
                     ids = [str(b['_id']) for b in barberos_tipo]
                     query['barbero_id'] = {'$in': ids}
@@ -189,7 +218,7 @@ def telegram_webhook():
                     ids = [str(b['_id']) for b in barberos_tipo]
                     query['barbero_id'] = {'$in': ids}
                     titulo = "All Skincare"
-                elif filtro != 'all':
+                else:
                     query['barbero_id'] = filtro
                     barbero = coleccion_barbero.find_one({'_id': ObjectId(filtro)})
                     titulo = barbero['nombre'] if barbero else 'Unknown'
@@ -255,20 +284,10 @@ Send this Chat ID to the admin so you can start receiving appointment notificati
 
         # ==================== /today ====================
         elif text == '/today':
-            coleccion_barbero = mongodb.get_collection('barbero')
-            barberos = list(coleccion_barbero.find({}, {'nombre': 1, 'tipo': 1}))
-
             botones = [
-                [{"text": "🏪 All", "callback_data": "today|all"}],
-                [{"text": "💈 All Barbers", "callback_data": "today|allbarbers"}],
-                [{"text": "💆 All Skincare", "callback_data": "today|allskincare"}]
+                [{"text": "💈 Barbers", "callback_data": "todaymenu|barber"}],
+                [{"text": "💆 Skincare", "callback_data": "todaymenu|skincare"}]
             ]
-            for b in barberos:
-                botones.append([{
-                    "text": f"{emoji_barbero(b)} {b['nombre']}",
-                    "callback_data": f"today|{str(b['_id'])}"
-                }])
-
             enviar_respuesta(chat_id, "📅 Today's appointments — filter by:", botones)
 
         # ==================== /block MM/DD/YYYY ====================
