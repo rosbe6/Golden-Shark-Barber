@@ -7,6 +7,9 @@ from database import mongodb
 
 telegram_bp = Blueprint('telegram', __name__, url_prefix='/api/telegram')
 
+
+# ==================== HELPERS ====================
+
 def get_bot_token():
     return os.getenv('TELEGRAM_BOT_TOKEN')
 
@@ -48,6 +51,7 @@ def es_admin(chat_id):
     return str(chat_id) == str(admin_chat_id)
 
 def convertir_fecha(fecha_str):
+    """MM/DD/YYYY -> YYYY-MM-DD"""
     try:
         fecha = datetime.strptime(fecha_str, '%m/%d/%Y')
         return fecha.strftime('%Y-%m-%d')
@@ -65,6 +69,23 @@ def formato_display(fecha_iso):
 def emoji_barbero(barbero):
     return "💆" if barbero.get('tipo') == 'skincare' else "💈"
 
+def formato_citas_lista(citas):
+    """Formatea una lista de citas para mostrar en Telegram"""
+    if not citas:
+        return "📭 No appointments found."
+    
+    lineas = []
+    for c in sorted(citas, key=lambda x: x['hora']):
+        estado_emoji = "✅" if c.get('estado') == 'completada' else "⏳"
+        lineas.append(
+            f"{estado_emoji} <b>{c['hora']}</b> — {c['cliente_nombre']}\n"
+            f"   {c['servicio']} · ${c['precio']} · {c.get('barbero_nombre', 'N/A')}\n"
+            f"   🆔 <code>{str(c['_id'])[-6:].upper()}</code>"
+        )
+    return "\n\n".join(lineas)
+
+
+# ==================== WEBHOOK ====================
 
 @telegram_bp.route('/webhook', methods=['POST'])
 def telegram_webhook():
@@ -115,7 +136,7 @@ def telegram_webhook():
                     responder_callback(callback_id, "✅ Blocked!")
                     editar_mensaje(chat_id, message_id, f"✅ <b>{formato_display(fecha)}</b> blocked for <b>{nombre_display}</b>.")
 
-            # ---------- UNBLOCK (selección de entrada específica) ----------
+            # ---------- UNBLOCK ----------
             elif accion == 'unblock':
                 fecha = partes[1]
                 bloqueo_id = partes[2]
@@ -125,13 +146,12 @@ def telegram_webhook():
 
                 if not bloqueo:
                     responder_callback(callback_id, "⚠️ Already removed")
-                    editar_mensaje(chat_id, message_id, f"⚠️ This block was already removed.")
+                    editar_mensaje(chat_id, message_id, "⚠️ This block was already removed.")
                     return jsonify({'ok': True}), 200
 
                 nombre_display = bloqueo['nombre_display']
                 coleccion_bloqueos.delete_one({'_id': ObjectId(bloqueo_id)})
 
-                # Verificar si quedan más bloqueos ese día para actualizar el menú
                 restantes = list(coleccion_bloqueos.find({'fecha': fecha}))
 
                 responder_callback(callback_id, "✅ Unblocked!")
@@ -148,6 +168,45 @@ def telegram_webhook():
                 else:
                     editar_mensaje(chat_id, message_id, f"✅ <b>{formato_display(fecha)}</b> is now fully unblocked. No more blocks for that day.")
 
+            # ---------- TODAY FILTER ----------
+            elif accion == 'today':
+                filtro = partes[1]
+
+                coleccion_citas = mongodb.get_collection('citas')
+                coleccion_barbero = mongodb.get_collection('barbero')
+                hoy = datetime.now().strftime('%Y-%m-%d')
+
+                query = {'dia': hoy, 'estado': {'$ne': 'cancelada'}}
+                titulo = "All Appointments"
+
+                if filtro == 'allbarbers':
+                    barberos_tipo = list(coleccion_barbero.find({'tipo': 'barber'}, {'_id': 1}))
+                    ids = [str(b['_id']) for b in barberos_tipo]
+                    query['barbero_id'] = {'$in': ids}
+                    titulo = "All Barbers"
+                elif filtro == 'allskincare':
+                    barberos_tipo = list(coleccion_barbero.find({'tipo': 'skincare'}, {'_id': 1}))
+                    ids = [str(b['_id']) for b in barberos_tipo]
+                    query['barbero_id'] = {'$in': ids}
+                    titulo = "All Skincare"
+                elif filtro != 'all':
+                    query['barbero_id'] = filtro
+                    barbero = coleccion_barbero.find_one({'_id': ObjectId(filtro)})
+                    titulo = barbero['nombre'] if barbero else 'Unknown'
+
+                citas = list(coleccion_citas.find(query))
+
+                for c in citas:
+                    try:
+                        b = coleccion_barbero.find_one({'_id': ObjectId(c['barbero_id'])})
+                        c['barbero_nombre'] = b['nombre'] if b else 'N/A'
+                    except:
+                        c['barbero_nombre'] = 'N/A'
+
+                responder_callback(callback_id, "")
+                respuesta = f"📅 <b>Today — {titulo}</b> ({hoy})\n\n" + formato_citas_lista(citas)
+                editar_mensaje(chat_id, message_id, respuesta)
+
             return jsonify({'ok': True}), 200
 
         # ==================== MENSAJE DE TEXTO ====================
@@ -162,7 +221,7 @@ def telegram_webhook():
 
         # ==================== /start ====================
         if text == '/start':
-            respuesta = "🦈 Welcome to Golden Shark Barber Bot!\n\nSend /me to get your Chat ID and start receiving appointment notifications."
+            respuesta = "🦈 Welcome to Golden Shark Barber Bot!\n\nSend /help to see all available commands."
             enviar_respuesta(chat_id, respuesta)
 
         # ==================== /me ====================
@@ -174,6 +233,43 @@ def telegram_webhook():
 
 Send this Chat ID to the admin so you can start receiving appointment notifications."""
             enviar_respuesta(chat_id, respuesta)
+
+        # ==================== /help ====================
+        elif text == '/help':
+            respuesta = """🦈 <b>Golden Shark Barber Bot — Commands</b>
+
+<b>📋 General</b>
+/me — Get your Chat ID
+/help — Show this menu
+
+<b>📅 Appointments</b>
+/today — View today's appointments (filter by barber/type)
+
+<b>🚫 Blocking Days</b> (admin only)
+/block MM/DD/YYYY — Block a date
+/unblock MM/DD/YYYY — Unblock a date
+/blocked — List all upcoming blocked days
+
+<i>Example: /block 09/25/2026</i>"""
+            enviar_respuesta(chat_id, respuesta)
+
+        # ==================== /today ====================
+        elif text == '/today':
+            coleccion_barbero = mongodb.get_collection('barbero')
+            barberos = list(coleccion_barbero.find({}, {'nombre': 1, 'tipo': 1}))
+
+            botones = [
+                [{"text": "🏪 All", "callback_data": "today|all"}],
+                [{"text": "💈 All Barbers", "callback_data": "today|allbarbers"}],
+                [{"text": "💆 All Skincare", "callback_data": "today|allskincare"}]
+            ]
+            for b in barberos:
+                botones.append([{
+                    "text": f"{emoji_barbero(b)} {b['nombre']}",
+                    "callback_data": f"today|{str(b['_id'])}"
+                }])
+
+            enviar_respuesta(chat_id, "📅 Today's appointments — filter by:", botones)
 
         # ==================== /block MM/DD/YYYY ====================
         elif text.startswith('/block'):
@@ -205,7 +301,7 @@ Send this Chat ID to the admin so you can start receiving appointment notificati
 
             enviar_respuesta(chat_id, f"📅 Block <b>{fecha_input}</b> for:", botones)
 
-        # ==================== /unblock MM/DD/YYYY (con menú) ====================
+        # ==================== /unblock MM/DD/YYYY ====================
         elif text.startswith('/unblock'):
             if not es_admin(chat_id):
                 enviar_respuesta(chat_id, "⛔ Only the admin can use this command.")
