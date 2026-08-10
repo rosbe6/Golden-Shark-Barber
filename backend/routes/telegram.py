@@ -291,7 +291,7 @@ Send this Chat ID to the admin so you can start receiving appointment notificati
             enviar_respuesta(chat_id, "📅 Today's appointments — filter by:", botones)
 
         # ==================== /block MM/DD/YYYY ====================
-        elif text.startswith('/block'):
+        elif text.startswith('/block '):
             if not es_admin(chat_id):
                 enviar_respuesta(chat_id, "⛔ Only the admin can use this command.")
                 return jsonify({'ok': True}), 200
