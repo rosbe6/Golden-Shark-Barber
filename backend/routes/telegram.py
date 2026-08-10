@@ -23,7 +23,6 @@ def enviar_respuesta(chat_id, texto, botones=None):
     requests.post(url, json=payload)
 
 def responder_callback(callback_query_id, texto=""):
-    """Confirma que se recibió el click del botón (evita el 'loading' infinito)"""
     bot_token = get_bot_token()
     url = f"https://api.telegram.org/bot{bot_token}/answerCallbackQuery"
     requests.post(url, json={
@@ -31,27 +30,40 @@ def responder_callback(callback_query_id, texto=""):
         "text": texto
     })
 
-def editar_mensaje(chat_id, message_id, texto):
+def editar_mensaje(chat_id, message_id, texto, botones=None):
     bot_token = get_bot_token()
     url = f"https://api.telegram.org/bot{bot_token}/editMessageText"
-    requests.post(url, json={
+    payload = {
         "chat_id": chat_id,
         "message_id": message_id,
         "text": texto,
         "parse_mode": "HTML"
-    })
+    }
+    if botones:
+        payload["reply_markup"] = {"inline_keyboard": botones}
+    requests.post(url, json=payload)
 
 def es_admin(chat_id):
     admin_chat_id = os.getenv('TELEGRAM_CHAT_ID_ADMIN')
     return str(chat_id) == str(admin_chat_id)
 
 def convertir_fecha(fecha_str):
-    """Convierte MM/DD/YYYY a YYYY-MM-DD. Retorna None si es inválida."""
     try:
         fecha = datetime.strptime(fecha_str, '%m/%d/%Y')
         return fecha.strftime('%Y-%m-%d')
     except ValueError:
         return None
+
+def formato_display(fecha_iso):
+    """YYYY-MM-DD -> MM/DD/YYYY"""
+    try:
+        fecha = datetime.strptime(fecha_iso, '%Y-%m-%d')
+        return fecha.strftime('%m/%d/%Y')
+    except ValueError:
+        return fecha_iso
+
+def emoji_barbero(barbero):
+    return "💆" if barbero.get('tipo') == 'skincare' else "💈"
 
 
 @telegram_bp.route('/webhook', methods=['POST'])
@@ -66,7 +78,7 @@ def telegram_webhook():
             chat_id = callback['message']['chat']['id']
             message_id = callback['message']['message_id']
             callback_id = callback['id']
-            callback_data = callback['data']  # formato: "block|FECHA|BARBERO_ID_o_ALL"
+            callback_data = callback['data']
 
             if not es_admin(chat_id):
                 responder_callback(callback_id, "⛔ Not authorized")
@@ -75,6 +87,7 @@ def telegram_webhook():
             partes = callback_data.split('|')
             accion = partes[0]
 
+            # ---------- BLOCK ----------
             if accion == 'block':
                 fecha = partes[1]
                 barbero_id = partes[2] if partes[2] != 'ALL' else None
@@ -90,8 +103,8 @@ def telegram_webhook():
 
                 existe = coleccion_bloqueos.find_one({'fecha': fecha, 'barbero_id': barbero_id})
                 if existe:
-                    responder_callback(callback_id, f"⚠️ Already blocked")
-                    editar_mensaje(chat_id, message_id, f"⚠️ <b>{fecha}</b> was already blocked for <b>{nombre_display}</b>.")
+                    responder_callback(callback_id, "⚠️ Already blocked")
+                    editar_mensaje(chat_id, message_id, f"⚠️ <b>{formato_display(fecha)}</b> was already blocked for <b>{nombre_display}</b>.")
                 else:
                     coleccion_bloqueos.insert_one({
                         'fecha': fecha,
@@ -100,7 +113,40 @@ def telegram_webhook():
                         'creado_en': datetime.now().isoformat()
                     })
                     responder_callback(callback_id, "✅ Blocked!")
-                    editar_mensaje(chat_id, message_id, f"✅ <b>{fecha}</b> blocked for <b>{nombre_display}</b>.")
+                    editar_mensaje(chat_id, message_id, f"✅ <b>{formato_display(fecha)}</b> blocked for <b>{nombre_display}</b>.")
+
+            # ---------- UNBLOCK (selección de entrada específica) ----------
+            elif accion == 'unblock':
+                fecha = partes[1]
+                bloqueo_id = partes[2]
+
+                coleccion_bloqueos = mongodb.get_collection('dias_bloqueados')
+                bloqueo = coleccion_bloqueos.find_one({'_id': ObjectId(bloqueo_id)})
+
+                if not bloqueo:
+                    responder_callback(callback_id, "⚠️ Already removed")
+                    editar_mensaje(chat_id, message_id, f"⚠️ This block was already removed.")
+                    return jsonify({'ok': True}), 200
+
+                nombre_display = bloqueo['nombre_display']
+                coleccion_bloqueos.delete_one({'_id': ObjectId(bloqueo_id)})
+
+                # Verificar si quedan más bloqueos ese día para actualizar el menú
+                restantes = list(coleccion_bloqueos.find({'fecha': fecha}))
+
+                responder_callback(callback_id, "✅ Unblocked!")
+
+                if restantes:
+                    botones = []
+                    for b in restantes:
+                        emoji = "🏪" if b['barbero_id'] is None else "💈"
+                        botones.append([{
+                            "text": f"{emoji} {b['nombre_display']}",
+                            "callback_data": f"unblock|{fecha}|{str(b['_id'])}"
+                        }])
+                    editar_mensaje(chat_id, message_id, f"✅ <b>{nombre_display}</b> unblocked.\n\n📅 {formato_display(fecha)} is still blocked for:", botones)
+                else:
+                    editar_mensaje(chat_id, message_id, f"✅ <b>{formato_display(fecha)}</b> is now fully unblocked. No more blocks for that day.")
 
             return jsonify({'ok': True}), 200
 
@@ -147,21 +193,19 @@ Send this Chat ID to the admin so you can start receiving appointment notificati
                 enviar_respuesta(chat_id, "❌ Invalid date format. Use MM/DD/YYYY\n\nExample: /block 09/25/2026")
                 return jsonify({'ok': True}), 200
 
-            # Construir botones dinámicos con los barberos actuales
             coleccion_barbero = mongodb.get_collection('barbero')
             barberos = list(coleccion_barbero.find({}, {'nombre': 1, 'tipo': 1}))
 
             botones = [[{"text": "🏪 Whole Barbershop", "callback_data": f"block|{fecha}|ALL"}]]
             for b in barberos:
-                emoji = "💆" if b.get('tipo') == 'skincare' else "💈"
                 botones.append([{
-                    "text": f"{emoji} {b['nombre']}",
+                    "text": f"{emoji_barbero(b)} {b['nombre']}",
                     "callback_data": f"block|{fecha}|{str(b['_id'])}"
                 }])
 
             enviar_respuesta(chat_id, f"📅 Block <b>{fecha_input}</b> for:", botones)
 
-        # ==================== /unblock MM/DD/YYYY ====================
+        # ==================== /unblock MM/DD/YYYY (con menú) ====================
         elif text.startswith('/unblock'):
             if not es_admin(chat_id):
                 enviar_respuesta(chat_id, "⛔ Only the admin can use this command.")
@@ -178,12 +222,21 @@ Send this Chat ID to the admin so you can start receiving appointment notificati
                 return jsonify({'ok': True}), 200
 
             coleccion_bloqueos = mongodb.get_collection('dias_bloqueados')
-            resultado = coleccion_bloqueos.delete_many({'fecha': fecha})
+            bloqueos = list(coleccion_bloqueos.find({'fecha': fecha}))
 
-            if resultado.deleted_count > 0:
-                enviar_respuesta(chat_id, f"✅ All blocks removed for <b>{partes[1]}</b> ({resultado.deleted_count} removed).")
-            else:
-                enviar_respuesta(chat_id, f"⚠️ No blocks found for {partes[1]}.")
+            if not bloqueos:
+                enviar_respuesta(chat_id, f"✅ {partes[1]} has no blocks.")
+                return jsonify({'ok': True}), 200
+
+            botones = []
+            for b in bloqueos:
+                emoji = "🏪" if b['barbero_id'] is None else "💈"
+                botones.append([{
+                    "text": f"{emoji} {b['nombre_display']}",
+                    "callback_data": f"unblock|{fecha}|{str(b['_id'])}"
+                }])
+
+            enviar_respuesta(chat_id, f"📅 <b>{partes[1]}</b> is blocked for:", botones)
 
         # ==================== /blocked ====================
         elif text == '/blocked':
@@ -198,7 +251,7 @@ Send this Chat ID to the admin so you can start receiving appointment notificati
             if not bloqueos:
                 enviar_respuesta(chat_id, "✅ No upcoming blocked days.")
             else:
-                lineas = [f"📅 {b['fecha']} — {b['nombre_display']}" for b in bloqueos]
+                lineas = [f"📅 {formato_display(b['fecha'])} — {b['nombre_display']}" for b in bloqueos]
                 respuesta = "🚫 <b>Blocked Days:</b>\n\n" + "\n".join(lineas)
                 enviar_respuesta(chat_id, respuesta)
 
