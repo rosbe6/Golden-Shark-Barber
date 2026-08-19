@@ -232,18 +232,20 @@ async function loadCitas() {
 
 function updateStats() {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const hoyString = today.getFullYear() + '-' + 
+        String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+        String(today.getDate()).padStart(2, '0');
 
     const nextWeek = new Date(today);
     nextWeek.setDate(nextWeek.getDate() + 7);
+    today.setHours(0, 0, 0, 0);
 
-    const citasToday = allCitas.filter(c => {
-        const d = new Date(c.dia);
-        return d.toDateString() === today.toDateString();
-    }).length;
+    const citasToday = allCitas.filter(c => c.dia === hoyString).length;
 
     const citasWeek = allCitas.filter(c => {
-        const d = new Date(c.dia);
+        const [year, month, day] = c.dia.split('-').map(Number);
+        const d = new Date(year, month - 1, day);
+        d.setHours(0, 0, 0, 0);
         return d >= today && d <= nextWeek;
     }).length;
 
@@ -323,10 +325,13 @@ function renderCitas(citas) {
 
 function filterCitas(filter) {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const hoyString = today.getFullYear() + '-' + 
+        String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+        String(today.getDate()).padStart(2, '0');
 
     const nextWeek = new Date(today);
     nextWeek.setDate(nextWeek.getDate() + 7);
+    today.setHours(0, 0, 0, 0);
 
     let filtered = allCitas;
 
@@ -343,13 +348,12 @@ function filterCitas(filter) {
 
     // Filtrar por fecha/estado
     if (filter === 'today') {
-        filtered = filtered.filter(c => {
-            const d = new Date(c.dia);
-            return d.toDateString() === today.toDateString() && c.estado !== 'completada';
-        });
+        filtered = filtered.filter(c => c.dia === hoyString && c.estado !== 'completada');
     } else if (filter === 'week') {
         filtered = filtered.filter(c => {
-            const d = new Date(c.dia);
+            const [year, month, day] = c.dia.split('-').map(Number);
+            const d = new Date(year, month - 1, day);
+            d.setHours(0, 0, 0, 0);
             return d >= today && d <= nextWeek && c.estado !== 'completada';
         });
     } else if (filter === 'completed') {
