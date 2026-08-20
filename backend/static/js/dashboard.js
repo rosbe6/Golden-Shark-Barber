@@ -51,7 +51,21 @@ function setupEvents() {
     document.getElementById('btnReagendar').addEventListener('click', () => openRescheduleModal());
     document.getElementById('btnConfirmCancel').addEventListener('click', confirmCancel);
     document.getElementById('btnConfirmReschedule').addEventListener('click', confirmReschedule);
-    document.getElementById('inputNewDate').addEventListener('change', loadTimesForDate);
+    
+    document.getElementById('btnPrevWeeks').addEventListener('click', () => {
+        if (currentWeekPage > 0) {
+            currentWeekPage--;
+            renderWeekPage();
+        }
+    });
+
+    document.getElementById('btnNextWeeks').addEventListener('click', () => {
+        const totalPages = Math.ceil(semanasActuales.length / WEEKS_PER_PAGE);
+        if (currentWeekPage < totalPages - 1) {
+            currentWeekPage++;
+            renderWeekPage();
+        }
+    });
 }
 
 // ==================== TABS ====================
@@ -288,13 +302,19 @@ function formatShort(d) {
 }
 
 
-function renderCitas(citas) {
+let currentWeekPage = 0;
+const WEEKS_PER_PAGE = 4;
+let semanasActuales = [];
+
+function renderCitas(citas, invertirOrden = false) {
     const box = document.getElementById('citasBox');
     const empty = document.getElementById('emptyBox');
+    const pagination = document.getElementById('weekPagination');
 
     if (citas.length === 0) {
         box.innerHTML = '';
         box.classList.add('hidden');
+        pagination.classList.add('hidden');
         empty.classList.remove('hidden');
         return;
     }
@@ -303,8 +323,10 @@ function renderCitas(citas) {
     empty.classList.add('hidden');
 
     const sorted = [...citas].sort((a, b) => {
-        if (a.dia !== b.dia) return a.dia.localeCompare(b.dia);
-        return a.hora.localeCompare(b.hora);
+        let cmp;
+        if (a.dia !== b.dia) cmp = a.dia.localeCompare(b.dia);
+        else cmp = a.hora.localeCompare(b.hora);
+        return invertirOrden ? -cmp : cmp;
     });
 
     const grupos = {};
@@ -315,7 +337,27 @@ function renderCitas(citas) {
         grupos[key].citas.push(c);
     });
 
-    const semanasOrdenadas = Object.values(grupos).sort((a, b) => a.monday - b.monday);
+    let semanasOrdenadas = Object.values(grupos).sort((a, b) => a.monday - b.monday);
+    if (invertirOrden) semanasOrdenadas = semanasOrdenadas.reverse();
+
+    semanasActuales = semanasOrdenadas;
+    currentWeekPage = 0;
+    renderWeekPage();
+}
+
+function renderWeekPage() {
+    const box = document.getElementById('citasBox');
+    const pagination = document.getElementById('weekPagination');
+    const label = document.getElementById('weekPageLabel');
+    const btnPrev = document.getElementById('btnPrevWeeks');
+    const btnNext = document.getElementById('btnNextWeeks');
+
+    const totalSemanas = semanasActuales.length;
+    const totalPages = Math.ceil(totalSemanas / WEEKS_PER_PAGE);
+
+    const start = currentWeekPage * WEEKS_PER_PAGE;
+    const end = start + WEEKS_PER_PAGE;
+    const semanasVisibles = semanasActuales.slice(start, end);
 
     const header = `
         <div class="tabla-header">
@@ -326,7 +368,7 @@ function renderCitas(citas) {
             <div style="text-align: right;">Status</div>
         </div>`;
 
-    box.innerHTML = header + semanasOrdenadas.map(grupo => `
+    box.innerHTML = header + semanasVisibles.map(grupo => `
         <div class="week-header">${weekLabel(grupo.monday)}</div>
         ${grupo.citas.map(c => {
             const icon = c.tipo_servicio === 'skincare' ? '💆' : '💈';
@@ -345,8 +387,16 @@ function renderCitas(citas) {
                 </div>`;
         }).join('')}
     `).join('');
-}
 
+    if (totalPages <= 1) {
+        pagination.classList.add('hidden');
+    } else {
+        pagination.classList.remove('hidden');
+        label.textContent = `Page ${currentWeekPage + 1} of ${totalPages}`;
+        btnPrev.disabled = currentWeekPage === 0;
+        btnNext.disabled = currentWeekPage >= totalPages - 1;
+    }
+}
 
 function filterCitas(filter) {
     const today = new Date();
@@ -394,12 +444,15 @@ function openDetailsModal(citaId) {
     document.getElementById('detNotes').textContent = selectedCita.instrucciones || 'None';
     document.getElementById('detPayment').textContent = selectedCita.metodoPago === 'cash' ? 'Cash' : 'Card';
     document.getElementById('detBarber').textContent = selectedCita.barbero_nombre || '-';
-    document.getElementById('detStatus').textContent = selectedCita.estado === 'completada' ? 'Completed' : 'Pending';
+    let statusText = 'Pending';
+    if (selectedCita.estado === 'completada') statusText = 'Completed';
+    else if (selectedCita.estado === 'cancelada') statusText = 'Cancelled';
+    document.getElementById('detStatus').textContent = statusText;
 
-    const isCompleted = selectedCita.estado === 'completada';
-    document.getElementById('btnMarcaCompletada').disabled = isCompleted;
-    document.getElementById('btnCancelarCita').disabled = isCompleted;
-    document.getElementById('btnReagendar').disabled = isCompleted;
+    const isCompletedOrCancelled = selectedCita.estado === 'completada' || selectedCita.estado === 'cancelada';
+    document.getElementById('btnMarcaCompletada').disabled = isCompletedOrCancelled;
+    document.getElementById('btnCancelarCita').disabled = isCompletedOrCancelled;
+    document.getElementById('btnReagendar').disabled = isCompletedOrCancelled;
 
     document.getElementById('modalDetails').classList.remove('hidden');
 }
