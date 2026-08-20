@@ -301,6 +301,20 @@ function formatShort(d) {
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
+function formatearFecha(fechaISO) {
+    // 2026-08-20 -> 20-08-2026
+    const [year, month, day] = fechaISO.split('-');
+    return `${day}-${month}-${year}`;
+}
+
+function formatearHora(horaISO) {
+    // 14:00 -> 2:00 PM
+    const [horas, minutos] = horaISO.split(':').map(Number);
+    const periodo = horas >= 12 ? 'PM' : 'AM';
+    let horas12 = horas % 12;
+    if (horas12 === 0) horas12 = 12;
+    return `${horas12}:${String(minutos).padStart(2, '0')} ${periodo}`;
+}
 
 let currentWeekPage = 0;
 const WEEKS_PER_PAGE = 4;
@@ -380,8 +394,8 @@ function renderWeekPage() {
             return `
                 <div class="fila-cita" onclick="openDetailsModal('${c._id}')">
                     <div class="col-name">${c.cliente_nombre}</div>
-                    <div class="col-date">${c.dia}</div>
-                    <div class="col-time">${c.hora}</div>
+                    <div class="col-date">${formatearFecha(c.dia)}</div>
+                    <div class="col-time">${formatearHora(c.hora)}</div>
                     <div class="col-service">${icon} ${c.servicio}</div>
                     <div class="badge ${badgeClass}">${badgeText}</div>
                 </div>`;
@@ -437,8 +451,8 @@ function openDetailsModal(citaId) {
     document.getElementById('detClient').textContent = selectedCita.cliente_nombre;
     document.getElementById('detEmail').textContent = selectedCita.cliente_email;
     document.getElementById('detPhone').textContent = selectedCita.cliente_telefono;
-    document.getElementById('detDate').textContent = selectedCita.dia;
-    document.getElementById('detTime').textContent = selectedCita.hora;
+    document.getElementById('detDate').textContent = formatearFecha(selectedCita.dia);
+    document.getElementById('detTime').textContent = formatearHora(selectedCita.hora);
     document.getElementById('detService').textContent = selectedCita.servicio;
     document.getElementById('detPrice').textContent = `$${selectedCita.precio}`;
     document.getElementById('detNotes').textContent = selectedCita.instrucciones || 'None';
