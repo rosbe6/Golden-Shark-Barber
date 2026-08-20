@@ -51,6 +51,7 @@ function setupEvents() {
     document.getElementById('btnReagendar').addEventListener('click', () => openRescheduleModal());
     document.getElementById('btnConfirmCancel').addEventListener('click', confirmCancel);
     document.getElementById('btnConfirmReschedule').addEventListener('click', confirmReschedule);
+    document.getElementById('inputNewDate').addEventListener('change', loadTimesForDate); // ✅ FIX: línea que faltaba
     
     document.getElementById('btnPrevWeeks').addEventListener('click', () => {
         if (currentWeekPage > 0) {
