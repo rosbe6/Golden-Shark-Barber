@@ -303,9 +303,15 @@ function formatShort(d) {
 }
 
 function formatearFecha(fechaISO) {
-    // 2026-08-20 -> 08-20-2026
-    const [year, month, day] = fechaISO.split('-');
-    return `${month}-${day}-${year}`;
+    // 2026-08-20 -> Thursday 20, August 2026
+    const [year, month, day] = fechaISO.split('-').map(Number);
+    const fecha = new Date(year, month - 1, day);
+
+    const diasSemana = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const meses = ['January', 'February', 'March', 'April', 'May', 'June',
+                   'July', 'August', 'September', 'October', 'November', 'December'];
+
+    return `${diasSemana[fecha.getDay()]} ${day}, ${meses[month - 1]} ${year}`;
 }
 
 function formatearHora(horaISO) {
@@ -397,7 +403,7 @@ function renderWeekPage() {
                     <div class="col-name">${c.cliente_nombre}</div>
                     <div class="col-date">${formatearFecha(c.dia)}</div>
                     <div class="col-time">${formatearHora(c.hora)}</div>
-                    <div class="col-service">${icon} ${c.servicio}</div>
+                    <div class="col-service">${c.servicio}</div>
                     <div class="badge ${badgeClass}">${badgeText}</div>
                 </div>`;
         }).join('')}

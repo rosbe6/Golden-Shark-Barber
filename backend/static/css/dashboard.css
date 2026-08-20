@@ -795,7 +795,7 @@ select:focus {
 
 .tabla-header {
     display: grid;
-    grid-template-columns: 2fr 1.2fr 1fr 1.6fr 1fr;
+    grid-template-columns: 1.6fr 2.2fr 1fr 1.4fr 1fr;
     padding: 12px 20px;
     background: #1a1a1a;
     color: #d4af37;
@@ -823,14 +823,13 @@ select:focus {
 
 .fila-cita {
     display: grid;
-    grid-template-columns: 2fr 1.2fr 1fr 1.6fr 1fr;
+    grid-template-columns: 1.6fr 2.2fr 1fr 1.4fr 1fr;
     align-items: center;
     padding: 14px 20px;
     border-bottom: 1px solid #eee;
     cursor: pointer;
     transition: background 0.2s ease;
 }
-
 .fila-cita:last-child { border-bottom: none; }
 
 .fila-cita:hover {
@@ -845,15 +844,14 @@ select:focus {
 
 .col-date, .col-time {
     font-size: 13px;
-    color: #666;
+    color: #333;
+    font-weight: 700;
 }
 
 .col-service {
     font-size: 13px;
     color: #333;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    font-weight: 700;
 }
 
 .badge-cancelled {
