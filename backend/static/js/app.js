@@ -198,6 +198,17 @@ function cargarHorarios(dia) {
         .catch(error => console.error('Error:', error));
 }
 
+
+function formatearHora12h(horaISO) {
+    const [horas, minutos] = horaISO.split(':').map(Number);
+    const periodo = horas >= 12 ? 'PM' : 'AM';
+    let horas12 = horas % 12;
+    if (horas12 === 0) horas12 = 12;
+    return `${horas12}:${String(minutos).padStart(2, '0')} ${periodo}`;
+}
+
+
+
 function renderizarHorarios(horarios, horariosOcupados) {
     const horariosDiv = document.getElementById('horariosGrid');
     horariosDiv.innerHTML = '';
@@ -206,17 +217,15 @@ function renderizarHorarios(horarios, horariosOcupados) {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'horario';
-        btn.textContent = hora;
+        btn.textContent = formatearHora12h(hora); // ✅ Solo el texto visible cambia
         
         if (horariosOcupados.includes(hora)) {
-            // Horario ocupado
             btn.classList.add('ocupado');
             btn.disabled = true;
         } else {
-            // Horario disponible
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                seleccionarHora(hora, btn);
+                seleccionarHora(hora, btn); // ✅ el valor real (24h) se sigue guardando igual
             });
         }
         

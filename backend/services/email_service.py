@@ -6,6 +6,29 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
+def formatear_fecha_dd_mm_yyyy(fecha_iso):
+    """2026-08-20 -> 20-08-2026"""
+    try:
+        year, month, day = fecha_iso.split('-')
+        return f"{day}-{month}-{year}"
+    except Exception:
+        return fecha_iso
+
+
+def formatear_hora_12h(hora_iso):
+    """14:00 -> 2:00 PM"""
+    try:
+        horas, minutos = map(int, hora_iso.split(':'))
+        periodo = 'PM' if horas >= 12 else 'AM'
+        horas12 = horas % 12
+        if horas12 == 0:
+            horas12 = 12
+        return f"{horas12}:{minutos:02d} {periodo}"
+    except Exception:
+        return hora_iso
+
+
 class EmailService:
     def __init__(self):
         self.email_from = os.getenv('EMAIL_FROM')
@@ -23,6 +46,9 @@ class EmailService:
     def enviar_confirmacion(self, cita_data, cita_id):
         """Enviar email de confirmación al cliente"""
         try:
+            fecha_fmt = formatear_fecha_dd_mm_yyyy(cita_data['dia'])
+            hora_fmt = formatear_hora_12h(cita_data['hora'])
+
             html = f"""
             <!DOCTYPE html>
             <html>
@@ -56,11 +82,11 @@ class EmailService:
                                 </tr>
                                 <tr>
                                     <td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Date:</strong></td>
-                                    <td style="padding: 10px 0; border-bottom: 1px solid #eee; text-align: right;">{cita_data['dia']}</td>
+                                    <td style="padding: 10px 0; border-bottom: 1px solid #eee; text-align: right;">{fecha_fmt}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Time:</strong></td>
-                                    <td style="padding: 10px 0; border-bottom: 1px solid #eee; text-align: right;">{cita_data['hora']}</td>
+                                    <td style="padding: 10px 0; border-bottom: 1px solid #eee; text-align: right;">{hora_fmt}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Payment:</strong></td>
@@ -72,7 +98,7 @@ class EmailService:
                                 </tr>
                             </table>
                         </div>
-                        # 
+                        
                         <p style="text-align: center; margin: 30px 0;">
                             <a href="https://goldenbarbershop.online/cita.html?id={cita_id}"
                                style="background-color: #007bff; color: white; padding: 14px 40px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 16px;">
@@ -97,7 +123,7 @@ class EmailService:
             
             self._enviar_email(
                 to=cita_data['cliente_email'],
-                subject=f"Appointment Confirmed - {cita_data['dia']} at {cita_data['hora']}",
+                subject=f"Appointment Confirmed - {fecha_fmt} at {hora_fmt}",
                 html=html
             )
             
@@ -109,6 +135,9 @@ class EmailService:
     def enviar_cancelacion(self, cita_data, motivo):
         """Enviar email de cancelación al cliente"""
         try:
+            fecha_fmt = formatear_fecha_dd_mm_yyyy(cita_data['dia'])
+            hora_fmt = formatear_hora_12h(cita_data['hora'])
+
             html = f"""
             <!DOCTYPE html>
             <html>
@@ -130,11 +159,11 @@ class EmailService:
                             <table style="width: 100%; border-collapse: collapse;">
                                 <tr>
                                     <td style="padding: 10px 0; border-bottom: 1px solid #f0cccf;"><strong>Date:</strong></td>
-                                    <td style="padding: 10px 0; border-bottom: 1px solid #f0cccf; text-align: right;">{cita_data['dia']}</td>
+                                    <td style="padding: 10px 0; border-bottom: 1px solid #f0cccf; text-align: right;">{fecha_fmt}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 10px 0; border-bottom: 1px solid #f0cccf;"><strong>Time:</strong></td>
-                                    <td style="padding: 10px 0; border-bottom: 1px solid #f0cccf; text-align: right;">{cita_data['hora']}</td>
+                                    <td style="padding: 10px 0; border-bottom: 1px solid #f0cccf; text-align: right;">{hora_fmt}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 10px 0; border-bottom: 1px solid #f0cccf;"><strong>Service:</strong></td>
@@ -170,7 +199,7 @@ class EmailService:
             
             self._enviar_email(
                 to=cita_data['cliente_email'],
-                subject=f"Appointment Cancelled - {cita_data['dia']} at {cita_data['hora']}",
+                subject=f"Appointment Cancelled - {fecha_fmt} at {hora_fmt}",
                 html=html
             )
             
@@ -182,6 +211,11 @@ class EmailService:
     def enviar_reagendamiento(self, cita_data, nueva_fecha, nueva_hora, motivo):
         """Enviar email de reagendamiento al cliente"""
         try:
+            fecha_anterior_fmt = formatear_fecha_dd_mm_yyyy(cita_data['dia'])
+            hora_anterior_fmt = formatear_hora_12h(cita_data['hora'])
+            nueva_fecha_fmt = formatear_fecha_dd_mm_yyyy(nueva_fecha)
+            nueva_hora_fmt = formatear_hora_12h(nueva_hora)
+
             html = f"""
             <!DOCTYPE html>
             <html>
@@ -203,19 +237,19 @@ class EmailService:
                             <table style="width: 100%; border-collapse: collapse;">
                                 <tr>
                                     <td style="padding: 10px 0; border-bottom: 1px solid #ffe0cc;"><strong>Previous Date:</strong></td>
-                                    <td style="padding: 10px 0; border-bottom: 1px solid #ffe0cc; text-align: right;"><s>{cita_data['dia']}</s></td>
+                                    <td style="padding: 10px 0; border-bottom: 1px solid #ffe0cc; text-align: right;"><s>{fecha_anterior_fmt}</s></td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 10px 0; border-bottom: 1px solid #ffe0cc;"><strong>Previous Time:</strong></td>
-                                    <td style="padding: 10px 0; border-bottom: 1px solid #ffe0cc; text-align: right;"><s>{cita_data['hora']}</s></td>
+                                    <td style="padding: 10px 0; border-bottom: 1px solid #ffe0cc; text-align: right;"><s>{hora_anterior_fmt}</s></td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 10px 0; border-bottom: 1px solid #ffe0cc; background-color: #ffffee;"><strong>New Date:</strong></td>
-                                    <td style="padding: 10px 0; border-bottom: 1px solid #ffe0cc; text-align: right; background-color: #ffffee;"><strong style="color: #28a745;">{nueva_fecha}</strong></td>
+                                    <td style="padding: 10px 0; border-bottom: 1px solid #ffe0cc; text-align: right; background-color: #ffffee;"><strong style="color: #28a745;">{nueva_fecha_fmt}</strong></td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 10px 0; border-bottom: 1px solid #ffe0cc; background-color: #ffffee;"><strong>New Time:</strong></td>
-                                    <td style="padding: 10px 0; border-bottom: 1px solid #ffe0cc; text-align: right; background-color: #ffffee;"><strong style="color: #28a745;">{nueva_hora}</strong></td>
+                                    <td style="padding: 10px 0; border-bottom: 1px solid #ffe0cc; text-align: right; background-color: #ffffee;"><strong style="color: #28a745;">{nueva_hora_fmt}</strong></td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 10px 0; border-bottom: 1px solid #ffe0cc;"><strong>Service:</strong></td>
@@ -252,7 +286,7 @@ class EmailService:
             
             self._enviar_email(
                 to=cita_data['cliente_email'],
-                subject=f"Appointment Rescheduled - New Date: {nueva_fecha} at {nueva_hora}",
+                subject=f"Appointment Rescheduled - New Date: {nueva_fecha_fmt} at {nueva_hora_fmt}",
                 html=html
             )
             
@@ -264,6 +298,8 @@ class EmailService:
     def enviar_recordatorio(self, cita_data, cita_id):
         """Enviar email de recordatorio 24h antes"""
         try:
+            hora_fmt = formatear_hora_12h(cita_data['hora'])
+
             html = f"""
             <!DOCTYPE html>
             <html>
@@ -285,7 +321,7 @@ class EmailService:
                             <table style="width: 100%; border-collapse: collapse;">
                                 <tr>
                                     <td style="padding: 10px 0; border-bottom: 1px solid #ffe0cc;"><strong>Time:</strong></td>
-                                    <td style="padding: 10px 0; border-bottom: 1px solid #ffe0cc; text-align: right;">{cita_data['hora']}</td>
+                                    <td style="padding: 10px 0; border-bottom: 1px solid #ffe0cc; text-align: right;">{hora_fmt}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 10px 0;"><strong>Service:</strong></td>
@@ -317,7 +353,7 @@ class EmailService:
             
             self._enviar_email(
                 to=cita_data['cliente_email'],
-                subject=f"Reminder: Your appointment tomorrow at {cita_data['hora']}",
+                subject=f"Reminder: Your appointment tomorrow at {hora_fmt}",
                 html=html
             )
             
@@ -329,6 +365,9 @@ class EmailService:
     def enviar_notificacion_barbero(self, cita_data, cita_id, email_barbero):
         """Enviar notificación al barbero cuando un cliente reserva"""
         try:
+            fecha_fmt = formatear_fecha_dd_mm_yyyy(cita_data['dia'])
+            hora_fmt = formatear_hora_12h(cita_data['hora'])
+
             html = f"""
             <!DOCTYPE html>
             <html>
@@ -370,11 +409,11 @@ class EmailService:
                                 </tr>
                                 <tr>
                                     <td style="padding: 10px 0; border-bottom: 1px solid #ddd;"><strong>Date:</strong></td>
-                                    <td style="padding: 10px 0; border-bottom: 1px solid #ddd; text-align: right;">{cita_data['dia']}</td>
+                                    <td style="padding: 10px 0; border-bottom: 1px solid #ddd; text-align: right;">{fecha_fmt}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 10px 0; border-bottom: 1px solid #ddd;"><strong>Time:</strong></td>
-                                    <td style="padding: 10px 0; border-bottom: 1px solid #ddd; text-align: right;">{cita_data['hora']}</td>
+                                    <td style="padding: 10px 0; border-bottom: 1px solid #ddd; text-align: right;">{hora_fmt}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 10px 0; border-bottom: 1px solid #ddd;"><strong>Payment:</strong></td>
@@ -406,7 +445,7 @@ class EmailService:
             
             self._enviar_email(
                 to=email_barbero,
-                subject=f"New Appointment - {cita_data['cliente_nombre']} on {cita_data['dia']} at {cita_data['hora']}",
+                subject=f"New Appointment - {cita_data['cliente_nombre']} on {fecha_fmt} at {hora_fmt}",
                 html=html
             )
             
@@ -424,14 +463,12 @@ class EmailService:
             msg['To'] = to
             msg['Reply-To'] = self.email_from
             
-            # Agregar versión de texto plano
             text_part = MIMEText('Please view this email in HTML format.', 'plain', 'utf-8')
             html_part = MIMEText(html, 'html', 'utf-8')
             
             msg.attach(text_part)
             msg.attach(html_part)
             
-            # Conectar a Gmail
             server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
             server.login(self.email_from, self.email_password)
             server.sendmail(self.email_from, to, msg.as_string())

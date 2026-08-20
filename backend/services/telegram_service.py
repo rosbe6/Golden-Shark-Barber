@@ -4,6 +4,29 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
+def formatear_fecha_dd_mm_yyyy(fecha_iso):
+    """2026-08-20 -> 20-08-2026"""
+    try:
+        year, month, day = fecha_iso.split('-')
+        return f"{day}-{month}-{year}"
+    except Exception:
+        return fecha_iso
+
+
+def formatear_hora_12h(hora_iso):
+    """14:00 -> 2:00 PM"""
+    try:
+        horas, minutos = map(int, hora_iso.split(':'))
+        periodo = 'PM' if horas >= 12 else 'AM'
+        horas12 = horas % 12
+        if horas12 == 0:
+            horas12 = 12
+        return f"{horas12}:{minutos:02d} {periodo}"
+    except Exception:
+        return hora_iso
+
+
 class TelegramService:
     def __init__(self):
         self.bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
@@ -40,8 +63,9 @@ class TelegramService:
         tipo_label = "💆 Specialist" if cita_data.get('tipo_servicio') == 'skincare' else "💈 Barber"
         emoji_pago = "💵" if cita_data['metodoPago'] == 'cash' else "💳"
         
-        # Número de cita corto (últimos 6 caracteres del ID)
         numero_cita = cita_id[-6:].upper()
+        fecha_fmt = formatear_fecha_dd_mm_yyyy(cita_data['dia'])
+        hora_fmt = formatear_hora_12h(cita_data['hora'])
         
         mensaje = f"""🔔 <b>NEW APPOINTMENT</b> #{numero_cita}
 
@@ -55,8 +79,8 @@ class TelegramService:
 ✂️ <b>{cita_data['servicio']}</b>
 {tipo_label}: <b>{cita_data.get('barbero_nombre', 'N/A')}</b>
 
-📅 {cita_data['dia']}
-⏰ {cita_data['hora']}
+📅 {fecha_fmt}
+⏰ {hora_fmt}
 {emoji_pago} {cita_data['metodoPago'].capitalize()} — <b>${cita_data['precio']}</b>
 ━━━━━━━━━━━━━━━━━━━━
 
