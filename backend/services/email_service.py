@@ -8,10 +8,10 @@ load_dotenv()
 
 
 def formatear_fecha_dd_mm_yyyy(fecha_iso):
-    """2026-08-20 -> 20-08-2026"""
+    """2026-08-20 -> 08-20-2026"""
     try:
         year, month, day = fecha_iso.split('-')
-        return f"{day}-{month}-{year}"
+        return f"{month}-{day}-{year}"
     except Exception:
         return fecha_iso
 

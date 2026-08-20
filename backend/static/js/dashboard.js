@@ -302,9 +302,9 @@ function formatShort(d) {
 }
 
 function formatearFecha(fechaISO) {
-    // 2026-08-20 -> 20-08-2026
+    // 2026-08-20 -> 08-20-2026
     const [year, month, day] = fechaISO.split('-');
-    return `${day}-${month}-${year}`;
+    return `${month}-${day}-${year}`;
 }
 
 function formatearHora(horaISO) {
