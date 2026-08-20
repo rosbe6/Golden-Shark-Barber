@@ -218,8 +218,11 @@ async function loadCitas() {
 
         if (data.status === 'success') {
             allCitas = data.citas || [];
-            renderCitas(allCitas);
-            updateStats();  // ← Debe estar definida ANTES
+            updateStats();
+
+            const activeTab = document.querySelector('.filter-tab.active');
+            const filterType = activeTab ? activeTab.dataset.filter : 'all';
+            filterCitas(filterType);
         } else {
             console.error('Error: ' + data.mensaje);
         }
