@@ -8,7 +8,7 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" href="/favicon.ico">
     
-    <link rel="stylesheet" href="css/dashboard.css?v=20260819?v=20260819?v=20260819">
+    <link rel="stylesheet" href="css/dashboard.css?v=20260819">
 </head>
 <body>
     <!-- PANTALLA LOGIN -->
@@ -275,30 +275,54 @@
 
     <!-- MODAL: CANCELAR CITA -->
     <div class="modal hidden" id="modalCancel">
-        <div class="modal-box small">
+        <div class="modal-box small cancel-box">
             <button class="close-modal" onclick="closeCancelModal()">×</button>
-            <h2>Cancel Appointment</h2>
-            <textarea id="textCancelReason" placeholder="Reason..."></textarea>
+            <h2>✗ Cancel Appointment</h2>
+            <p class="modal-subtitle">This action cannot be undone</p>
+
+            <div class="reschedule-current cancel-warning" id="cancelCurrentInfo"></div>
+
+            <div class="reschedule-field">
+                <label class="reschedule-label">Reason for cancellation</label>
+                <textarea id="textCancelReason" class="reschedule-textarea" placeholder="e.g. Client is sick, scheduling conflict..."></textarea>
+            </div>
+
             <div class="modal-buttons">
-                <button class="btn-action red" id="btnConfirmCancel">Confirm</button>
-                <button class="btn-action gray" onclick="closeCancelModal()">Close</button>
+                <button class="btn-action red" id="btnConfirmCancel">Confirm Cancellation</button>
+                <button class="btn-action gray" onclick="closeCancelModal()">Keep Appointment</button>
             </div>
         </div>
     </div>
 
     <!-- MODAL: REAGENDAR CITA -->
     <div class="modal hidden" id="modalReschedule">
-        <div class="modal-box small">
+        <div class="modal-box small reschedule-box">
             <button class="close-modal" onclick="closeRescheduleModal()">×</button>
-            <h2>Reschedule Appointment</h2>
-            <input type="date" id="inputNewDate">
-            <select id="selectNewTime">
-                <option value="">Select time...</option>
-            </select>
-            <input type="text" id="inputRescheduleReason" placeholder="Reason...">
+            <h2>📅 Reschedule Appointment</h2>
+            <p class="modal-subtitle">Choose a new date and time for this client</p>
+
+            <div class="reschedule-current" id="rescheduleCurrentInfo"></div>
+
+            <div class="reschedule-field">
+                <label class="reschedule-label">New Date</label>
+                <input type="date" id="inputNewDate">
+            </div>
+
+            <div class="reschedule-field">
+                <label class="reschedule-label">New Time</label>
+                <select id="selectNewTime">
+                    <option value="">Select a date first</option>
+                </select>
+            </div>
+
+            <div class="reschedule-field">
+                <label class="reschedule-label">Reason</label>
+                <input type="text" id="inputRescheduleReason" placeholder="e.g. Client requested change">
+            </div>
+
             <div class="modal-buttons">
-                <button class="btn-action green" id="btnConfirmReschedule">Confirm</button>
-                <button class="btn-action gray" onclick="closeRescheduleModal()">Close</button>
+                <button class="btn-action green" id="btnConfirmReschedule">Confirm Reschedule</button>
+                <button class="btn-action gray" onclick="closeRescheduleModal()">Cancel</button>
             </div>
         </div>
     </div>
@@ -308,6 +332,6 @@
         <div class="spinner"></div>
     </div>
 
-    <script src="js/dashboard.js?v=20260819?v=20260819?v=20260819"></script>
+    <script src="js/dashboard.js?v=20260819"></script>
 </body>
 </html>

@@ -512,6 +512,11 @@ function openCancelModal() {
     closeDetailsModal();
     document.getElementById('modalCancel').classList.remove('hidden');
     document.getElementById('textCancelReason').value = '';
+
+    if (selectedCita) {
+        document.getElementById('cancelCurrentInfo').innerHTML = 
+            `Cancelling: <strong>${selectedCita.cliente_nombre} — ${formatearFecha(selectedCita.dia)} at ${formatearHora(selectedCita.hora)}</strong>`;
+    }
 }
 
 function closeCancelModal() {
@@ -558,8 +563,13 @@ function openRescheduleModal() {
     closeDetailsModal();
     document.getElementById('modalReschedule').classList.remove('hidden');
     document.getElementById('inputNewDate').value = '';
-    document.getElementById('selectNewTime').innerHTML = '<option value="">Select time...</option>';
+    document.getElementById('selectNewTime').innerHTML = '<option value="">Select a date first</option>';
     document.getElementById('inputRescheduleReason').value = '';
+
+    if (selectedCita) {
+        document.getElementById('rescheduleCurrentInfo').innerHTML = 
+            `Currently: <strong>${formatearFecha(selectedCita.dia)} at ${formatearHora(selectedCita.hora)}</strong>`;
+    }
 }
 
 function closeRescheduleModal() {
@@ -568,10 +578,10 @@ function closeRescheduleModal() {
 
 async function loadTimesForDate() {
     const date = document.getElementById('inputNewDate').value;
-    if (!date) return;
+    if (!date || !selectedCita) return;
 
     try {
-        const response = await fetch(`${API_URL}/citas/horarios-ocupados/${date}`);
+        const response = await fetch(`${API_URL}/citas/horarios-ocupados/${date}?barbero_id=${selectedCita.barbero_id}`);
         const data = await response.json();
 
         const allTimes = ['10:00', '10:40', '11:20', '12:00', '12:40', '13:20', '14:00', '14:40', '15:20', '16:00', '16:40'];
@@ -579,8 +589,12 @@ async function loadTimesForDate() {
         const available = allTimes.filter(t => !occupied.includes(t));
 
         const select = document.getElementById('selectNewTime');
+        if (available.length === 0) {
+            select.innerHTML = '<option value="">No times available this day</option>';
+            return;
+        }
         select.innerHTML = '<option value="">Select time...</option>' + 
-            available.map(t => `<option value="${t}">${t}</option>`).join('');
+            available.map(t => `<option value="${t}">${formatearHora(t)}</option>`).join('');
     } catch (error) {
         console.error('Error:', error);
     }
