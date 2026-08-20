@@ -47,25 +47,25 @@
             </button>
         </div>
 
-        <!-- ==================== SECCIÓN: CITAS ==================== -->
+                <!-- ==================== SECCIÓN: CITAS ==================== -->
         <div id="seccionCitas">
             <!-- STATS -->
-            <div class="stats-box">
-                <div class="stat">
-                    <div class="stat-num" id="statToday">0</div>
-                    <div class="stat-label">Today</div>
+            <div class="stats-box-mini">
+                <div class="stat-mini">
+                    <div class="stat-mini-num" id="statToday">0</div>
+                    <div class="stat-mini-label">Today</div>
                 </div>
-                <div class="stat">
-                    <div class="stat-num" id="statWeek">0</div>
-                    <div class="stat-label">This Week</div>
+                <div class="stat-mini">
+                    <div class="stat-mini-num" id="statPending">0</div>
+                    <div class="stat-mini-label">Pending</div>
                 </div>
-                <div class="stat">
-                    <div class="stat-num" id="statCompleted">0</div>
-                    <div class="stat-label">Completed</div>
+                <div class="stat-mini">
+                    <div class="stat-mini-num" id="statCompleted">0</div>
+                    <div class="stat-mini-label">Done</div>
                 </div>
-                <div class="stat">
-                    <div class="stat-num" id="statTotal">0</div>
-                    <div class="stat-label">Total</div>
+                <div class="stat-mini">
+                    <div class="stat-mini-num" id="statTotal">0</div>
+                    <div class="stat-mini-label">Total</div>
                 </div>
             </div>
 
@@ -74,31 +74,28 @@
                 <h2>Appointments</h2>
 
                 <div class="filter-box">
-                    <!-- DROPDOWN BARBERO (solo admin) -->
-                     <!-- FILTRO POR TIPO -->
-                    <div id="tipoFilterSection" style="display: none; margin-right: 20px;">
-                        <label style="font-weight: bold; margin-right: 10px;">Type:</label>
-                        <select id="selectTipoFilter" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                    <button class="filter-tab active" data-filter="all">All</button>
+                    <button class="filter-tab" data-filter="today">Today</button>
+                    <button class="filter-tab" data-filter="completed">Completed</button>
+                    <button class="filter-tab" data-filter="cancelled">Cancelled</button>
+                </div>
+
+                <div class="secondary-filters">
+                    <div id="tipoFilterSection">
+                        <select id="selectTipoFilter" class="select-filter">
                             <option value="">All Types</option>
-                            <option value="barber">Barbers</option>
-                            <option value="skincare">Skincare</option>
+                            <option value="barber">💈 Barber</option>
+                            <option value="skincare">💆 Skincare</option>
                         </select>
                     </div>
-                    <div id="barberoFilterSection" style="display: none; margin-right: 20px;">
-                        <label style="font-weight: bold; margin-right: 10px;">Barber:</label>
-                        <select id="selectBarberoFilter" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                    <div id="barberoFilterSection" style="display: none;">
+                        <select id="selectBarberoFilter" class="select-filter">
                             <option value="">All Barbers</option>
                         </select>
                     </div>
-
-                    <!-- BOTONES -->
-                    <button class="filter-tab active" data-filter="all">All</button>
-                    <button class="filter-tab" data-filter="today">Today</button>
-                    <button class="filter-tab" data-filter="week">Week</button>
-                    <button class="filter-tab" data-filter="completed">Completed</button>
                 </div>
 
-                <div id="citasBox" class="citas-grid">
+                <div id="citasBox" class="citas-tabla">
                     <!-- Se llenan dinámicamente -->
                 </div>
 

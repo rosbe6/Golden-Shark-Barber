@@ -236,26 +236,54 @@ function updateStats() {
         String(today.getMonth() + 1).padStart(2, '0') + '-' + 
         String(today.getDate()).padStart(2, '0');
 
-    const nextWeek = new Date(today);
-    nextWeek.setDate(nextWeek.getDate() + 7);
-    today.setHours(0, 0, 0, 0);
-
-    const citasToday = allCitas.filter(c => c.dia === hoyString).length;
-
-    const citasWeek = allCitas.filter(c => {
-        const [year, month, day] = c.dia.split('-').map(Number);
-        const d = new Date(year, month - 1, day);
-        d.setHours(0, 0, 0, 0);
-        return d >= today && d <= nextWeek;
-    }).length;
-
+    const citasToday = allCitas.filter(c => c.dia === hoyString && c.estado === 'confirmada').length;
+    const citasPending = allCitas.filter(c => c.estado === 'confirmada').length;
     const citasCompleted = allCitas.filter(c => c.estado === 'completada').length;
 
     document.getElementById('statToday').textContent = citasToday;
-    document.getElementById('statWeek').textContent = citasWeek;
+    document.getElementById('statPending').textContent = citasPending;
     document.getElementById('statCompleted').textContent = citasCompleted;
     document.getElementById('statTotal').textContent = allCitas.length;
 }
+
+function getMonday(dateStr) {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const d = new Date(year, month - 1, day);
+    const dow = d.getDay();
+    const diff = dow === 0 ? -6 : 1 - dow;
+    d.setDate(d.getDate() + diff);
+    d.setHours(0, 0, 0, 0);
+    return d;
+}
+
+function weekLabel(monday) {
+    const saturday = getSaturday(monday);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const hoyMonday = getMonday(
+        today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0')
+    );
+    const diffWeeks = Math.round((monday - hoyMonday) / (1000 * 60 * 60 * 24 * 7));
+
+    let relative = '';
+    if (diffWeeks === 0) relative = 'This Week · ';
+    else if (diffWeeks === 1) relative = 'Next Week · ';
+    else if (diffWeeks === -1) relative = 'Last Week · ';
+
+    return `${relative}${formatShort(monday)} – ${formatShort(saturday)}`;
+}
+
+
+function getSaturday(monday) {
+    const sat = new Date(monday);
+    sat.setDate(monday.getDate() + 5);
+    return sat;
+}
+
+function formatShort(d) {
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
 
 function renderCitas(citas) {
     const box = document.getElementById('citasBox');
@@ -263,65 +291,59 @@ function renderCitas(citas) {
 
     if (citas.length === 0) {
         box.innerHTML = '';
+        box.classList.add('hidden');
         empty.classList.remove('hidden');
         return;
     }
 
+    box.classList.remove('hidden');
     empty.classList.add('hidden');
 
-    box.innerHTML = citas.map(c => `
-    <div class="cita-card" onclick="openDetailsModal('${c._id}')">
-        <div class="card-top">
-            <h3>${c.cliente_nombre}</h3>
-            <span class="badge ${c.estado === 'completada' ? 'badge-completed' : 'badge-pending'}">
-                ${c.estado === 'completada' ? 'Completed' : 'Pending'}
-            </span>
-        </div>
-        
-        <div class="card-info">
-            <div class="info-line">
-                <span class="info-key">📅 Date</span>
-                <span class="info-val">${c.dia}</span>
-            </div>
-            <div class="info-line">
-                <span class="info-key">⏰ Time</span>
-                <span class="info-val">${c.hora}</span>
-            </div>
-            <div class="info-line">
-                <span class="info-key">💈 Service</span>
-                <span class="info-val">${c.servicio}</span>
-            </div>
-            ${c.tipo_servicio ? `<div class="info-line">
-                <span class="info-key">${c.tipo_servicio === 'skincare' ? '💆' : '💈'} Type</span>
-                <span class="info-val">${c.tipo_servicio === 'skincare' ? 'Skincare' : 'Haircut'}</span>
-            </div>` : ''}
-            ${c.barbero_nombre ? `<div class="info-line">
-                <span class="info-key">👨‍💼 Barber</span>
-                <span class="info-val">${c.barbero_nombre}</span>
-            </div>` : ''}
-            <div class="info-line">
-                <span class="info-key">💳 Payment</span>
-                <span class="info-val">${c.metodoPago === 'cash' ? 'Cash' : 'Card'}</span>
-            </div>
-            <div class="info-line">
-                <span class="info-key">💰 Price</span>
-                <span class="info-val">$${c.precio}</span>
-            </div>
-        </div>
+    const sorted = [...citas].sort((a, b) => {
+        if (a.dia !== b.dia) return a.dia.localeCompare(b.dia);
+        return a.hora.localeCompare(b.hora);
+    });
 
-        <div class="card-btns">
-        ${c.estado === 'completada' ? '' : `
-            <button class="btn-card btn-card-main" onclick="event.stopPropagation(); markComplete('${c._id}')">
-                Complete
-            </button>
-            <button class="btn-card btn-card-sec" onclick="event.stopPropagation(); openDetailsModal('${c._id}')">
-                Details
-            </button>
-        `}
-    </div>
-    </div>
-`).join('');
+    const grupos = {};
+    sorted.forEach(c => {
+        const monday = getMonday(c.dia);
+        const key = monday.toISOString().slice(0, 10);
+        if (!grupos[key]) grupos[key] = { monday, citas: [] };
+        grupos[key].citas.push(c);
+    });
+
+    const semanasOrdenadas = Object.values(grupos).sort((a, b) => a.monday - b.monday);
+
+    const header = `
+        <div class="tabla-header">
+            <div>Name</div>
+            <div>Date</div>
+            <div>Time</div>
+            <div>Service</div>
+            <div style="text-align: right;">Status</div>
+        </div>`;
+
+    box.innerHTML = header + semanasOrdenadas.map(grupo => `
+        <div class="week-header">${weekLabel(grupo.monday)}</div>
+        ${grupo.citas.map(c => {
+            const icon = c.tipo_servicio === 'skincare' ? '💆' : '💈';
+            let badgeClass = 'badge-pending';
+            let badgeText = 'Pending';
+            if (c.estado === 'completada') { badgeClass = 'badge-completed'; badgeText = 'Completed'; }
+            else if (c.estado === 'cancelada') { badgeClass = 'badge-cancelled'; badgeText = 'Cancelled'; }
+
+            return `
+                <div class="fila-cita" onclick="openDetailsModal('${c._id}')">
+                    <div class="col-name">${c.cliente_nombre}</div>
+                    <div class="col-date">${c.dia}</div>
+                    <div class="col-time">${c.hora}</div>
+                    <div class="col-service">${icon} ${c.servicio}</div>
+                    <div class="badge ${badgeClass}">${badgeText}</div>
+                </div>`;
+        }).join('')}
+    `).join('');
 }
+
 
 function filterCitas(filter) {
     const today = new Date();
@@ -329,37 +351,25 @@ function filterCitas(filter) {
         String(today.getMonth() + 1).padStart(2, '0') + '-' + 
         String(today.getDate()).padStart(2, '0');
 
-    const nextWeek = new Date(today);
-    nextWeek.setDate(nextWeek.getDate() + 7);
-    today.setHours(0, 0, 0, 0);
-
     let filtered = allCitas;
 
-    // ✅ Filtrar por barbero
     if (barberoFilterSeleccionado) {
         filtered = filtered.filter(c => c.barbero_id === barberoFilterSeleccionado);
     }
 
-    // ✅ Filtrar por tipo (barber/skincare)
     const tipoFilter = document.getElementById('selectTipoFilter');
     if (tipoFilter && tipoFilter.value) {
         filtered = filtered.filter(c => c.tipo_servicio === tipoFilter.value);
     }
 
-    // Filtrar por fecha/estado
     if (filter === 'today') {
-        filtered = filtered.filter(c => c.dia === hoyString && c.estado !== 'completada');
-    } else if (filter === 'week') {
-        filtered = filtered.filter(c => {
-            const [year, month, day] = c.dia.split('-').map(Number);
-            const d = new Date(year, month - 1, day);
-            d.setHours(0, 0, 0, 0);
-            return d >= today && d <= nextWeek && c.estado !== 'completada';
-        });
+        filtered = filtered.filter(c => c.dia === hoyString && c.estado === 'confirmada');
     } else if (filter === 'completed') {
         filtered = filtered.filter(c => c.estado === 'completada');
-    } else if (filter === 'all') {
-        filtered = filtered.filter(c => c.estado !== 'completada');
+    } else if (filter === 'cancelled') {
+        filtered = filtered.filter(c => c.estado === 'cancelada');
+    } else {
+        filtered = filtered.filter(c => c.estado === 'confirmada');
     }
 
     renderCitas(filtered);

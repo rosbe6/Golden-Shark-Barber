@@ -24,13 +24,12 @@ def listar_citas(barbero_id):
         barbero_actual = coleccion_barbero.find_one({'_id': ObjectId(barbero_id)})
         es_admin = barbero_actual and barbero_actual.get('es_admin', False)
         
-        # Si es admin, ve todas; si no, solo las suyas
+        # ✅ Si es admin, ve todas (incluyendo canceladas); si no, solo las suyas (incluyendo canceladas)
         if es_admin:
-            citas = list(coleccion_citas.find({'estado': {'$ne': 'cancelada'}}))
+            citas = list(coleccion_citas.find({}))
         else:
             citas = list(coleccion_citas.find({
-                'barbero_id': barbero_id,
-                'estado': {'$ne': 'cancelada'}
+                'barbero_id': barbero_id
             }))
         
         # ✅ Agregar nombre del barbero a cada cita
@@ -54,7 +53,6 @@ def listar_citas(barbero_id):
         
     except Exception as e:
         return jsonify({'status': 'error', 'mensaje': str(e)}), 500
-
 
 @dashboard_bp.route('/citas/hoy', methods=['GET'])
 @token_requerido

@@ -693,3 +693,191 @@ select:focus {
         grid-template-columns: 1fr;
     }
 }
+
+
+/* ==================== NUEVO DISEÑO DE CITAS ==================== */
+
+.stats-box-mini {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    padding: 0 20px;
+    margin-bottom: 14px;
+}
+
+.stat-mini {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    padding: 7px 4px;
+    text-align: center;
+}
+
+.stat-mini-num {
+    font-size: 14px;
+    font-weight: 700;
+    color: #d4af37;
+    line-height: 1;
+    margin-bottom: 2px;
+}
+
+.stat-mini-label {
+    font-size: 8px;
+    color: #999;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+
+.filter-box {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.filter-tab {
+    padding: 10px 16px;
+    border: 1px solid #ddd;
+    background: #fff;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.filter-tab:hover {
+    border-color: #d4af37;
+    color: #d4af37;
+}
+
+.filter-tab.active {
+    background-color: #d4af37;
+    color: #000;
+    border-color: #d4af37;
+}
+
+.secondary-filters {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.select-filter {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: #fff;
+    color: #333;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.select-filter:focus {
+    outline: none;
+    border-color: #d4af37;
+}
+
+.citas-tabla {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+}
+
+.tabla-header {
+    display: grid;
+    grid-template-columns: 2fr 1.2fr 1fr 1.6fr 1fr;
+    padding: 12px 20px;
+    background: #1a1a1a;
+    color: #d4af37;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.week-header {
+    padding: 10px 20px;
+    background: #faf6ea;
+    color: #8a6d1a;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #eee;
+    border-top: 1px solid #eee;
+}
+
+.week-header:first-child {
+    border-top: none;
+}
+
+.fila-cita {
+    display: grid;
+    grid-template-columns: 2fr 1.2fr 1fr 1.6fr 1fr;
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.fila-cita:last-child { border-bottom: none; }
+
+.fila-cita:hover {
+    background: #fdf9ee;
+}
+
+.col-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #000;
+}
+
+.col-date, .col-time {
+    font-size: 13px;
+    color: #666;
+}
+
+.col-service {
+    font-size: 13px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.badge-cancelled {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+@media (max-width: 768px) {
+    .tabla-header { display: none; }
+
+    .fila-cita {
+        grid-template-columns: 1fr;
+        gap: 6px;
+        padding: 14px 16px;
+        position: relative;
+    }
+
+    .col-name { font-size: 15px; }
+    .col-date::before { content: "📅 "; }
+    .col-time::before { content: "⏰ "; }
+
+    .fila-cita .badge {
+        position: absolute;
+        top: 14px;
+        right: 16px;
+    }
+}
