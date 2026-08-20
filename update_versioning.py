@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Script seguro para agregar versioning a archivos HTML
+Script seguro para agregar/actualizar versioning en archivos HTML
 - Crea backup automático
 - Valida cambios antes de guardar
-- Solo modifica lo necesario
+- REEMPLAZA versiones existentes en lugar de concatenarlas
 """
 
 import os
@@ -19,33 +19,35 @@ if sys.platform == 'win32':
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
+
 def backup_file(filepath):
     """Crea un backup del archivo antes de modificar"""
     backup_path = f"{filepath}.backup"
     shutil.copy2(filepath, backup_path)
     return backup_path
 
+
 def add_versioning_safe(html_dir="backend/static", version=None):
     """
-    Agrega versioning a archivos HTML de forma segura
+    Agrega o actualiza versioning en archivos HTML de forma segura
 
     Args:
         html_dir: Directorio con archivos HTML
-        version: Versión a usar (default: fecha actual YYYYMMDD)
+        version: Versión a usar (default: timestamp actual)
     """
 
     if version is None:
-        version = datetime.now().strftime("%Y%m%d")
+        version = str(int(datetime.now().timestamp()))
 
-    # Patrones seguros que evitan duplicar versioning
+    # Patrones que capturan CUALQUIER cantidad de ?v=NUM existentes
+    # y los reemplazan por UNO solo con la versión nueva.
+    # (\?v=\d+)* captura cero o más versiones ya presentes.
     patterns = [
-        # CSS: href="css/archivo.css" → href="css/archivo.css?v=20260819"
-        # NO reemplaza si ya tiene ?v=
-        (r'href="(css/[^"]+?)(?!\?v=)"', f'href="\\1?v={version}"'),
+        # CSS: href="css/archivo.css" o href="css/archivo.css?v=1?v=2" → href="css/archivo.css?v=NUEVA"
+        (r'href="(css/[^"?]+\.css)(\?v=\d+)*"', f'href="\\1?v={version}"'),
 
-        # JS: src="js/archivo.js" → src="js/archivo.js?v=20260819"
-        # NO reemplaza si ya tiene ?v=
-        (r'src="(js/[^"]+?)(?!\?v=)"', f'src="\\1?v={version}"'),
+        # JS: src="js/archivo.js" o src="js/archivo.js?v=1?v=2" → src="js/archivo.js?v=NUEVA"
+        (r'src="(js/[^"?]+\.js)(\?v=\d+)*"', f'src="\\1?v={version}"'),
     ]
 
     # Validar que el directorio existe
@@ -78,14 +80,13 @@ def add_versioning_safe(html_dir="backend/static", version=None):
 
             # Aplicar patrones
             modified_content = original_content
-            changes_made = False
+            total_changes = 0
 
             for pattern, replacement in patterns:
                 modified_content, count = re.subn(pattern, replacement, modified_content)
-                if count > 0:
-                    changes_made = True
+                total_changes += count
 
-            # Validar que el archivo no esté vacío
+            # Validar que el archivo no esté vacío o corrupto
             if not modified_content or len(modified_content) < len(original_content) * 0.5:
                 print(f"[WARN] {filename}: Archivo corrupto detectado, restaurando backup...")
                 shutil.copy2(backup_path, filepath)
@@ -102,8 +103,11 @@ def add_versioning_safe(html_dir="backend/static", version=None):
                 saved_content = f.read()
 
             if saved_content == modified_content:
-                print(f"[OK] {filename}")
-                os.remove(backup_path)  # Eliminar backup si todo está bien
+                if total_changes > 0:
+                    print(f"[OK] {filename} ({total_changes} referencias actualizadas)")
+                else:
+                    print(f"[--] {filename} (sin css/js que versionar)")
+                os.remove(backup_path)
                 success_count += 1
             else:
                 print(f"[ERROR] {filename}: Error al guardar, restaurando backup...")
@@ -116,15 +120,15 @@ def add_versioning_safe(html_dir="backend/static", version=None):
 
     # Resumen
     print(f"\n{'='*50}")
-    print(f"[OK] Completado: {success_count} archivos actualizados")
+    print(f"[OK] Completado: {success_count} archivos procesados")
     if error_count > 0:
         print(f"[ERROR] {error_count} archivos fallaron")
     print(f"{'='*50}\n")
 
     return error_count == 0
 
+
 if __name__ == "__main__":
-    # Cambiar a la carpeta del proyecto si es necesario
     project_root = Path(__file__).parent
     os.chdir(project_root)
 
@@ -134,6 +138,5 @@ if __name__ == "__main__":
 
     if success:
         print("[SUCCESS] Actualizacion completada exitosamente!")
-        print("[INFO] Los backups estan disponibles como .backup si necesitas restaurar")
     else:
         print("[WARN] Algunos archivos tuvieron errores")

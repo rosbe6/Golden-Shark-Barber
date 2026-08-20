@@ -403,7 +403,6 @@ function renderWeekPage() {
                     <div class="col-name">${c.cliente_nombre}</div>
                     <div class="col-date">${formatearFecha(c.dia)}</div>
                     <div class="col-time">${formatearHora(c.hora)}</div>
-                    <div class="col-service">${c.servicio}</div>
                     <div class="badge ${badgeClass}">${badgeText}</div>
                 </div>`;
         }).join('')}
