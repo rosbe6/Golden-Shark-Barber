@@ -183,7 +183,7 @@ function seleccionarDia(dia, elemento) {
 // ==================== HORARIOS ====================
 
 function cargarHorarios(dia) {
-    fetch(`${API_URL}/citas/disponibles?barbero_id=${barberoSeleccionado}`)
+    fetch(`${API_URL}/citas/disponibles?barbero_id=${barberoSeleccionado}&fecha=${dia}`)
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {

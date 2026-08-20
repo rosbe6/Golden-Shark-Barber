@@ -585,11 +585,12 @@ async function loadTimesForDate() {
         const response = await fetch(`${API_URL}/citas/horarios-ocupados/${date}?barbero_id=${selectedCita.barbero_id}`);
         const data = await response.json();
 
-        const FECHA_CORTE_HORARIOS = new Date('2026-08-24');
-        const hoyDashboard = new Date();
-        const allTimes = hoyDashboard >= FECHA_CORTE_HORARIOS
+        const FECHA_CORTE = new Date('2026-08-24');
+        const fechaSeleccionada = new Date(date + 'T00:00:00');
+        const allTimes = fechaSeleccionada >= FECHA_CORTE
             ? ['09:45', '10:30', '11:15', '12:00', '12:45', '13:30', '14:15', '15:00', '15:45', '16:30']
             : ['10:00', '10:40', '11:20', '12:00', '12:40', '13:20', '14:00', '14:40', '15:20', '16:00', '16:40'];
+
         const occupied = data.horas_ocupadas || [];
         const available = allTimes.filter(t => !occupied.includes(t));
 
@@ -604,7 +605,6 @@ async function loadTimesForDate() {
         console.error('Error:', error);
     }
 }
-
 async function confirmReschedule() {
     const newDate = document.getElementById('inputNewDate').value;
     const newTime = document.getElementById('selectNewTime').value;
