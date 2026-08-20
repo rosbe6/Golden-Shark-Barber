@@ -385,7 +385,6 @@ function renderWeekPage() {
             <div>Name</div>
             <div>Date</div>
             <div>Time</div>
-            <div>Service</div>
             <div style="text-align: right;">Status</div>
         </div>`;
 
