@@ -19,28 +19,28 @@ telegram_service = TelegramService()
 
 @citas_bp.route('/disponibles', methods=['GET'])
 def obtener_disponibles():
+    """
+    Obtener horarios disponibles (todos los días lunes-sábado)
+    GET /api/citas/disponibles?barbero_id=6a3214b2ad920a6943edfaec
+    """
     barbero_id = request.args.get('barbero_id')
     
-    horarios = ['10:00', '10:40', '11:20', '12:00', '12:40', '13:20', '14:00',
-                '14:40', '15:20', '16:00', '16:40']
+    HORARIOS_VIEJOS = ['10:00', '10:40', '11:20', '12:00', '12:40', '13:20', '14:00',
+                        '14:40', '15:20', '16:00', '16:40']
+    HORARIOS_NUEVOS = ['09:45', '10:30', '11:15', '12:00', '12:45', '13:30', '14:15',
+                        '15:00', '15:45', '16:30']
+    FECHA_CORTE = datetime(2026, 8, 24)  # Lunes 24 de agosto 2026
     
     dias = []
     fecha_inicio = datetime.now()
     
-    coleccion_bloqueos = mongodb.get_collection('dias_bloqueados')
-    bloqueos = list(coleccion_bloqueos.find({
-        '$or': [
-            {'barbero_id': None},
-            {'barbero_id': barbero_id}
-        ]
-    }))
-    fechas_bloqueadas = set(b['fecha'] for b in bloqueos)
-    
     for i in range(365):
         fecha = fecha_inicio + timedelta(days=i)
-        fecha_str = fecha.strftime('%Y-%m-%d')
-        if fecha.weekday() < 6 and fecha_str not in fechas_bloqueadas:
-            dias.append(fecha_str)
+        if fecha.weekday() < 6:
+            dias.append(fecha.strftime('%Y-%m-%d'))
+    
+    hoy = datetime.now()
+    horarios = HORARIOS_NUEVOS if hoy >= FECHA_CORTE else HORARIOS_VIEJOS
     
     return jsonify({
         'status': 'success',
