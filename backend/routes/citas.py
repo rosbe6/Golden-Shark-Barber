@@ -26,14 +26,15 @@ def obtener_disponibles():
                        '14:40', '15:20', '16:00', '16:40']
     HORARIOS_45 = ['09:45', '10:30', '11:15', '12:00', '12:45', '13:30', '14:15',
                    '15:00', '15:45', '16:30']
-    HORARIOS_CORTOS = ['09:45', '10:30', '11:15', '12:00', '12:45', '13:30', '14:15']
+    HORARIOS_SABADO = ['09:45', '10:30', '11:15', '12:00', '12:45', '13:30', '14:15']
 
-    FECHA_CORTE_45 = datetime(2026, 8, 24)      # Lunes 24 agosto: pasa a 45 min
-    FECHA_CORTE_CORTO = datetime(2026, 9, 15)   # Lunes 15 septiembre: cierra 2:15 PM
+    FECHA_CORTE_45 = datetime(2026, 8, 24)        # Lunes 24 agosto: pasa a 45 min
+    FECHA_CORTE_SABADO = datetime(2026, 9, 1)     # 1 septiembre: sábados hasta 2:15 PM
 
     def horarios_para(fecha):
-        if fecha >= FECHA_CORTE_CORTO:
-            return HORARIOS_CORTOS
+        # Sábado (weekday 5) desde el 1 de septiembre: jornada corta
+        if fecha >= FECHA_CORTE_SABADO and fecha.weekday() == 5:
+            return HORARIOS_SABADO
         if fecha >= FECHA_CORTE_45:
             return HORARIOS_45
         return HORARIOS_VIEJOS

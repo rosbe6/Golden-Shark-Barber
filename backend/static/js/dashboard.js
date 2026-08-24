@@ -586,11 +586,12 @@ async function loadTimesForDate() {
         const data = await response.json();
 
         const FECHA_CORTE_45 = new Date('2026-08-24T00:00:00');
-        const FECHA_CORTE_CORTO = new Date('2026-09-15T00:00:00');
+        const FECHA_CORTE_SABADO = new Date('2026-09-01T00:00:00');
         const fechaSeleccionada = new Date(date + 'T00:00:00');
+        const esSabado = fechaSeleccionada.getDay() === 6;
 
         let allTimes;
-        if (fechaSeleccionada >= FECHA_CORTE_CORTO) {
+        if (fechaSeleccionada >= FECHA_CORTE_SABADO && esSabado) {
             allTimes = ['09:45', '10:30', '11:15', '12:00', '12:45', '13:30', '14:15'];
         } else if (fechaSeleccionada >= FECHA_CORTE_45) {
             allTimes = ['09:45', '10:30', '11:15', '12:00', '12:45', '13:30', '14:15', '15:00', '15:45', '16:30'];
