@@ -54,17 +54,18 @@ function setupEvents() {
     document.getElementById('inputNewDate').addEventListener('change', loadTimesForDate); // ✅ FIX: línea que faltaba
     
     document.getElementById('btnPrevWeeks').addEventListener('click', () => {
-        if (currentWeekPage > 0) {
-            currentWeekPage--;
-            renderWeekPage();
+        if (currentDayPage > 0) {
+            currentDayPage--;
+            renderDayPage();
         }
     });
 
+
     document.getElementById('btnNextWeeks').addEventListener('click', () => {
-        const totalPages = Math.ceil(semanasActuales.length / WEEKS_PER_PAGE);
-        if (currentWeekPage < totalPages - 1) {
-            currentWeekPage++;
-            renderWeekPage();
+        const totalPages = Math.ceil(diasActuales.length / DAYS_PER_PAGE);
+        if (currentDayPage < totalPages - 1) {
+            currentDayPage++;
+            renderDayPage();
         }
     });
 }
@@ -274,21 +275,12 @@ function getMonday(dateStr) {
     return d;
 }
 
-function weekLabel(monday) {
-    const saturday = getSaturday(monday);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const hoyMonday = getMonday(
-        today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0')
-    );
-    const diffWeeks = Math.round((monday - hoyMonday) / (1000 * 60 * 60 * 24 * 7));
-
-    let relative = '';
-    if (diffWeeks === 0) relative = 'This Week · ';
-    else if (diffWeeks === 1) relative = 'Next Week · ';
-    else if (diffWeeks === -1) relative = 'Last Week · ';
-
-    return `${relative}${formatShort(monday)} – ${formatShort(saturday)}`;
+function dayLabel(fechaISO) {
+    // 2026-08-24 -> Monday 24/2026
+    const [year, month, day] = fechaISO.split('-').map(Number);
+    const fecha = new Date(year, month - 1, day);
+    const diasSemana = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    return `${diasSemana[fecha.getDay()]} ${day}/${year}`;
 }
 
 
@@ -323,9 +315,9 @@ function formatearHora(horaISO) {
     return `${horas12}:${String(minutos).padStart(2, '0')} ${periodo}`;
 }
 
-let currentWeekPage = 0;
-const WEEKS_PER_PAGE = 4;
-let semanasActuales = [];
+let currentDayPage = 0;
+const DAYS_PER_PAGE = 7;
+let diasActuales = [];
 
 function renderCitas(citas, invertirOrden = false) {
     const box = document.getElementById('citasBox');
@@ -350,48 +342,43 @@ function renderCitas(citas, invertirOrden = false) {
         return invertirOrden ? -cmp : cmp;
     });
 
+    // Agrupar por DÍA
     const grupos = {};
     sorted.forEach(c => {
-        const monday = getMonday(c.dia);
-        const key = monday.toISOString().slice(0, 10);
-        if (!grupos[key]) grupos[key] = { monday, citas: [] };
-        grupos[key].citas.push(c);
+        if (!grupos[c.dia]) grupos[c.dia] = { dia: c.dia, citas: [] };
+        grupos[c.dia].citas.push(c);
     });
 
-    let semanasOrdenadas = Object.values(grupos).sort((a, b) => a.monday - b.monday);
-    if (invertirOrden) semanasOrdenadas = semanasOrdenadas.reverse();
+    let diasOrdenados = Object.values(grupos).sort((a, b) => a.dia.localeCompare(b.dia));
+    if (invertirOrden) diasOrdenados = diasOrdenados.reverse();
 
-    semanasActuales = semanasOrdenadas;
-    currentWeekPage = 0;
-    renderWeekPage();
+    diasActuales = diasOrdenados;
+    currentDayPage = 0;
+    renderDayPage();
 }
 
-function renderWeekPage() {
+function renderDayPage() {
     const box = document.getElementById('citasBox');
     const pagination = document.getElementById('weekPagination');
     const label = document.getElementById('weekPageLabel');
     const btnPrev = document.getElementById('btnPrevWeeks');
     const btnNext = document.getElementById('btnNextWeeks');
 
-    const totalSemanas = semanasActuales.length;
-    const totalPages = Math.ceil(totalSemanas / WEEKS_PER_PAGE);
-
-    const start = currentWeekPage * WEEKS_PER_PAGE;
-    const end = start + WEEKS_PER_PAGE;
-    const semanasVisibles = semanasActuales.slice(start, end);
+    const totalPages = Math.ceil(diasActuales.length / DAYS_PER_PAGE);
+    const start = currentDayPage * DAYS_PER_PAGE;
+    const diasVisibles = diasActuales.slice(start, start + DAYS_PER_PAGE);
 
     const header = `
         <div class="tabla-header">
             <div>Name</div>
-            <div>Date</div>
             <div>Time</div>
+            <div>Service</div>
             <div style="text-align: right;">Status</div>
         </div>`;
 
-    box.innerHTML = header + semanasVisibles.map(grupo => `
-        <div class="week-header">${weekLabel(grupo.monday)}</div>
+    box.innerHTML = header + diasVisibles.map(grupo => `
+        <div class="week-header">${dayLabel(grupo.dia)}</div>
         ${grupo.citas.map(c => {
-            const icon = c.tipo_servicio === 'skincare' ? '💆' : '💈';
             let badgeClass = 'badge-pending';
             let badgeText = 'Pending';
             if (c.estado === 'completada') { badgeClass = 'badge-completed'; badgeText = 'Completed'; }
@@ -400,8 +387,8 @@ function renderWeekPage() {
             return `
                 <div class="fila-cita" onclick="openDetailsModal('${c._id}')">
                     <div class="col-name">${c.cliente_nombre}</div>
-                    <div class="col-date">${formatearFecha(c.dia)}</div>
                     <div class="col-time">${formatearHora(c.hora)}</div>
+                    <div class="col-service">${c.servicio}</div>
                     <div class="badge ${badgeClass}">${badgeText}</div>
                 </div>`;
         }).join('')}
@@ -411,9 +398,9 @@ function renderWeekPage() {
         pagination.classList.add('hidden');
     } else {
         pagination.classList.remove('hidden');
-        label.textContent = `Page ${currentWeekPage + 1} of ${totalPages}`;
-        btnPrev.disabled = currentWeekPage === 0;
-        btnNext.disabled = currentWeekPage >= totalPages - 1;
+        label.textContent = `Page ${currentDayPage + 1} of ${totalPages}`;
+        btnPrev.disabled = currentDayPage === 0;
+        btnNext.disabled = currentDayPage >= totalPages - 1;
     }
 }
 
@@ -434,17 +421,26 @@ function filterCitas(filter) {
         filtered = filtered.filter(c => c.tipo_servicio === tipoFilter.value);
     }
 
+    let invertir = false;
+
     if (filter === 'today') {
         filtered = filtered.filter(c => c.dia === hoyString && c.estado === 'confirmada');
+    } else if (filter === 'past') {
+        // Todo lo anterior a hoy, sin importar estado — más reciente primero
+        filtered = filtered.filter(c => c.dia < hoyString);
+        invertir = true;
     } else if (filter === 'completed') {
         filtered = filtered.filter(c => c.estado === 'completada');
+        invertir = true;
     } else if (filter === 'cancelled') {
         filtered = filtered.filter(c => c.estado === 'cancelada');
+        invertir = true;
     } else {
-        filtered = filtered.filter(c => c.estado === 'confirmada');
+        // All: solo pendientes de hoy en adelante
+        filtered = filtered.filter(c => c.estado === 'confirmada' && c.dia >= hoyString);
     }
 
-    renderCitas(filtered);
+    renderCitas(filtered, invertir);
 }
 // ==================== MODAL: DETAILS ====================
 
@@ -589,11 +585,18 @@ async function loadTimesForDate() {
         const response = await fetch(`${API_URL}/citas/horarios-ocupados/${date}?barbero_id=${selectedCita.barbero_id}`);
         const data = await response.json();
 
-        const FECHA_CORTE = new Date('2026-08-24');
+        const FECHA_CORTE_45 = new Date('2026-08-24T00:00:00');
+        const FECHA_CORTE_CORTO = new Date('2026-09-15T00:00:00');
         const fechaSeleccionada = new Date(date + 'T00:00:00');
-        const allTimes = fechaSeleccionada >= FECHA_CORTE
-            ? ['09:45', '10:30', '11:15', '12:00', '12:45', '13:30', '14:15', '15:00', '15:45', '16:30']
-            : ['10:00', '10:40', '11:20', '12:00', '12:40', '13:20', '14:00', '14:40', '15:20', '16:00', '16:40'];
+
+        let allTimes;
+        if (fechaSeleccionada >= FECHA_CORTE_CORTO) {
+            allTimes = ['09:45', '10:30', '11:15', '12:00', '12:45', '13:30', '14:15'];
+        } else if (fechaSeleccionada >= FECHA_CORTE_45) {
+            allTimes = ['09:45', '10:30', '11:15', '12:00', '12:45', '13:30', '14:15', '15:00', '15:45', '16:30'];
+        } else {
+            allTimes = ['10:00', '10:40', '11:20', '12:00', '12:40', '13:20', '14:00', '14:40', '15:20', '16:00', '16:40'];
+        }
 
         const occupied = data.horas_ocupadas || [];
         const available = allTimes.filter(t => !occupied.includes(t));

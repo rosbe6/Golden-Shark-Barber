@@ -207,10 +207,15 @@ body {
 }
 
 .filter-box {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
-    margin-bottom: 20px;
-    overflow-x: auto;
+    margin-bottom: 12px;
+}
+
+/* El último botón (Cancelled) ocupa las 2 columnas para cerrar el 2x3 */
+.filter-box .filter-tab:last-child {
+    grid-column: span 2;
 }
 
 .filter-tab {
@@ -795,7 +800,7 @@ select:focus {
 
 .tabla-header {
     display: grid;
-    grid-template-columns: 1.6fr 2.2fr 1fr 1.4fr 1fr;
+    grid-template-columns: 2.2fr 1fr 1.6fr 1fr;
     padding: 12px 20px;
     background: #1a1a1a;
     color: #d4af37;
@@ -823,7 +828,7 @@ select:focus {
 
 .fila-cita {
     display: grid;
-    grid-template-columns: 1.6fr 2.2fr 1fr 1.4fr 1fr;
+    grid-template-columns: 2.2fr 1fr 1.6fr 1fr;
     align-items: center;
     padding: 14px 20px;
     border-bottom: 1px solid #eee;
@@ -870,7 +875,6 @@ select:focus {
     }
 
     .col-name { font-size: 15px; }
-    .col-date::before { content: "📅 "; }
     .col-time::before { content: "⏰ "; }
 
     .fila-cita .badge {

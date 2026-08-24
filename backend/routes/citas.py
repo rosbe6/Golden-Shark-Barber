@@ -24,9 +24,19 @@ def obtener_disponibles():
 
     HORARIOS_VIEJOS = ['10:00', '10:40', '11:20', '12:00', '12:40', '13:20', '14:00',
                        '14:40', '15:20', '16:00', '16:40']
-    HORARIOS_NUEVOS = ['09:45', '10:30', '11:15', '12:00', '12:45', '13:30', '14:15',
-                       '15:00', '15:45', '16:30']
-    FECHA_CORTE = datetime(2026, 8, 24)
+    HORARIOS_45 = ['09:45', '10:30', '11:15', '12:00', '12:45', '13:30', '14:15',
+                   '15:00', '15:45', '16:30']
+    HORARIOS_CORTOS = ['09:45', '10:30', '11:15', '12:00', '12:45', '13:30', '14:15']
+
+    FECHA_CORTE_45 = datetime(2026, 8, 24)      # Lunes 24 agosto: pasa a 45 min
+    FECHA_CORTE_CORTO = datetime(2026, 9, 15)   # Lunes 15 septiembre: cierra 2:15 PM
+
+    def horarios_para(fecha):
+        if fecha >= FECHA_CORTE_CORTO:
+            return HORARIOS_CORTOS
+        if fecha >= FECHA_CORTE_45:
+            return HORARIOS_45
+        return HORARIOS_VIEJOS
 
     dias = []
     fecha_inicio = datetime.now()
@@ -48,12 +58,11 @@ def obtener_disponibles():
 
     if fecha_str:
         try:
-            fecha_pedida = datetime.strptime(fecha_str, '%Y-%m-%d')
-            horarios = HORARIOS_NUEVOS if fecha_pedida >= FECHA_CORTE else HORARIOS_VIEJOS
+            horarios = horarios_para(datetime.strptime(fecha_str, '%Y-%m-%d'))
         except ValueError:
             horarios = HORARIOS_VIEJOS
     else:
-        horarios = HORARIOS_NUEVOS if datetime.now() >= FECHA_CORTE else HORARIOS_VIEJOS
+        horarios = horarios_para(datetime.now())
 
     return jsonify({
         'status': 'success',
@@ -61,6 +70,7 @@ def obtener_disponibles():
         'horarios': horarios,
         'barbero_id': barbero_id
     }), 200
+
 
 @citas_bp.route('/barberos', methods=['GET'])
 def listar_barberos():
