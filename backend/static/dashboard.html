@@ -78,45 +78,46 @@
                     <button class="filter-tab" data-filter="all">All</button>
                     <button class="filter-tab" data-filter="completed">Completed</button>
                     <button class="filter-tab" data-filter="cancelled">Cancelled</button>
+                    <!-- BLOCK MENU -->
+                    <div class="block-menu-wrapper">
+                        <button class="btn-block-menu" id="btnBlockMenu">
+                            🚫 Block Menu <span class="block-arrow">▼</span>
+                        </button>
+
+                        <div class="block-dropdown" id="blockDropdown">
+                            <div class="dropdown-item" id="btnBlockSlot">
+                                <span class="dropdown-icon">🕐</span>
+                                <div>
+                                    <div class="dropdown-titulo">Block Time Slot</div>
+                                    <div class="dropdown-desc">Block a specific hour on a day</div>
+                                </div>
+                            </div>
+                            <div class="dropdown-item" id="btnBlockDay">
+                                <span class="dropdown-icon">📅</span>
+                                <div>
+                                    <div class="dropdown-titulo">Block Day</div>
+                                    <div class="dropdown-desc">Block an entire day</div>
+                                </div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item" id="btnUnblockSlot">
+                                <span class="dropdown-icon">🔓</span>
+                                <div>
+                                    <div class="dropdown-titulo">Unblock Time Slot</div>
+                                    <div class="dropdown-desc">Remove a blocked hour</div>
+                                </div>
+                            </div>
+                            <div class="dropdown-item" id="btnUnblockDay">
+                                <span class="dropdown-icon">🗓️</span>
+                                <div>
+                                    <div class="dropdown-titulo">Unblock Day</div>
+                                    <div class="dropdown-desc">Remove a blocked day</div>
+                                </div>
+                            </div>
+                        </div>
                 </div>
 
-            <!-- BLOCK MENU -->
-            <div class="block-menu-wrapper">
-                <button class="btn-block-menu" id="btnBlockMenu">
-                    🚫 Block Menu <span class="block-arrow">▼</span>
-                </button>
-
-                <div class="block-dropdown" id="blockDropdown">
-                    <div class="dropdown-item" id="btnBlockSlot">
-                        <span class="dropdown-icon">🕐</span>
-                        <div>
-                            <div class="dropdown-titulo">Block Time Slot</div>
-                            <div class="dropdown-desc">Block a specific hour on a day</div>
-                        </div>
-                    </div>
-                    <div class="dropdown-item" id="btnBlockDay">
-                        <span class="dropdown-icon">📅</span>
-                        <div>
-                            <div class="dropdown-titulo">Block Day</div>
-                            <div class="dropdown-desc">Block an entire day</div>
-                        </div>
-                    </div>
-                    <div class="dropdown-divider"></div>
-                    <div class="dropdown-item" id="btnUnblockSlot">
-                        <span class="dropdown-icon">🔓</span>
-                        <div>
-                            <div class="dropdown-titulo">Unblock Time Slot</div>
-                            <div class="dropdown-desc">Remove a blocked hour</div>
-                        </div>
-                    </div>
-                    <div class="dropdown-item" id="btnUnblockDay">
-                        <span class="dropdown-icon">🗓️</span>
-                        <div>
-                            <div class="dropdown-titulo">Unblock Day</div>
-                            <div class="dropdown-desc">Remove a blocked day</div>
-                        </div>
-                    </div>
-                </div>
+            
 
 
             <!-- MODAL: BLOCK TIME SLOT -->

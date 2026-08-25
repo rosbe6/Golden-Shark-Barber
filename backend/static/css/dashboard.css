@@ -213,6 +213,11 @@ body {
     margin-bottom: 12px;
 }
 
+.filter-box .block-menu-wrapper {
+    grid-column: span 2;
+    position: relative;
+}
+
 
 
 .filter-tab {
