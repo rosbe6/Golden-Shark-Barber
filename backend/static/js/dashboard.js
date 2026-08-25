@@ -372,6 +372,25 @@ function renderCitas(citas, invertirOrden = false) {
     renderDayPage();
 }
 
+function weekLabel(monday) {
+    const saturday = getSaturday(monday);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const hoyMonday = getMonday(
+        today.getFullYear() + '-' + 
+        String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+        String(today.getDate()).padStart(2, '0')
+    );
+    const diffWeeks = Math.round((monday - hoyMonday) / (1000 * 60 * 60 * 24 * 7));
+
+    let relative = '';
+    if (diffWeeks === 0) relative = 'This Week · ';
+    else if (diffWeeks === 1) relative = 'Next Week · ';
+    else if (diffWeeks === -1) relative = 'Last Week · ';
+
+    return `${relative}${formatShort(monday)} – ${formatShort(saturday)}`;
+}
+
 
 function renderDayPage() {
     const box = document.getElementById('citasBox');
