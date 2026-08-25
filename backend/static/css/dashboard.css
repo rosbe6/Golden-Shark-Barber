@@ -1246,3 +1246,10 @@ select:focus {
 .btn-mini.cancel:hover { background: #dc3545; color: #fff; }
 .btn-mini.reschedule { border-color: #ffc107; color: #856404; background: #fff; }
 .btn-mini.reschedule:hover { background: #ffc107; color: #000; }
+
+
+.dropdown-divider {
+    height: 1px;
+    background: #eee;
+    margin: 4px 0;
+}

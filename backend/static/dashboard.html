@@ -8,7 +8,7 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" href="/favicon.ico">
     
-    <link rel="stylesheet" href="css/dashboard.css?v=1787626843">
+    <link rel="stylesheet" href="css/dashboard.css?v=1787627362">
 </head>
 <body>
     <!-- PANTALLA LOGIN -->
@@ -85,6 +85,7 @@
                 <button class="btn-block-menu" id="btnBlockMenu">
                     🚫 Block Menu <span class="block-arrow">▼</span>
                 </button>
+
                 <div class="block-dropdown" id="blockDropdown">
                     <div class="dropdown-item" id="btnBlockSlot">
                         <span class="dropdown-icon">🕐</span>
@@ -100,8 +101,22 @@
                             <div class="dropdown-desc">Block an entire day</div>
                         </div>
                     </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" id="btnUnblockSlot">
+                        <span class="dropdown-icon">🔓</span>
+                        <div>
+                            <div class="dropdown-titulo">Unblock Time Slot</div>
+                            <div class="dropdown-desc">Remove a blocked hour</div>
+                        </div>
+                    </div>
+                    <div class="dropdown-item" id="btnUnblockDay">
+                        <span class="dropdown-icon">🗓️</span>
+                        <div>
+                            <div class="dropdown-titulo">Unblock Day</div>
+                            <div class="dropdown-desc">Remove a blocked day</div>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
 
             <!-- MODAL: BLOCK TIME SLOT -->
@@ -293,7 +308,51 @@
             </div>
         </div>
 
+    <!-- MODAL: UNBLOCK TIME SLOT -->
+    <div class="modal hidden" id="modalUnblockSlot">
+        <div class="modal-box small reschedule-box">
+            <button class="close-modal" onclick="closeBlockModal('unblockSlot')">×</button>
+            <h2>🔓 Unblock Time Slot</h2>
+            <p class="modal-subtitle">Select a date to see its blocked slots</p>
 
+            <div class="reschedule-field">
+                <label class="reschedule-label">Date</label>
+                <input type="date" id="unblockSlotFecha">
+            </div>
+
+            <div class="block-aviso-warning hidden" id="unblockSlotLista">
+                <div class="block-aviso-titulo">🔒 Blocked slots on this date</div>
+                <div id="unblockSlotItems"></div>
+            </div>
+
+            <div class="block-aviso-ok hidden" id="unblockSlotVacio">
+                ✅ No blocked slots on this date.
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: UNBLOCK DAY -->
+    <div class="modal hidden" id="modalUnblockDay">
+        <div class="modal-box small reschedule-box">
+            <button class="close-modal" onclick="closeBlockModal('unblockDay')">×</button>
+            <h2>🗓️ Unblock Day</h2>
+            <p class="modal-subtitle">Select a date to unblock it</p>
+
+            <div class="reschedule-field">
+                <label class="reschedule-label">Date</label>
+                <input type="date" id="unblockDayFecha">
+            </div>
+
+            <div class="block-aviso-warning hidden" id="unblockDayInfo">
+                <div class="block-aviso-titulo">🔒 This day is blocked</div>
+                <div id="unblockDayItems"></div>
+            </div>
+
+            <div class="block-aviso-ok hidden" id="unblockDayVacio">
+                ✅ This day is not blocked.
+            </div>
+        </div>
+    </div>
 
 
     <!-- MODAL: DETALLES DE CITA -->
@@ -416,6 +475,6 @@
         <div class="spinner"></div>
     </div>
 
-    <script src="js/dashboard.js?v=1787626843"></script>
+    <script src="js/dashboard.js?v=1787627362"></script>
 </body>
 </html>

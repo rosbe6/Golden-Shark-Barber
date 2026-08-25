@@ -552,3 +552,54 @@ def bloquear_dia():
     except Exception as e:
         print(f"❌ Error bloqueando día: {str(e)}")
         return jsonify({'status': 'error', 'mensaje': 'Error en el servidor'}), 500
+
+@citas_bp.route('/slots-bloqueados/<dia>', methods=['GET'])
+def listar_slots_bloqueados(dia):
+    """GET /api/citas/slots-bloqueados/2026-08-26"""
+    try:
+        coleccion = mongodb.get_collection('slots_bloqueados')
+        slots = list(coleccion.find({'fecha': dia}))
+        for s in slots:
+            s['_id'] = str(s['_id'])
+        return jsonify({'status': 'success', 'slots': slots}), 200
+    except Exception as e:
+        return jsonify({'status': 'error', 'mensaje': str(e)}), 500
+
+
+@citas_bp.route('/slots-bloqueados/<slot_id>', methods=['DELETE'])
+def eliminar_slot_bloqueado(slot_id):
+    """DELETE /api/citas/slots-bloqueados/<id>"""
+    try:
+        coleccion = mongodb.get_collection('slots_bloqueados')
+        resultado = coleccion.delete_one({'_id': ObjectId(slot_id)})
+        if resultado.deleted_count == 0:
+            return jsonify({'status': 'error', 'mensaje': 'Slot not found'}), 404
+        return jsonify({'status': 'success', 'mensaje': 'Slot unblocked'}), 200
+    except Exception as e:
+        return jsonify({'status': 'error', 'mensaje': str(e)}), 500
+
+
+@citas_bp.route('/dias-bloqueados/<dia>', methods=['GET'])
+def listar_dia_bloqueado(dia):
+    """GET /api/citas/dias-bloqueados/2026-08-26"""
+    try:
+        coleccion = mongodb.get_collection('dias_bloqueados')
+        bloqueos = list(coleccion.find({'fecha': dia}))
+        for b in bloqueos:
+            b['_id'] = str(b['_id'])
+        return jsonify({'status': 'success', 'bloqueos': bloqueos}), 200
+    except Exception as e:
+        return jsonify({'status': 'error', 'mensaje': str(e)}), 500
+
+
+@citas_bp.route('/dias-bloqueados/<bloqueo_id>', methods=['DELETE'])
+def eliminar_dia_bloqueado(bloqueo_id):
+    """DELETE /api/citas/dias-bloqueados/<id>"""
+    try:
+        coleccion = mongodb.get_collection('dias_bloqueados')
+        resultado = coleccion.delete_one({'_id': ObjectId(bloqueo_id)})
+        if resultado.deleted_count == 0:
+            return jsonify({'status': 'error', 'mensaje': 'Block not found'}), 404
+        return jsonify({'status': 'success', 'mensaje': 'Day unblocked'}), 200
+    except Exception as e:
+        return jsonify({'status': 'error', 'mensaje': str(e)}), 500

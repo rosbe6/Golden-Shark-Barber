@@ -1002,36 +1002,65 @@ function setupBlockMenu() {
         openBlockModal('day');
     });
 
+    document.getElementById('btnUnblockSlot').addEventListener('click', () => {
+    btn.classList.remove('open');
+    dropdown.classList.remove('visible');
+    openBlockModal('unblockSlot');
+    });
+
+    document.getElementById('btnUnblockDay').addEventListener('click', () => {
+        btn.classList.remove('open');
+        dropdown.classList.remove('visible');
+        openBlockModal('unblockDay');
+    });
+
+    document.getElementById('unblockSlotFecha').addEventListener('change', cargarSlotsBlockeados);
+    document.getElementById('unblockDayFecha').addEventListener('change', cargarDiasBlockeados);
     document.getElementById('blockSlotFecha').addEventListener('change', cargarHorasBlock);
     document.getElementById('blockSlotHora').addEventListener('change', verificarBlockSlot);
     document.getElementById('blockDayFecha').addEventListener('change', verificarBlockDay);
 }
 
 function openBlockModal(tipo) {
-    if (tipo === 'slot') {
-        document.getElementById('modalBlockSlot').classList.remove('hidden');
-    } else {
-        document.getElementById('modalBlockDay').classList.remove('hidden');
-    }
+    const modales = {
+        slot: 'modalBlockSlot',
+        day: 'modalBlockDay',
+        unblockSlot: 'modalUnblockSlot',
+        unblockDay: 'modalUnblockDay'
+    };
+    document.getElementById(modales[tipo]).classList.remove('hidden');
 }
 
 function closeBlockModal(tipo) {
+    const modales = {
+        slot: 'modalBlockSlot',
+        day: 'modalBlockDay',
+        unblockSlot: 'modalUnblockSlot',
+        unblockDay: 'modalUnblockDay'
+    };
+    document.getElementById(modales[tipo]).classList.add('hidden');
+
     if (tipo === 'slot') {
-        document.getElementById('modalBlockSlot').classList.add('hidden');
         document.getElementById('blockSlotFecha').value = '';
         document.getElementById('blockSlotHora').innerHTML = '<option value="">Select a date first</option>';
         document.getElementById('blockSlotAviso').classList.add('hidden');
         document.getElementById('blockSlotLibre').classList.add('hidden');
         document.getElementById('btnConfirmarBlockSlot').disabled = true;
-    } else {
-        document.getElementById('modalBlockDay').classList.add('hidden');
+    } else if (tipo === 'day') {
         document.getElementById('blockDayFecha').value = '';
         document.getElementById('blockDayAviso').classList.add('hidden');
         document.getElementById('blockDayLibre').classList.add('hidden');
         document.getElementById('btnConfirmarBlockDay').disabled = true;
+    } else if (tipo === 'unblockSlot') {
+        document.getElementById('unblockSlotFecha').value = '';
+        document.getElementById('unblockSlotLista').classList.add('hidden');
+        document.getElementById('unblockSlotVacio').classList.add('hidden');
+    } else if (tipo === 'unblockDay') {
+        document.getElementById('unblockDayFecha').value = '';
+        document.getElementById('unblockDayInfo').classList.add('hidden');
+        document.getElementById('unblockDayVacio').classList.add('hidden');
     }
 }
-
 async function cargarHorasBlock() {
     const fecha = document.getElementById('blockSlotFecha').value;
     document.getElementById('blockSlotAviso').classList.add('hidden');
@@ -1192,6 +1221,113 @@ async function confirmarBlockDay() {
         }
     } catch (e) {
         alert('❌ Error blocking day');
+    } finally {
+        showLoading(false);
+    }
+}
+
+
+async function cargarSlotsBlockeados() {
+    const fecha = document.getElementById('unblockSlotFecha').value;
+    document.getElementById('unblockSlotLista').classList.add('hidden');
+    document.getElementById('unblockSlotVacio').classList.add('hidden');
+
+    if (!fecha) return;
+
+    try {
+        const response = await fetch(`${API_URL}/citas/slots-bloqueados/${fecha}`, {
+            headers: { 'Authorization': `Bearer ${barberoToken}` }
+        });
+        const data = await response.json();
+
+        if (data.slots && data.slots.length > 0) {
+            document.getElementById('unblockSlotItems').innerHTML = data.slots.map(s => `
+                <div class="block-cita-item">
+                    <div class="block-cita-info">
+                        <strong>${formatearHora(s.hora)}</strong>
+                    </div>
+                    <div class="block-cita-acciones">
+                        <button class="btn-mini cancel" onclick="confirmarUnblockSlot('${s._id}', '${s.hora}', '${fecha}')">Unblock</button>
+                    </div>
+                </div>`).join('');
+            document.getElementById('unblockSlotLista').classList.remove('hidden');
+        } else {
+            document.getElementById('unblockSlotVacio').classList.remove('hidden');
+        }
+    } catch (e) {
+        console.error('Error cargando slots bloqueados:', e);
+    }
+}
+
+async function cargarDiasBlockeados() {
+    const fecha = document.getElementById('unblockDayFecha').value;
+    document.getElementById('unblockDayInfo').classList.add('hidden');
+    document.getElementById('unblockDayVacio').classList.add('hidden');
+
+    if (!fecha) return;
+
+    try {
+        const response = await fetch(`${API_URL}/citas/dias-bloqueados/${fecha}`, {
+            headers: { 'Authorization': `Bearer ${barberoToken}` }
+        });
+        const data = await response.json();
+
+        if (data.bloqueos && data.bloqueos.length > 0) {
+            document.getElementById('unblockDayItems').innerHTML = data.bloqueos.map(b => `
+                <div class="block-cita-item">
+                    <div class="block-cita-info">
+                        <strong>${b.nombre_display}</strong>
+                    </div>
+                    <div class="block-cita-acciones">
+                        <button class="btn-mini cancel" onclick="confirmarUnblockDay('${b._id}', '${fecha}')">Unblock</button>
+                    </div>
+                </div>`).join('');
+            document.getElementById('unblockDayInfo').classList.remove('hidden');
+        } else {
+            document.getElementById('unblockDayVacio').classList.remove('hidden');
+        }
+    } catch (e) {
+        console.error('Error cargando días bloqueados:', e);
+    }
+}
+
+async function confirmarUnblockSlot(slotId, hora, fecha) {
+    try {
+        showLoading(true);
+        const response = await fetch(`${API_URL}/citas/slots-bloqueados/${slotId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${barberoToken}` }
+        });
+        const data = await response.json();
+        if (data.status === 'success') {
+            alert(`✅ ${formatearHora(hora)} on ${formatearFecha(fecha)} unblocked.`);
+            cargarSlotsBlockeados();
+        } else {
+            alert('❌ Error: ' + data.mensaje);
+        }
+    } catch (e) {
+        alert('❌ Error unblocking slot');
+    } finally {
+        showLoading(false);
+    }
+}
+
+async function confirmarUnblockDay(bloqueoId, fecha) {
+    try {
+        showLoading(true);
+        const response = await fetch(`${API_URL}/citas/dias-bloqueados/${bloqueoId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${barberoToken}` }
+        });
+        const data = await response.json();
+        if (data.status === 'success') {
+            alert(`✅ ${formatearFecha(fecha)} unblocked.`);
+            cargarDiasBlockeados();
+        } else {
+            alert('❌ Error: ' + data.mensaje);
+        }
+    } catch (e) {
+        alert('❌ Error unblocking day');
     } finally {
         showLoading(false);
     }
