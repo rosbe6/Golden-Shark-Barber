@@ -252,6 +252,13 @@ def horarios_ocupados(dia):
         })
         
         horas_ocupadas = [cita['hora'] for cita in citas]
+
+        # ✅ Agregar slots bloqueados globalmente ese día
+        coleccion_slots = mongodb.get_collection('slots_bloqueados')
+        slots_bloqueados = list(coleccion_slots.find({'fecha': dia}))
+        horas_bloqueadas = [s['hora'] for s in slots_bloqueados]
+
+        horas_ocupadas = list(set(horas_ocupadas + horas_bloqueadas))
         
         return jsonify({
             'status': 'success',
@@ -262,7 +269,6 @@ def horarios_ocupados(dia):
         
     except Exception as e:
         return jsonify({'status': 'error', 'mensaje': str(e)}), 500
-
 
 @citas_bp.route('/<cita_id>', methods=['GET'])
 def obtener_cita(cita_id):
@@ -475,4 +481,74 @@ def obtener_config():
             'skincare_enabled': skincare_enabled
         }), 200
     except Exception as e:
+        return jsonify({'status': 'error', 'mensaje': 'Error en el servidor'}), 500
+
+
+
+@citas_bp.route('/bloquear-slot', methods=['POST'])
+def bloquear_slot():
+    """
+    Bloquear un horario específico en una fecha
+    POST /api/citas/bloquear-slot
+    { "fecha": "2026-08-26", "hora": "10:30" }
+    """
+    try:
+        data = request.get_json()
+        fecha = data.get('fecha')
+        hora = data.get('hora')
+
+        if not fecha or not hora:
+            return jsonify({'status': 'error', 'mensaje': 'fecha and hora are required'}), 400
+
+        coleccion = mongodb.get_collection('slots_bloqueados')
+
+        # Evitar duplicados
+        existe = coleccion.find_one({'fecha': fecha, 'hora': hora})
+        if existe:
+            return jsonify({'status': 'error', 'mensaje': 'This slot is already blocked'}), 409
+
+        coleccion.insert_one({
+            'fecha': fecha,
+            'hora': hora,
+            'creado_en': datetime.now().isoformat()
+        })
+
+        return jsonify({'status': 'success', 'mensaje': 'Slot blocked successfully'}), 201
+
+    except Exception as e:
+        print(f"❌ Error bloqueando slot: {str(e)}")
+        return jsonify({'status': 'error', 'mensaje': 'Error en el servidor'}), 500
+
+
+@citas_bp.route('/bloquear-dia', methods=['POST'])
+def bloquear_dia():
+    """
+    Reutiliza el sistema de dias_bloqueados existente
+    POST /api/citas/bloquear-dia
+    { "fecha": "2026-08-26", "barbero_id": null }
+    """
+    try:
+        data = request.get_json()
+        fecha = data.get('fecha')
+        barbero_id = data.get('barbero_id', None)
+
+        if not fecha:
+            return jsonify({'status': 'error', 'mensaje': 'fecha is required'}), 400
+
+        coleccion = mongodb.get_collection('dias_bloqueados')
+        existe = coleccion.find_one({'fecha': fecha, 'barbero_id': barbero_id})
+        if existe:
+            return jsonify({'status': 'error', 'mensaje': 'This day is already blocked'}), 409
+
+        coleccion.insert_one({
+            'fecha': fecha,
+            'barbero_id': barbero_id,
+            'nombre_display': 'Whole Barbershop',
+            'creado_en': datetime.now().isoformat()
+        })
+
+        return jsonify({'status': 'success', 'mensaje': 'Day blocked successfully'}), 201
+
+    except Exception as e:
+        print(f"❌ Error bloqueando día: {str(e)}")
         return jsonify({'status': 'error', 'mensaje': 'Error en el servidor'}), 500

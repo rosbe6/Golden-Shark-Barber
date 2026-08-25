@@ -72,6 +72,7 @@ function setupEvents() {
             renderDayPage();
         }
     });
+    setupBlockMenu();
 }
 
 // ==================== TABS ====================
@@ -967,4 +968,231 @@ function filterCitasByTipo() {
     const activeTab = document.querySelector('.filter-tab.active');
     const filterType = activeTab ? activeTab.dataset.filter : 'all';
     filterCitas(filterType);
+}
+
+
+
+// ==================== BLOCK MENU ====================
+
+function setupBlockMenu() {
+    const btn = document.getElementById('btnBlockMenu');
+    const dropdown = document.getElementById('blockDropdown');
+
+    btn.addEventListener('click', () => {
+        btn.classList.toggle('open');
+        dropdown.classList.toggle('visible');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.block-menu-wrapper')) {
+            btn.classList.remove('open');
+            dropdown.classList.remove('visible');
+        }
+    });
+
+    document.getElementById('btnBlockSlot').addEventListener('click', () => {
+        btn.classList.remove('open');
+        dropdown.classList.remove('visible');
+        openBlockModal('slot');
+    });
+
+    document.getElementById('btnBlockDay').addEventListener('click', () => {
+        btn.classList.remove('open');
+        dropdown.classList.remove('visible');
+        openBlockModal('day');
+    });
+
+    document.getElementById('blockSlotFecha').addEventListener('change', cargarHorasBlock);
+    document.getElementById('blockSlotHora').addEventListener('change', verificarBlockSlot);
+    document.getElementById('blockDayFecha').addEventListener('change', verificarBlockDay);
+}
+
+function openBlockModal(tipo) {
+    if (tipo === 'slot') {
+        document.getElementById('modalBlockSlot').classList.remove('hidden');
+    } else {
+        document.getElementById('modalBlockDay').classList.remove('hidden');
+    }
+}
+
+function closeBlockModal(tipo) {
+    if (tipo === 'slot') {
+        document.getElementById('modalBlockSlot').classList.add('hidden');
+        document.getElementById('blockSlotFecha').value = '';
+        document.getElementById('blockSlotHora').innerHTML = '<option value="">Select a date first</option>';
+        document.getElementById('blockSlotAviso').classList.add('hidden');
+        document.getElementById('blockSlotLibre').classList.add('hidden');
+        document.getElementById('btnConfirmarBlockSlot').disabled = true;
+    } else {
+        document.getElementById('modalBlockDay').classList.add('hidden');
+        document.getElementById('blockDayFecha').value = '';
+        document.getElementById('blockDayAviso').classList.add('hidden');
+        document.getElementById('blockDayLibre').classList.add('hidden');
+        document.getElementById('btnConfirmarBlockDay').disabled = true;
+    }
+}
+
+async function cargarHorasBlock() {
+    const fecha = document.getElementById('blockSlotFecha').value;
+    document.getElementById('blockSlotAviso').classList.add('hidden');
+    document.getElementById('blockSlotLibre').classList.add('hidden');
+    document.getElementById('btnConfirmarBlockSlot').disabled = true;
+
+    if (!fecha) return;
+
+    // Generar horarios según fecha (respeta corte de 45min y sábados)
+    const FECHA_CORTE_45 = new Date('2026-08-24T00:00:00');
+    const FECHA_CORTE_SABADO = new Date('2026-09-01T00:00:00');
+    const fechaSeleccionada = new Date(fecha + 'T00:00:00');
+    const esSabado = fechaSeleccionada.getDay() === 6;
+
+    let horarios;
+    if (fechaSeleccionada >= FECHA_CORTE_SABADO && esSabado) {
+        horarios = ['09:45', '10:30', '11:15', '12:00', '12:45', '13:30', '14:15'];
+    } else if (fechaSeleccionada >= FECHA_CORTE_45) {
+        horarios = ['09:45', '10:30', '11:15', '12:00', '12:45', '13:30', '14:15', '15:00', '15:45', '16:30'];
+    } else {
+        horarios = ['10:00', '10:40', '11:20', '12:00', '12:40', '13:20', '14:00', '14:40', '15:20', '16:00', '16:40'];
+    }
+
+    const select = document.getElementById('blockSlotHora');
+    select.innerHTML = '<option value="">Select a time</option>' +
+        horarios.map(h => `<option value="${h}">${formatearHora(h)}</option>`).join('');
+}
+
+async function verificarBlockSlot() {
+    const fecha = document.getElementById('blockSlotFecha').value;
+    const hora = document.getElementById('blockSlotHora').value;
+
+    document.getElementById('blockSlotAviso').classList.add('hidden');
+    document.getElementById('blockSlotLibre').classList.add('hidden');
+    document.getElementById('btnConfirmarBlockSlot').disabled = true;
+
+    if (!fecha || !hora) return;
+
+    // Buscar en allCitas si hay citas ese día y hora
+    const citasDelSlot = allCitas.filter(c =>
+        c.dia === fecha && c.hora === hora && c.estado === 'confirmada'
+    );
+
+    if (citasDelSlot.length > 0) {
+        document.getElementById('blockSlotCitas').innerHTML = citasDelSlot.map(c => `
+            <div class="block-cita-item">
+                <div class="block-cita-info">
+                    <strong>${c.cliente_nombre}</strong> · ${c.servicio}
+                </div>
+                <div class="block-cita-acciones">
+                    <button class="btn-mini reschedule" onclick="blockReschedule('${c._id}')">Reschedule</button>
+                    <button class="btn-mini cancel" onclick="blockCancel('${c._id}')">Cancel</button>
+                </div>
+            </div>`).join('');
+        document.getElementById('blockSlotAviso').classList.remove('hidden');
+    } else {
+        document.getElementById('blockSlotLibre').classList.remove('hidden');
+    }
+
+    document.getElementById('btnConfirmarBlockSlot').disabled = false;
+}
+
+async function verificarBlockDay() {
+    const fecha = document.getElementById('blockDayFecha').value;
+
+    document.getElementById('blockDayAviso').classList.add('hidden');
+    document.getElementById('blockDayLibre').classList.add('hidden');
+    document.getElementById('btnConfirmarBlockDay').disabled = true;
+
+    if (!fecha) return;
+
+    const citasDelDia = allCitas.filter(c =>
+        c.dia === fecha && c.estado === 'confirmada'
+    );
+
+    if (citasDelDia.length > 0) {
+        document.getElementById('blockDayCitas').innerHTML = citasDelDia
+            .sort((a, b) => a.hora.localeCompare(b.hora))
+            .map(c => `
+            <div class="block-cita-item">
+                <div class="block-cita-info">
+                    <strong>${c.cliente_nombre}</strong> · ${formatearHora(c.hora)} · ${c.servicio}
+                </div>
+                <div class="block-cita-acciones">
+                    <button class="btn-mini reschedule" onclick="blockReschedule('${c._id}')">Reschedule</button>
+                    <button class="btn-mini cancel" onclick="blockCancel('${c._id}')">Cancel</button>
+                </div>
+            </div>`).join('');
+        document.getElementById('blockDayAviso').classList.remove('hidden');
+    } else {
+        document.getElementById('blockDayLibre').classList.remove('hidden');
+    }
+
+    document.getElementById('btnConfirmarBlockDay').disabled = false;
+}
+
+function blockReschedule(citaId) {
+    selectedCita = allCitas.find(c => c._id === citaId);
+    closeBlockModal('slot');
+    closeBlockModal('day');
+    openRescheduleModal();
+}
+
+function blockCancel(citaId) {
+    selectedCita = allCitas.find(c => c._id === citaId);
+    closeBlockModal('slot');
+    closeBlockModal('day');
+    openCancelModal();
+}
+
+async function confirmarBlockSlot() {
+    const fecha = document.getElementById('blockSlotFecha').value;
+    const hora = document.getElementById('blockSlotHora').value;
+
+    try {
+        showLoading(true);
+        const response = await fetch(`${API_URL}/citas/bloquear-slot`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${barberoToken}`
+            },
+            body: JSON.stringify({ fecha, hora })
+        });
+        const data = await response.json();
+        if (data.status === 'success') {
+            closeBlockModal('slot');
+            alert(`✅ ${formatearHora(hora)} on ${formatearFecha(fecha)} has been blocked.`);
+        } else {
+            alert('❌ Error: ' + data.mensaje);
+        }
+    } catch (e) {
+        alert('❌ Error blocking slot');
+    } finally {
+        showLoading(false);
+    }
+}
+
+async function confirmarBlockDay() {
+    const fecha = document.getElementById('blockDayFecha').value;
+
+    try {
+        showLoading(true);
+        const response = await fetch(`${API_URL}/citas/bloquear-dia`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${barberoToken}`
+            },
+            body: JSON.stringify({ fecha, barbero_id: null })
+        });
+        const data = await response.json();
+        if (data.status === 'success') {
+            closeBlockModal('day');
+            alert(`✅ ${formatearFecha(fecha)} has been blocked.`);
+        } else {
+            alert('❌ Error: ' + data.mensaje);
+        }
+    } catch (e) {
+        alert('❌ Error blocking day');
+    } finally {
+        showLoading(false);
+    }
 }

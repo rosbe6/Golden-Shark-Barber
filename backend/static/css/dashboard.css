@@ -1105,3 +1105,144 @@ select:focus {
 .dia-body { display: none; background: #fafafa; border-top: 1px solid #eee; }
 .dia-acordeon.expandido .dia-body { display: block; }
 .dia-empty { padding: 14px 20px; font-size: 13px; color: #bbb; font-style: italic; }
+
+
+/* ===== BLOCK MENU ===== */
+.block-menu-wrapper {
+    position: relative;
+    margin-top: 8px;
+}
+
+.btn-block-menu {
+    width: 100%;
+    padding: 10px 16px;
+    border: 1.5px solid #dc3545;
+    background: #fff;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    color: #dc3545;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.15s;
+}
+
+.btn-block-menu:hover,
+.btn-block-menu.open {
+    background: #dc3545;
+    color: #fff;
+}
+
+.block-arrow {
+    font-size: 9px;
+    transition: transform 0.2s;
+}
+
+.btn-block-menu.open .block-arrow {
+    transform: rotate(180deg);
+}
+
+.block-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    z-index: 100;
+    display: none;
+    overflow: hidden;
+}
+
+.block-dropdown.visible { display: block; }
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 16px;
+    cursor: pointer;
+    transition: background 0.1s;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.dropdown-item:last-child { border-bottom: none; }
+.dropdown-item:hover { background: #fff5f5; }
+
+.dropdown-icon { font-size: 18px; flex-shrink: 0; }
+
+.dropdown-titulo {
+    font-size: 13px;
+    font-weight: 700;
+    color: #222;
+}
+
+.dropdown-desc {
+    font-size: 11px;
+    color: #999;
+    margin-top: 1px;
+}
+
+/* ===== AVISOS DENTRO DE BLOCK MODALS ===== */
+.block-aviso-warning {
+    background: #fff8e1;
+    border: 1.5px solid #ffc107;
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+}
+
+.block-aviso-titulo {
+    font-size: 12px;
+    font-weight: 700;
+    color: #856404;
+    margin-bottom: 8px;
+}
+
+.block-aviso-ok {
+    background: #f0f9f4;
+    border: 1.5px solid #28a745;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #155724;
+    margin-bottom: 16px;
+}
+
+.block-cita-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 0;
+    border-bottom: 1px solid #ffe082;
+    font-size: 12px;
+}
+
+.block-cita-item:last-child { border-bottom: none; }
+
+.block-cita-info { color: #555; }
+.block-cita-info strong { color: #222; }
+
+.block-cita-acciones { display: flex; gap: 5px; }
+
+.btn-mini {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1.5px solid;
+    transition: all 0.15s;
+}
+
+.btn-mini.cancel { border-color: #dc3545; color: #dc3545; background: #fff; }
+.btn-mini.cancel:hover { background: #dc3545; color: #fff; }
+.btn-mini.reschedule { border-color: #ffc107; color: #856404; background: #fff; }
+.btn-mini.reschedule:hover { background: #ffc107; color: #000; }

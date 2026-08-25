@@ -80,6 +80,90 @@
                     <button class="filter-tab" data-filter="cancelled">Cancelled</button>
                 </div>
 
+            <!-- BLOCK MENU -->
+            <div class="block-menu-wrapper">
+                <button class="btn-block-menu" id="btnBlockMenu">
+                    🚫 Block Menu <span class="block-arrow">▼</span>
+                </button>
+                <div class="block-dropdown" id="blockDropdown">
+                    <div class="dropdown-item" id="btnBlockSlot">
+                        <span class="dropdown-icon">🕐</span>
+                        <div>
+                            <div class="dropdown-titulo">Block Time Slot</div>
+                            <div class="dropdown-desc">Block a specific hour on a day</div>
+                        </div>
+                    </div>
+                    <div class="dropdown-item" id="btnBlockDay">
+                        <span class="dropdown-icon">📅</span>
+                        <div>
+                            <div class="dropdown-titulo">Block Day</div>
+                            <div class="dropdown-desc">Block an entire day</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- MODAL: BLOCK TIME SLOT -->
+            <div class="modal hidden" id="modalBlockSlot">
+                <div class="modal-box small reschedule-box">
+                    <button class="close-modal" onclick="closeBlockModal('slot')">×</button>
+                    <h2>🕐 Block Time Slot</h2>
+                    <p class="modal-subtitle">This slot won't be available for booking</p>
+
+                    <div class="reschedule-field">
+                        <label class="reschedule-label">Date</label>
+                        <input type="date" id="blockSlotFecha">
+                    </div>
+                    <div class="reschedule-field">
+                        <label class="reschedule-label">Time Slot</label>
+                        <select id="blockSlotHora">
+                            <option value="">Select a date first</option>
+                        </select>
+                    </div>
+
+                    <div class="block-aviso-warning hidden" id="blockSlotAviso">
+                        <div class="block-aviso-titulo">⚠️ Existing appointments on this slot</div>
+                        <div id="blockSlotCitas"></div>
+                    </div>
+                    <div class="block-aviso-ok hidden" id="blockSlotLibre">
+                        ✅ No appointments on this slot. Safe to block.
+                    </div>
+
+                    <div class="modal-buttons" style="margin-top: 16px;">
+                        <button class="btn-action red" id="btnConfirmarBlockSlot" disabled onclick="confirmarBlockSlot()">Block This Slot</button>
+                        <button class="btn-action gray" onclick="closeBlockModal('slot')">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAL: BLOCK DAY -->
+            <div class="modal hidden" id="modalBlockDay">
+                <div class="modal-box small cancel-box">
+                    <button class="close-modal" onclick="closeBlockModal('day')">×</button>
+                    <h2>📅 Block Day</h2>
+                    <p class="modal-subtitle">No appointments can be booked on this day</p>
+
+                    <div class="reschedule-field">
+                        <label class="reschedule-label">Date</label>
+                        <input type="date" id="blockDayFecha">
+                    </div>
+
+                    <div class="block-aviso-warning hidden" id="blockDayAviso">
+                        <div class="block-aviso-titulo">⚠️ Existing appointments on this day</div>
+                        <div id="blockDayCitas"></div>
+                    </div>
+                    <div class="block-aviso-ok hidden" id="blockDayLibre">
+                        ✅ No appointments on this day. Safe to block.
+                    </div>
+
+                    <div class="modal-buttons" style="margin-top: 16px;">
+                        <button class="btn-action red" id="btnConfirmarBlockDay" disabled onclick="confirmarBlockDay()">Block This Day</button>
+                        <button class="btn-action gray" onclick="closeBlockModal('day')">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
                 <div class="secondary-filters">
                     <div id="tipoFilterSection">
                         <select id="selectTipoFilter" class="select-filter">
