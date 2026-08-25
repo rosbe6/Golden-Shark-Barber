@@ -342,20 +342,31 @@ function renderCitas(citas, invertirOrden = false) {
         return invertirOrden ? -cmp : cmp;
     });
 
-    // Agrupar por DÍA
+    // Agrupar por SEMANA (para mostrar los 6 días aunque estén vacíos)
     const grupos = {};
     sorted.forEach(c => {
-        if (!grupos[c.dia]) grupos[c.dia] = { dia: c.dia, citas: [] };
-        grupos[c.dia].citas.push(c);
+        const monday = getMonday(c.dia);
+        const key = monday.toISOString().slice(0, 10);
+        if (!grupos[key]) grupos[key] = { monday, citas: [] };
+        grupos[key].citas.push(c);
     });
 
-    let diasOrdenados = Object.values(grupos).sort((a, b) => a.dia.localeCompare(b.dia));
-    if (invertirOrden) diasOrdenados = diasOrdenados.reverse();
+    // También guardamos por día para búsqueda rápida en renderDayPage
+    diasActuales = [];
+    const diasGrupos = {};
+    sorted.forEach(c => {
+        if (!diasGrupos[c.dia]) { diasGrupos[c.dia] = { dia: c.dia, citas: [] }; diasActuales.push(diasGrupos[c.dia]); }
+        diasGrupos[c.dia].citas.push(c);
+    });
 
-    diasActuales = diasOrdenados;
-    currentDayPage = 0;
+    let semanasOrdenadas = Object.values(grupos).sort((a, b) => a.monday - b.monday);
+    if (invertirOrden) semanasOrdenadas = semanasOrdenadas.reverse();
+
+    semanasActuales = semanasOrdenadas;
+    currentWeekPage = 0;
     renderDayPage();
 }
+
 
 function renderDayPage() {
     const box = document.getElementById('citasBox');
@@ -364,9 +375,14 @@ function renderDayPage() {
     const btnPrev = document.getElementById('btnPrevWeeks');
     const btnNext = document.getElementById('btnNextWeeks');
 
-    const totalPages = Math.ceil(diasActuales.length / DAYS_PER_PAGE);
-    const start = currentDayPage * DAYS_PER_PAGE;
-    const diasVisibles = diasActuales.slice(start, start + DAYS_PER_PAGE);
+    const today = new Date();
+    const hoyString = today.getFullYear() + '-' +
+        String(today.getMonth() + 1).padStart(2, '0') + '-' +
+        String(today.getDate()).padStart(2, '0');
+
+    const totalPages = Math.ceil(semanasActuales.length / WEEKS_PER_PAGE);
+    const start = currentWeekPage * WEEKS_PER_PAGE;
+    const semanasVisibles = semanasActuales.slice(start, start + WEEKS_PER_PAGE);
 
     const header = `
         <div class="tabla-header">
@@ -376,32 +392,83 @@ function renderDayPage() {
             <div style="text-align: right;">Status</div>
         </div>`;
 
-    box.innerHTML = header + diasVisibles.map(grupo => `
-        <div class="week-header">${dayLabel(grupo.dia)}</div>
-        ${grupo.citas.map(c => {
-            let badgeClass = 'badge-pending';
-            let badgeText = 'Pending';
-            if (c.estado === 'completada') { badgeClass = 'badge-completed'; badgeText = 'Completed'; }
-            else if (c.estado === 'cancelada') { badgeClass = 'badge-cancelled'; badgeText = 'Cancelled'; }
+    box.innerHTML = header + semanasVisibles.map(semana => {
+        // Generar los 6 días de la semana (lunes a sábado)
+        const diasSemana = [];
+        for (let i = 0; i < 6; i++) {
+            const d = new Date(semana.monday);
+            d.setDate(semana.monday.getDate() + i);
+            diasSemana.push(d.getFullYear() + '-' +
+                String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                String(d.getDate()).padStart(2, '0'));
+        }
+
+        const diasHTML = diasSemana.map(diaISO => {
+            const citasDelDia = semana.citas
+                ? semana.citas.filter(c => c.dia === diaISO)
+                : [];
+
+            // Buscar en diasActuales por si la agrupación es diferente
+            const grupoDelDia = diasActuales.find(g => g.dia === diaISO);
+            const citas = grupoDelDia ? grupoDelDia.citas : citasDelDia;
+
+            const esHoy = diaISO === hoyString;
+            const expandido = esHoy ? 'expandido' : '';
+            const diaLabel = dayLabel(diaISO);
+            const count = citas.length;
+            const countLabel = count === 1 ? '1 appointment' : `${count} appointments`;
+
+            const citasHTML = count === 0
+                ? `<div class="dia-empty">No appointments</div>`
+                : citas.map(c => {
+                    let badgeClass = 'badge-pending';
+                    let badgeText = 'Pending';
+                    if (c.estado === 'completada') { badgeClass = 'badge-completed'; badgeText = 'Completed'; }
+                    else if (c.estado === 'cancelada') { badgeClass = 'badge-cancelled'; badgeText = 'Cancelled'; }
+
+                    return `
+                        <div class="fila-cita" onclick="openDetailsModal('${c._id}')">
+                            <div class="col-name">${c.cliente_nombre}</div>
+                            <div class="col-time">${formatearHora(c.hora)}</div>
+                            <div class="col-service">${c.servicio}</div>
+                            <div class="badge ${badgeClass}">${badgeText}</div>
+                        </div>`;
+                }).join('');
 
             return `
-                <div class="fila-cita" onclick="openDetailsModal('${c._id}')">
-                    <div class="col-name">${c.cliente_nombre}</div>
-                    <div class="col-time">${formatearHora(c.hora)}</div>
-                    <div class="col-service">${c.servicio}</div>
-                    <div class="badge ${badgeClass}">${badgeText}</div>
+                <div class="dia-acordeon ${expandido}">
+                    <div class="dia-header" onclick="toggleDia(this)">
+                        <div class="dia-arrow">▶</div>
+                        <div class="dia-titulo">
+                            <span class="dia-nombre">${diaLabel}</span>
+                            ${esHoy ? '<span class="dia-hoy-badge">Today</span>' : ''}
+                        </div>
+                        <div class="dia-count">${countLabel}</div>
+                    </div>
+                    <div class="dia-body">
+                        ${citasHTML}
+                    </div>
                 </div>`;
-        }).join('')}
-    `).join('');
+        }).join('');
+
+        return `
+            <div class="week-header">${weekLabel(semana.monday)}</div>
+            ${diasHTML}`;
+    }).join('');
 
     if (totalPages <= 1) {
         pagination.classList.add('hidden');
     } else {
         pagination.classList.remove('hidden');
-        label.textContent = `Page ${currentDayPage + 1} of ${totalPages}`;
-        btnPrev.disabled = currentDayPage === 0;
-        btnNext.disabled = currentDayPage >= totalPages - 1;
+        label.textContent = `Page ${currentWeekPage + 1} of ${totalPages}`;
+        btnPrev.disabled = currentWeekPage === 0;
+        btnNext.disabled = currentWeekPage >= totalPages - 1;
     }
+}
+
+function toggleDia(header) {
+    const acordeon = header.closest('.dia-acordeon');
+    acordeon.classList.toggle('expandido');
 }
 
 function filterCitas(filter) {

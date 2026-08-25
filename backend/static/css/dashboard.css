@@ -1004,3 +1004,93 @@ select:focus {
     border-color: #dc3545;
     box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
 }
+
+
+/* ===== ACORDEÓN DE DÍAS ===== */
+.dia-acordeon {
+    border-bottom: 1px solid var(--color-borde-claro);
+}
+
+.dia-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    cursor: pointer;
+    background: #fff;
+    transition: background 0.15s ease;
+    user-select: none;
+}
+
+.dia-header:hover {
+    background: var(--color-primario-suave, #faf6ea);
+}
+
+.dia-arrow {
+    font-size: 10px;
+    color: #999;
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.dia-acordeon.expandido .dia-arrow {
+    transform: rotate(90deg);
+}
+
+.dia-titulo {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dia-nombre {
+    font-size: 13px;
+    font-weight: 700;
+    color: #333;
+}
+
+.dia-hoy-badge {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: var(--color-primario, #d4af37);
+    color: #000;
+    padding: 2px 7px;
+    border-radius: 10px;
+}
+
+.dia-count {
+    font-size: 11px;
+    color: #999;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.dia-body {
+    display: none;
+    background: #fafafa;
+    border-top: 1px solid var(--color-borde-claro);
+}
+
+.dia-acordeon.expandido .dia-body {
+    display: block;
+}
+
+.dia-empty {
+    padding: 14px 20px;
+    font-size: 13px;
+    color: #bbb;
+    font-style: italic;
+}
+
+/* En móvil el header del día ocupa menos */
+@media (max-width: 768px) {
+    .dia-header {
+        padding: 11px 14px;
+        gap: 10px;
+    }
+    .dia-nombre { font-size: 12px; }
+    .dia-count { font-size: 10px; }
+}
