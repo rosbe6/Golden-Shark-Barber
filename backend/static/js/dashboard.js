@@ -241,7 +241,7 @@ async function loadCitas() {
             updateStats();
 
             const activeTab = document.querySelector('.filter-tab.active');
-            const filterType = activeTab ? activeTab.dataset.filter : 'all';
+            const filterType = activeTab ? activeTab.dataset.filter : 'pending';
             filterCitas(filterType);
         } else {
             console.error('Error: ' + data.mensaje);
@@ -260,7 +260,7 @@ function updateStats() {
         String(today.getDate()).padStart(2, '0');
 
     const citasToday = allCitas.filter(c => c.dia === hoyString && c.estado === 'confirmada').length;
-    const citasPending = allCitas.filter(c => c.estado === 'confirmada').length;
+    const citasPending = allCitas.filter(c => c.estado === 'confirmada' && c.dia >= hoyString).length;
     const citasCompleted = allCitas.filter(c => c.estado === 'completada').length;
 
     document.getElementById('statToday').textContent = citasToday;
@@ -507,22 +507,16 @@ function filterCitas(filter) {
 
     let invertir = false;
 
-    if (filter === 'today') {
-        filtered = filtered.filter(c => c.dia === hoyString && c.estado === 'confirmada');
-    } else if (filter === 'past') {
-        // Todo lo anterior a hoy, sin importar estado — más reciente primero
-        filtered = filtered.filter(c => c.dia < hoyString);
-        invertir = true;
+    if (filter === 'pending') {
+        filtered = filtered.filter(c => c.estado === 'confirmada' && c.dia >= hoyString);
     } else if (filter === 'completed') {
         filtered = filtered.filter(c => c.estado === 'completada');
         invertir = true;
     } else if (filter === 'cancelled') {
         filtered = filtered.filter(c => c.estado === 'cancelada');
         invertir = true;
-    } else {
-        // All: solo pendientes de hoy en adelante
-        filtered = filtered.filter(c => c.estado === 'confirmada' && c.dia >= hoyString);
     }
+    // 'all' -> sin filtro adicional, muestra todo
 
     renderCitas(filtered, invertir);
 }
