@@ -6,6 +6,11 @@ let barberoToken = null;
 let barberoName = null;
 let barberoFilterSeleccionado = '';  
 
+
+let currentWeekPage = 0;
+const WEEKS_PER_PAGE = 4;
+let semanasActuales = [];
+let diasActuales = [];
 // ==================== INIT ====================
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -54,17 +59,16 @@ function setupEvents() {
     document.getElementById('inputNewDate').addEventListener('change', loadTimesForDate); // ✅ FIX: línea que faltaba
     
     document.getElementById('btnPrevWeeks').addEventListener('click', () => {
-        if (currentDayPage > 0) {
-            currentDayPage--;
-            renderDayPage();
-        }
+    if (currentWeekPage > 0) {
+        currentWeekPage--;
+        renderDayPage();
+    }
     });
 
-
     document.getElementById('btnNextWeeks').addEventListener('click', () => {
-        const totalPages = Math.ceil(diasActuales.length / DAYS_PER_PAGE);
-        if (currentDayPage < totalPages - 1) {
-            currentDayPage++;
+        const totalPages = Math.ceil(semanasActuales.length / WEEKS_PER_PAGE);
+        if (currentWeekPage < totalPages - 1) {
+            currentWeekPage++;
             renderDayPage();
         }
     });
@@ -315,9 +319,7 @@ function formatearHora(horaISO) {
     return `${horas12}:${String(minutos).padStart(2, '0')} ${periodo}`;
 }
 
-let currentDayPage = 0;
-const DAYS_PER_PAGE = 7;
-let diasActuales = [];
+
 
 function renderCitas(citas, invertirOrden = false) {
     const box = document.getElementById('citasBox');
@@ -342,24 +344,27 @@ function renderCitas(citas, invertirOrden = false) {
         return invertirOrden ? -cmp : cmp;
     });
 
-    // Agrupar por SEMANA (para mostrar los 6 días aunque estén vacíos)
-    const grupos = {};
+    // Agrupar por semana
+    const gruposSemana = {};
     sorted.forEach(c => {
         const monday = getMonday(c.dia);
         const key = monday.toISOString().slice(0, 10);
-        if (!grupos[key]) grupos[key] = { monday, citas: [] };
-        grupos[key].citas.push(c);
+        if (!gruposSemana[key]) gruposSemana[key] = { monday, citas: [] };
+        gruposSemana[key].citas.push(c);
     });
 
-    // También guardamos por día para búsqueda rápida en renderDayPage
+    // Agrupar por día para búsqueda rápida
     diasActuales = [];
-    const diasGrupos = {};
+    const gruposDia = {};
     sorted.forEach(c => {
-        if (!diasGrupos[c.dia]) { diasGrupos[c.dia] = { dia: c.dia, citas: [] }; diasActuales.push(diasGrupos[c.dia]); }
-        diasGrupos[c.dia].citas.push(c);
+        if (!gruposDia[c.dia]) {
+            gruposDia[c.dia] = { dia: c.dia, citas: [] };
+            diasActuales.push(gruposDia[c.dia]);
+        }
+        gruposDia[c.dia].citas.push(c);
     });
 
-    let semanasOrdenadas = Object.values(grupos).sort((a, b) => a.monday - b.monday);
+    let semanasOrdenadas = Object.values(gruposSemana).sort((a, b) => a.monday - b.monday);
     if (invertirOrden) semanasOrdenadas = semanasOrdenadas.reverse();
 
     semanasActuales = semanasOrdenadas;
@@ -404,21 +409,14 @@ function renderDayPage() {
         }
 
         const diasHTML = diasSemana.map(diaISO => {
-            const citasDelDia = semana.citas
-                ? semana.citas.filter(c => c.dia === diaISO)
-                : [];
-
-            // Buscar en diasActuales por si la agrupación es diferente
             const grupoDelDia = diasActuales.find(g => g.dia === diaISO);
-            const citas = grupoDelDia ? grupoDelDia.citas : citasDelDia;
-
+            const citas = grupoDelDia ? grupoDelDia.citas : [];
             const esHoy = diaISO === hoyString;
             const expandido = esHoy ? 'expandido' : '';
             const diaLabel = dayLabel(diaISO);
-            const count = citas.length;
-            const countLabel = count === 1 ? '1 appointment' : `${count} appointments`;
+            const countLabel = citas.length === 1 ? '1 appointment' : `${citas.length} appointments`;
 
-            const citasHTML = count === 0
+            const citasHTML = citas.length === 0
                 ? `<div class="dia-empty">No appointments</div>`
                 : citas.map(c => {
                     let badgeClass = 'badge-pending';
