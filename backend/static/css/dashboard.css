@@ -1294,6 +1294,9 @@ select:focus {
 
 .cal-grid {
     display: grid;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
     grid-template-columns: repeat(6, 1fr);
     gap: 6px;
     margin-bottom: 8px;
