@@ -57,21 +57,7 @@ function setupEvents() {
     document.getElementById('btnConfirmCancel').addEventListener('click', confirmCancel);
     document.getElementById('btnConfirmReschedule').addEventListener('click', confirmReschedule);
     document.getElementById('inputNewDate').addEventListener('change', loadTimesForDate); // ✅ FIX: línea que faltaba
-    
-    document.getElementById('btnPrevWeeks').addEventListener('click', () => {
-    if (currentWeekPage > 0) {
-        currentWeekPage--;
-        renderDayPage();
-    }
-    });
 
-    document.getElementById('btnNextWeeks').addEventListener('click', () => {
-        const totalPages = Math.ceil(semanasActuales.length / WEEKS_PER_PAGE);
-        if (currentWeekPage < totalPages - 1) {
-            currentWeekPage++;
-            renderDayPage();
-        }
-    });
     setupBlockMenu();
 }
 
@@ -322,15 +308,36 @@ function formatearHora(horaISO) {
 
 
 
+// ==================== CALENDARIO ====================
+
+let mesCalendario = new Date();
+let diaSeleccionado = null;
+
+const MESES_CAL = ['January','February','March','April','May','June',
+    'July','August','September','October','November','December'];
+
 function renderCitas(citas, invertirOrden = false) {
+    // Guardar citas filtradas para el calendario
+    diasActuales = [];
+    const gruposDia = {};
+    const sorted = [...citas].sort((a, b) => {
+        let cmp = a.dia !== b.dia ? a.dia.localeCompare(b.dia) : a.hora.localeCompare(b.hora);
+        return invertirOrden ? -cmp : cmp;
+    });
+    sorted.forEach(c => {
+        if (!gruposDia[c.dia]) { gruposDia[c.dia] = { dia: c.dia, citas: [] }; diasActuales.push(gruposDia[c.dia]); }
+        gruposDia[c.dia].citas.push(c);
+    });
+
     const box = document.getElementById('citasBox');
     const empty = document.getElementById('emptyBox');
     const pagination = document.getElementById('weekPagination');
 
-    if (citas.length === 0) {
+    pagination.classList.add('hidden');
+
+    if (citas.length === 0 && !diaSeleccionado) {
         box.innerHTML = '';
         box.classList.add('hidden');
-        pagination.classList.add('hidden');
         empty.classList.remove('hidden');
         return;
     }
@@ -338,40 +345,114 @@ function renderCitas(citas, invertirOrden = false) {
     box.classList.remove('hidden');
     empty.classList.add('hidden');
 
-    const sorted = [...citas].sort((a, b) => {
-        let cmp;
-        if (a.dia !== b.dia) cmp = a.dia.localeCompare(b.dia);
-        else cmp = a.hora.localeCompare(b.hora);
-        return invertirOrden ? -cmp : cmp;
-    });
-
-    // Agrupar por semana
-    const gruposSemana = {};
-    sorted.forEach(c => {
-        const monday = getMonday(c.dia);
-        const key = monday.toISOString().slice(0, 10);
-        if (!gruposSemana[key]) gruposSemana[key] = { monday, citas: [] };
-        gruposSemana[key].citas.push(c);
-    });
-
-    // Agrupar por día para búsqueda rápida
-    diasActuales = [];
-    const gruposDia = {};
-    sorted.forEach(c => {
-        if (!gruposDia[c.dia]) {
-            gruposDia[c.dia] = { dia: c.dia, citas: [] };
-            diasActuales.push(gruposDia[c.dia]);
-        }
-        gruposDia[c.dia].citas.push(c);
-    });
-
-    let semanasOrdenadas = Object.values(gruposSemana).sort((a, b) => a.monday - b.monday);
-    if (invertirOrden) semanasOrdenadas = semanasOrdenadas.reverse();
-
-    semanasActuales = semanasOrdenadas;
-    currentWeekPage = 0;
-    renderDayPage();
+    if (diaSeleccionado) {
+        renderVistaDay(diaSeleccionado);
+    } else {
+        renderCalendario();
+    }
 }
+
+
+function renderCalendario() {
+    const box = document.getElementById('citasBox');
+    const today = new Date();
+    const hoyString = today.getFullYear() + '-' +
+        String(today.getMonth() + 1).padStart(2, '0') + '-' +
+        String(today.getDate()).padStart(2, '0');
+
+    const year = mesCalendario.getFullYear();
+    const month = mesCalendario.getMonth();
+    const primerDia = new Date(year, month, 1).getDay();
+    const offset = primerDia === 0 ? 6 : primerDia - 1;
+    const totalDias = new Date(year, month + 1, 0).getDate();
+
+    // Días que tienen citas (del filtro actual)
+    const diasConCitas = new Set(diasActuales.map(g => g.dia));
+
+    let diasHTML = '';
+    for (let i = 0; i < offset; i++) diasHTML += `<div class="cal-day cal-vacio"></div>`;
+
+    for (let d = 1; d <= totalDias; d++) {
+        const fechaISO = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const diaSem = new Date(year, month, d).getDay();
+        if (diaSem === 0) continue; // sin domingos
+
+        const esHoy = fechaISO === hoyString;
+        const tieneCitas = diasConCitas.has(fechaISO);
+
+        let cls = 'cal-day';
+        if (esHoy) cls += ' cal-hoy';
+        if (tieneCitas) cls += ' cal-tiene-citas';
+
+        diasHTML += `<div class="${cls}" onclick="seleccionarDia('${fechaISO}')">${d}</div>`;
+    }
+
+    box.innerHTML = `
+        <div class="cal-header">
+            <button class="cal-nav" onclick="cambiarMesCalendario(-1)">&#8249;</button>
+            <span class="cal-titulo">${MESES_CAL[month]} ${year}</span>
+            <button class="cal-nav" onclick="cambiarMesCalendario(1)">&#8250;</button>
+        </div>
+        <div class="cal-grid">
+            <div class="cal-label">Mon</div>
+            <div class="cal-label">Tue</div>
+            <div class="cal-label">Wed</div>
+            <div class="cal-label">Thu</div>
+            <div class="cal-label">Fri</div>
+            <div class="cal-label">Sat</div>
+            ${diasHTML}
+        </div>`;
+}
+
+function cambiarMesCalendario(dir) {
+    mesCalendario.setMonth(mesCalendario.getMonth() + dir);
+    renderCalendario();
+}
+
+function seleccionarDia(fechaISO) {
+    diaSeleccionado = fechaISO;
+    renderVistaDay(fechaISO);
+}
+
+function volverCalendario() {
+    diaSeleccionado = null;
+    renderCalendario();
+}
+
+function renderVistaDay(fechaISO) {
+    const box = document.getElementById('citasBox');
+    const grupo = diasActuales.find(g => g.dia === fechaISO);
+    const citas = grupo ? grupo.citas : [];
+
+    const citasHTML = citas.length === 0
+        ? `<div class="dia-empty" style="padding:30px;text-align:center;">No appointments this day</div>`
+        : `<div class="tabla-header">
+                <div>Name</div><div>Time</div><div>Service</div>
+                <div style="text-align:right;">Status</div>
+           </div>` +
+          citas.map(c => {
+            let badgeClass = 'badge-pending', badgeText = 'Pending';
+            if (c.estado === 'completada') { badgeClass = 'badge-completed'; badgeText = 'Completed'; }
+            else if (c.estado === 'cancelada') { badgeClass = 'badge-cancelled'; badgeText = 'Cancelled'; }
+            return `
+                <div class="fila-cita" onclick="openDetailsModal('${c._id}')">
+                    <div class="col-name">${c.cliente_nombre}</div>
+                    <div class="col-time">${formatearHora(c.hora)}</div>
+                    <div class="col-service">${c.servicio}</div>
+                    <div class="badge ${badgeClass}">${badgeText}</div>
+                </div>`;
+          }).join('');
+
+    box.innerHTML = `
+        <button class="cal-back" onclick="volverCalendario()">&#8592; Back to calendar</button>
+        <div class="cal-day-titulo">${formatearFecha(fechaISO)}</div>
+        ${citasHTML}`;
+}
+
+// renderDayPage ya no se usa, se reemplazó por renderCalendario/renderVistaDay
+function renderDayPage() { renderCalendario(); }
+function toggleDia() {}
+function weekLabel() { return ''; }
 
 function weekLabel(monday) {
     const saturday = getSaturday(monday);

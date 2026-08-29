@@ -1258,3 +1258,124 @@ select:focus {
     background: #eee;
     margin: 4px 0;
 }
+
+
+/* ===== CALENDARIO ===== */
+.cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 4px;
+    margin-bottom: 8px;
+}
+
+.cal-titulo {
+    font-size: 15px;
+    font-weight: 700;
+    color: #000;
+}
+
+.cal-nav {
+    background: none;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 6px;
+    width: 34px;
+    height: 34px;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+}
+
+.cal-nav:hover { border-color: #d4af37; color: #d4af37; }
+
+.cal-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.cal-label {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: #999;
+    text-transform: uppercase;
+    padding: 4px 0;
+}
+
+.cal-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1.5px solid transparent;
+    position: relative;
+}
+
+.cal-day:hover {
+    background: #faf6ea;
+    border-color: #d4af37;
+    color: #8a6d1a;
+}
+
+.cal-hoy {
+    background: #1a1a1a;
+    color: #d4af37;
+    border-color: #1a1a1a;
+}
+
+.cal-hoy:hover { background: #333; }
+
+.cal-tiene-citas::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #d4af37;
+}
+
+.cal-hoy.cal-tiene-citas::after { background: #fff; }
+
+.cal-vacio {
+    cursor: default;
+    pointer-events: none;
+}
+
+/* ===== VISTA DÍA ===== */
+.cal-back {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #d4af37;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    padding: 4px 0;
+    margin-bottom: 14px;
+}
+
+.cal-back:hover { opacity: 0.7; }
+
+.cal-day-titulo {
+    font-size: 16px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 16px;
+}
