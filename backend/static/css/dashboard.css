@@ -832,7 +832,8 @@ select:focus {
     display: grid;
     grid-template-columns: 2.2fr 1fr 1.6fr 1fr;
     align-items: center;
-    padding: 14px 20px;
+    padding: 14px 16px;
+
     border-bottom: 1px solid #eee;
     cursor: pointer;
     transition: background 0.2s ease;
@@ -1368,14 +1369,15 @@ select:focus {
     text-transform: uppercase;
     letter-spacing: 0.3px;
     padding: 4px 0;
-    margin-bottom: 14px;
+    margin: 16px 16px 10px;
 }
 
 .cal-back:hover { opacity: 0.7; }
+
 
 .cal-day-titulo {
     font-size: 16px;
     font-weight: 700;
     color: #000;
-    margin-bottom: 16px;
+    margin: 0 16px 16px;
 }
