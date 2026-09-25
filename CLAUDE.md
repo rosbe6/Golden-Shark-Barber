@@ -99,7 +99,7 @@
 - Grid de servicios centrado
 - Hero section limpia sin elementos distractores
 
-**URL:** https://golden-shark-barber.onrender.com  
+**Servidor (VPS):** `ssh administrator@108.181.184.168` (host/proveedor, ruta del proyecto, proceso que lo corre y config de nginx/HTTPS: pendiente de confirmar)  
 **Repo:** https://github.com/rosbe6/Golden-Shark-Barber
 
 ---
@@ -131,7 +131,7 @@
 - **bcrypt** - Hash de contraseñas
 
 ### Deploy
-- **Render** - Hosting gratuito para backend
+- **VPS** - `administrator@108.181.184.168` (proceso de arranque, nginx/proxy y HTTPS: pendiente de confirmar)
 - **GitHub** - Control de versiones
 
 ### Herramientas
