@@ -128,7 +128,7 @@ proyecto-barberia-gold-shark - V5/
 │   │
 │   └── static/
 │       ├── index.html               # Landing page
-│       ├── professionals.html       # ✨ Elegir profesional (Edy, David, Cameron, Adriana, Oscar)
+│       ├── professionals.html       # ✨ Elegir profesional (Edy, Cameron, Adriana, Oscar, Di)
 │       ├── servicios.html
 │       ├── sobre-nosotros.html
 │       ├── galeria.html
@@ -307,7 +307,12 @@ Definida en `routes/citas.py`, función `horarios_para(fecha)`:
 # CAMBIOS RECIENTES
 
 ### Octubre 2026 — `professionals.html`
-Nueva página de selección de profesional, entre la navegación general y la reserva. Muestra 5 tarjetas (Edy, David, Cameron, Adriana, Oscar) con foto, rol, Instagram y botón de reserva — interno (`reserva.html`) o externo (Booksy/Square), según el profesional. Todas las páginas informativas (`index`, `servicios`, `galeria`, `contacto`, `cita`, `sobre-nosotros`) actualizaron su navbar para apuntar aquí en vez de a `reserva.html` directamente.
+Nueva página de selección de profesional, entre la navegación general y la reserva. Muestra tarjetas con foto, rol, Instagram y botón de reserva — interno (`reserva.html`) o externo (Booksy/Square), según el profesional. Todas las páginas informativas (`index`, `servicios`, `galeria`, `contacto`, `cita`, `sobre-nosotros`) actualizaron su navbar para apuntar aquí en vez de a `reserva.html` directamente.
+
+### Noviembre 2026 — Equipo actualizado
+- **David** removido del equipo (`index.html` y `professionals.html`) — ya no trabaja en la barbería.
+- **Di** agregado como nuevo profesional (Booksy only, `images/di.jpeg`).
+- Equipo actual: Edy (dueño, reserva interna), Cameron (Booksy), Adriana (skincare, Square), Oscar (Booksy), Di (Booksy).
 
 ### Julio 2026 — Ajustes visuales en `index.css`
 1. **Grid de servicios centrado**: `grid-template-columns` cambiado de `repeat(auto-fit, minmax(250px, 1fr))` a `repeat(auto-fit, 280px)` + `justify-content: center`.
